@@ -29,8 +29,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE message_contact (
     message_id INT AUTO_INCREMENT PRIMARY KEY,
+    nom_contact VARCHAR(50) NOT NULL,
+    prenom_contact VARCHAR(50) NOT NULL,
     motif VARCHAR(100) NOT NULL,
-    description TEXT NOT NULL,
+    description_contact TEXT NOT NULL,
     email_contact VARCHAR(255) NOT NULL,
     date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     est_lu BOOLEAN DEFAULT FALSE
@@ -159,6 +161,7 @@ CREATE TABLE commande_menu (
 CREATE TABLE menu_plat (
     menu_id INT NOT NULL,
     plat_id INT NOT NULL,
+    ordre_affichage_plat INT,
     PRIMARY KEY (menu_id, plat_id),
     CONSTRAINT fk_mp_menu FOREIGN KEY (menu_id) REFERENCES menu(menu_id),
     CONSTRAINT fk_mp_plat FOREIGN KEY (plat_id) REFERENCES plat(plat_id)

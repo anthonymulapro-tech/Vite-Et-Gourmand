@@ -20,10 +20,26 @@ def create_user(email, password, prenom, nom, telephone, pays, ville, adresse, c
     #Nettoyage des espaces.
     email = email.strip()
     password = password.strip()
+    telephone = telephone.strip()
+    code_postal = code_postal.strip()
 
     # Validation du mot de passe selon les critères
     if not validate_password(password):
         print("Le mot de passe ne respecte pas les critères de sécurité.")
+        return False
+        # Validation Téléphone (10 chiffres)
+    if not (telephone.isdigit() and len(telephone) == 10):
+        print("Le téléphone doit contenir exactement 10 chiffres.")
+        return False
+
+        # Validation Code Postal (5 chiffres)
+    if not (code_postal.isdigit() and len(code_postal) == 5):
+        print("Le code postal doit contenir exactement 5 chiffres.")
+        return False
+
+        # Validation Nom/Prénom (au moins 2 caractères)
+    if len(nom) < 2 or len(prenom) < 2:
+        print("Le nom et le prénom doivent avoir au moins 2 caractères.")
         return False
 
     # Hachage du mot de passe
@@ -137,6 +153,16 @@ if __name__ == "__main__":
     # TEST 4 : Test du doublon (doit échouer car l'email du Test 3 existe déjà)
     print("\n--- Test 4 : Tentative de doublon email ---")
     create_user("doublon.test@mail.com", "AutreMdp123!", "Doublon", "Email", "0604050607", "France", "Marseille", "Rue D", "33000")
+
+    # Test 5 : Téléphone incorrect (doit échouer)
+    print("\n--- Test 5 : Téléphone invalide (lettres) ---")
+    create_user("tel.err@mail.com", "MdpSecurise123!", "Jean", "Erreur", "06AB030405", "France", "Paris", "Rue X",
+                "75000")
+
+    # Test 6 : Code Postal incorrect (doit échouer)
+    print("\n--- Test 6 : Code Postal invalide (trop long) ---")
+    create_user("cp.err@mail.com", "MdpSecurise123!", "Marc", "Erreur", "0601020304", "France", "Paris", "Rue Y",
+                "750001")
 
 
     # --- Tests pour login_user ---

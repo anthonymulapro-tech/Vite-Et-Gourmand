@@ -21,17 +21,16 @@ def create_user(email, password, prenom, nom, telephone, pays, ville, adresse, c
     email = email.strip()
     password = password.strip()
 
-
-    # 1. Validation du mot de passe selon les critères
+    # Validation du mot de passe selon les critères
     if not validate_password(password):
         print("Le mot de passe ne respecte pas les critères de sécurité.")
         return False
 
-    # 2. Hachage du mot de passe
+    # Hachage du mot de passe
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
-    # 3. Insertion en base de données
+    # Insertion en base de données
     conn = get_connection()
     if conn:
         try:
@@ -72,8 +71,56 @@ def create_user(email, password, prenom, nom, telephone, pays, ville, adresse, c
             conn.close()
     return False
 
+
+def login_user(email, password):
+    # Nettoyage
+    email = email.strip()
+    password = password.strip()
+
+    conn = get_connection()
+    if conn:
+        try:
+            # dictionary=True permet d'accéder aux colonnes par nom
+            cursor = conn.cursor(dictionary=True)
+            # Recherche de l'utilisateur par son email
+            sql = "SELECT * FROM utilisateur WHERE email = %s"
+            cursor.execute(sql, (email,))
+            user = cursor.fetchone()
+
+            if user:
+                # Vérification si le compte est actif
+                if user['est_actif'] == 0:
+                    print("Ce compte a été désactivé. Contactez l'administrateur.")
+                    return False
+                # Vérification du mot de passe
+                password_byte = password.encode('utf-8')
+                hashed_byte = user['password'].encode('utf-8')
+
+                if bcrypt.checkpw(password_byte, hashed_byte):
+                    print(f"Connexion réussie ! Bienvenue {user['prenom']}.")
+                    return user
+                else:
+                    print("Mot de passe incorrect.")
+            else:
+                print("Aucun compte trouvé avec cet email.")
+
+            return False
+
+        except Exception as e:
+            print(f"Erreur lors de la connexion : {e}")
+            return False
+        finally:
+            cursor.close()
+            conn.close()
+    return False
+
+
 if __name__ == "__main__":
-    print("Démarrage des tests unitaires pour user.py...")
+
+    # --- Tests pour create_user ---
+    print("\n" + "=" * 45)
+    print("Tests de vérification des données utilisateur")
+    print("=" * 45)
 
     # TEST 1 : Mot de passe trop court (doit échouer)
     print("\n--- Test 1 : Mot de passe invalide (trop court) ---")
@@ -90,3 +137,27 @@ if __name__ == "__main__":
     # TEST 4 : Test du doublon (doit échouer car l'email du Test 3 existe déjà)
     print("\n--- Test 4 : Tentative de doublon email ---")
     create_user("doublon.test@mail.com", "AutreMdp123!", "Doublon", "Email", "0604050607", "France", "Marseille", "Rue D", "33000")
+
+
+    # --- Tests pour login_user ---
+    print("\n" + "=" * 26)
+    print("Tests de connexion (Login)")
+    print("=" * 26)
+
+    # TEST 1 : Connexion réussie (Identifiants exacts)
+    # On teste avec l'utilisateur créé au Test 3
+    print("\n--- Test 1 : Connexion réussie ---")
+    login_user("doublon.test@mail.com", "ViteGourmand2026!")
+
+    # TEST 2 : Mot de passe erroné
+    print("\n--- Test 2 : Mot de passe incorrect ---")
+    login_user("doublon.test@mail.com", "MauvaisMdp123!")
+
+    # TEST 3 : Email inexistant
+    print("\n--- Test 3 : Email inconnu ---")
+    login_user("inconnu@mail.com", "NimporteQuoi123!")
+
+    # TEST 4 : Test de la robustesse (Espaces inutiles)
+    # Le .strip() doit permettre la connexion malgré les espaces
+    print("\n--- Test 4 : Robustesse (Espaces en trop) ---")
+    login_user("  doublon.test@mail.com  ", "ViteGourmand2026!  ")

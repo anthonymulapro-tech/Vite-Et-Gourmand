@@ -131,7 +131,24 @@ def login_user(email, password):
     return False
 
 
+# Supprime un utilisateur de test pour réinitialiser l'état de la BDD.
+def delete_test_user(email):
+
+    conn = get_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            sql = "DELETE FROM utilisateur WHERE email = %s"
+            cursor.execute(sql, (email,))
+            conn.commit()
+            print(f"Nettoyage : L'utilisateur {email} a été supprimé pour le test.")
+        finally:
+            cursor.close()
+            conn.close()
+
 if __name__ == "__main__":
+    # Supprimer ce mail pour valider les test
+    delete_test_user("doublon.test@mail.com")
 
     # --- Tests pour create_user ---
     print("\n" + "=" * 45)

@@ -1,4 +1,4 @@
-from database import get_connection
+from backend.database import get_connection
 import bcrypt
 import re
 import mysql.connector

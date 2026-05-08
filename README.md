@@ -18,7 +18,7 @@ Projet d'évaluation (ECF) : Application de gestion pour un traiteur événement
 - [x] **Design** : _Balsamiq_ (Wireframes)
 - [x] **Design** : _Figma_ (Maquettes et charte)
 - [x] **Base de données** : _MySQL_ (Structure initiale déployée)
-- [ ] **Backend** : _Python_ (À venir)
+- [X] **Backend** : _Python & Flask_ (À venir)
 - [ ] **Frontend** : _HTML / CSS / Bootstrap_ (À venir)
 - [ ] **NoSQL** : _MongoDB_ (À venir)
 
@@ -26,7 +26,7 @@ Projet d'évaluation (ECF) : Application de gestion pour un traiteur événement
 - **UML & MCD** : `/docs/conception_technique/`
 - **Design & Wireframes** : `/docs/design_maquettes/` et `/docs/wireframes/`
 
-### 0. Installation et Déploiement Local
+## Installation et Déploiement Local
 
 * **Prérequis Serveur local** : _Laragon_ (recommandé) ou WAMP/XAMPP.
 
@@ -34,16 +34,56 @@ Projet d'évaluation (ECF) : Application de gestion pour un traiteur événement
 
 * **Git** : Clonage du dépôt 
 
+```bash
 git clone https://github.com/anthonymulapro-tech/Vite-Et-Gourmand.git
 cd Vite-Et-Gourmand
+```
 
 #### 1. Configuration de la Base de Données (MySQL)
 * a. Ouvrir votre outil de gestion SQL (_HeidiSQL_ ou _phpMyAdmin_ via _Laragon_).
 * b. Créer une nouvelle base de données nommée **vite_et_gourmand**.
-* c. Importer et exécuter le script de création des tables : `sql/01_create_tables.sql`.
+* c. Importer et exécuter le script de création des tables : `sql/01_create_tables.sql`
 * d. Exécuter le script d'insertion des données : `sql/02_insert_data.sql`.
 
-#### 2. Configuration du Backend (Python)
-* a. Créer un environnement virtuel : `python -m venv venv`
-* b. Activer l'environnement : Windows : `.\venv\Scripts\activate`
-* c. Installer les dépendances : `pip install -r requirements.txt`
+### 2. Configuration des variables d'environnement
+Créez un fichier .env à la racine du projet et configurez vos accès à la base de données :
+```bash
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=votre_mot_de_passe
+DB_NAME=vite_et_gourmand
+```
+
+#### 3. Configuration du Backend (Python)
+* a. Créer un environnement virtuel : 
+```bash 
+python -m venv .venv
+```
+
+* b. Activer l'environnement : 
+  * Windows : 
+  ```bash 
+  .\.venv\Scripts\activate
+  ```
+  
+  * Linux : 
+  ```bash
+  source .venv/bin/activate
+  ```
+  
+* c. Installer les dépendances : 
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Serveur Flask
+* démarrage du serveur : 
+```bash
+python app.py
+```
+Le serveur sera disponible en local sur : http://127.0.0.1:5000
+
+### 5. Test des pages
+* a. Page d'accueil : http://127.0.0.1:5000
+* b. Inscription : http://127.0.0.1:5000/register
+* c. Connexion : http://127.0.0.1:5000/login

@@ -1,1 +1,167 @@
-/* Fichier CSS personnalisé pour Vite & Gourmand */
+/* 1. VARIABLES ET CONFIGURATION DE BASE */
+:root {
+    /* Fond crème */
+    --bg-cream: #FFEDC5;
+    /* Marron chocolat */
+    --brand-brown: #885420;
+    /* Texte foncé */
+    --text-dark: #372D24;
+    /* Doré clair */
+    --brand-gold: #FFDE96;
+    /* Pêche (palette Figma) */
+    --brand-peach: #FFCB97;
+    /* Gris pour placeholders et saisies */
+    --text-muted-custom: #757575;
+}
+
+/* Style global du site */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg-cream);
+    color: var(--text-dark);
+}
+
+/* Utilitaire : Police Pacifico */
+.font-pacifico {
+    font-family: 'Pacifico', cursive;
+}
+
+/* Utilitaire : Couleur marron chocolat */
+.text-brand-brown {
+    color: var(--brand-brown);
+}
+
+
+/*  2. ÉLÉMENTS DE STRUCTURE ET CARTES */
+
+/* Titre principal */
+.title-brand {
+    font-family: 'Pacifico', cursive;
+    color: var(--brand-brown);
+    /* responsive */
+    font-size: clamp(1.8rem, 7vw, 3rem);
+    /* Retour à la ligne automatique sur mobile */
+    white-space: normal;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+/* Force le titre sur une seule ligne sur grand écran */
+@media (min-width: 576px) {
+    .title-brand {
+        white-space: nowrap;
+    }
+}
+
+/* Carte personnalisée de connexion et inscription */
+.card-custom {
+    background-color: #FFFFFF;
+    border: 3px solid var(--brand-brown);
+    border-radius: 20px;
+}
+
+/* Titre Pacifico à l'intérieur des cartes */
+.card-title-custom {
+    font-family: 'Pacifico', cursive;
+    color: var(--brand-brown);
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+
+/* 3. FORMULAIRES ET INPUTS DE TEXTE */
+
+/* Libellés des formulaires */
+.form-label {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--brand-brown) !important;
+    font-weight: 600;
+}
+
+/* Champs de saisie standards */
+.form-control {
+    border: 2px solid var(--brand-brown);
+    color: var(--text-muted-custom);
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Couleur du texte d'aide (placeholder) */
+.form-control::placeholder {
+    color: var(--text-muted-custom);
+    opacity: 1;
+}
+
+/* Effet lors du clic dans un champ de saisie */
+.form-control:focus {
+    border-color: var(--brand-brown);
+    color: var(--text-muted-custom);
+    /* Halo lumineux couleur pêche au clic */
+    box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.55);
+}
+
+
+/* 4. CASE À COCHER PERSONNALISÉE (CHECKBOX) */
+
+/* État par défaut et état valide après soumission */
+.form-check-input,
+.was-validated .form-check-input:valid {
+    border: 2px solid var(--brand-brown) !important;
+    background-color: transparent !important;
+    cursor: pointer;
+}
+
+/* Halo pêche au focus (par défaut et après validation) */
+.form-check-input:focus,
+.was-validated .form-check-input:valid:focus {
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.55) !important;
+}
+
+/* État coché : fond chocolat avec coche crème personnalisée */
+.form-check-input:checked,
+.was-validated .form-check-input:valid:checked {
+    background-color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23FFEDC5' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+
+/* 5. BOUTONS ET LIENS INTERACTIFS */
+
+/* Bouton marron principal "Envoyez !" */
+.btn-brand-brown {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 2px solid var(--text-dark);
+    font-weight: 600;
+    transition: all 0.25s ease-in-out;
+}
+
+/* Effet de survol sur le bouton */
+.btn-brand-brown:hover {
+    background-color: var(--brand-peach);
+    border-color: var(--brand-brown);
+    color: var(--brand-brown);
+    transform: scale(1.02);
+}
+
+/* Style des liens (Inscription, mot de passe oublié) */
+.link-brand {
+    color: var(--brand-brown);
+    transition: color 0.2s ease-in-out;
+}
+
+/* Effet de survol sur les liens */
+.link-brand:hover {
+    color: var(--brand-peach) !important;
+}
+
+
+/* 6. AJUSTEMENTS ET CORRECTIONS GRAPHIQUES */
+
+/* Suppression du contour bleu d'accessibilité sur la croix des alertes */
+.btn-close:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}

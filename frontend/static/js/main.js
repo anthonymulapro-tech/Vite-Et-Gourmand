@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 /* Bloque l'envoi du formulaire au serveur Python */
                 event.preventDefault();
 
-                /* Ajoute la classe d'erreur visuelle de Bootstrap sur le champ */
+                /* Ajout de la classe d'erreur visuelle de Bootstrap sur le champ */
                 confirmPassword.classList.add('is-invalid');
 
                 /* Alerte d'avertissement temporaire pour l'utilisateur */
@@ -27,8 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /* 3. VALIDATION GÉNÉRALE DES FORMULAIRES (VISUELS BOOTSTRAP) */
-
-    /* Sélectionne tous les formulaires nécessitant une validation personnalisée */
     const forms = document.querySelectorAll('.needs-validation');
 
     /* Associe un écouteur d'événement à la soumission de chaque formulaire trouvé */
@@ -42,8 +40,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.stopPropagation();
             }
 
-            /* Ajoute la classe qui active les contours verts (valides) et rouges (invalides) */
+            /* Ajout de la classe qui active les contours verts (valides) et rouges (invalides) */
             form.classList.add('was-validated');
         }, false);
+    });
+
+    /* 4. AFFICHAGE / MASQUAGE DES MOTS DE PASSE (BOUTON ŒIL) */
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            /* On cible l'input text/password situé juste avant le bouton dans l'input-group */
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
+
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    /* Remplace l'icône de l'œil ouvert par l'œil barré */
+                    icon.classList.replace('bi-eye', 'bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    /* Remplace l'icône de l'œil barré par l'œil ouvert */
+                    icon.classList.replace('bi-eye-slash', 'bi-eye');
+                }
+            }
+        });
     });
 });

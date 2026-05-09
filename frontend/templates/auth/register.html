@@ -1,3 +1,4 @@
+<!-- Héritage du squelette commun et définition du titre de l'onglet -->
 {% extends "base.html" %}
 
 {% block title %}Inscription{% endblock %}
@@ -15,7 +16,7 @@
                 <div class="card-body">
                     
                     <h2 class="card-title-custom">Inscription</h2>
-
+                    <!-- Récupération et affichage dynamique des messages flash de Flask (ex : mot de passe incorrect) -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -28,7 +29,7 @@
                     {% endwith %}
 
                     <form action="{{ url_for('register_page') }}" method="POST" class="needs-validation" novalidate>
-                        
+                        <!-- Tout les Champs à remplir -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="prenom" class="form-label">Prénom</label>
@@ -104,28 +105,34 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
+                       <div class="mb-4">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password"
-                                   class="form-control py-2 {% if password_error %}is-invalid{% endif %}"
-                                   id="password"
-                                   name="password"
-                                   required
-                                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}"
-                                   placeholder="••••••••"
-                                   oninput="this.classList.remove('is-invalid')">
+                            <div class="input-group password-group">
+                                <input type="password"
+                                       class="form-control py-2 {% if password_error %}is-invalid{% endif %}"
+                                       id="password"
+                                       name="password"
+                                       required
+                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}"
+                                       placeholder="••••••••"
+                                       oninput="this.classList.remove('is-invalid')">
 
-                            <div class="invalid-feedback text-start mb-2">
-                                 {% if password_error %}
-                                     Le mot de passe ne respecte pas les critères de sécurité (10 caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial).
-                                 {% else %}
-                                     Mot de passe invalide, voir les conditions ci-dessous.
-                                 {% endif %}
-                            </div>
-                            <div class="form-text text-muted small">
+                                <button class="btn btn-toggle-password toggle-password" type="button">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
+                                </div> <div class="invalid-feedback text-start">
+                                     {% if password_error %}
+                                         Le mot de passe ne respecte pas les critères de sécurité.
+                                     {% else %}
+                                         Mot de passe invalide, voir les conditions ci-dessous.
+                                     {% endif %}
+                                </div>
+                            <div class="form-text text-muted small mt-2">
                                 Minimum 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
                             </div>
                         </div>
+
 
                         <button type="submit" class="btn btn-brand-brown w-100 py-2.5 rounded-pill fs-5">Créer mon compte</button>
                     </form>

@@ -26,14 +26,14 @@ def home():
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')
 def logout():
-    session.clear()  # Vide toutes les informations de connexion
+    # Vide toutes les informations de connexion
+    session.clear()
     flash("Vous avez été déconnecté avec succès.", "success")
     return redirect(url_for('login_page'))
 
 # Route pour gérer la connexion
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    # Si l'utilisateur est déjà connecté, redirection vers l'accueil
     if 'user_prenom' in session:
         return redirect(url_for('home'))
 
@@ -41,29 +41,25 @@ def login_page():
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # Vérification email existant (Si non -> Rouge uniquement sur l'email)
+        if not email_exists(email):
+            return render_template('auth/login.html', email_error=True, email_saved=email)
 
-        # Vérification de l'email, le mot de passe haché en BDD
+        # L'email est valide, mais vérification du mot de passe
         user = login_user(email, password)
 
-        # 1. Si la connexion échoue (user est égal à False)
         if not user:
-            # Préparation du message d'erreur en rouge
-            flash("Adresse email ou mot de passe incorrect.", "error")
-            # Chargement de la page login.html pour afficher l'erreur
-            return render_template('auth/login.html')
+            return render_template('auth/login.html', password_error=True, email_saved=email)
 
-        # 2. Si la connexion réussit
-        # Enregistrement des données de l'utilisateur dans la session Flask
-        session['user_id'] = user.get('id') or user.get('id_utilisateur')  # S'adapte au nom de ta clé primaire SQL
+        # Connexion réussie !
+        session['user_id'] = user.get('id') or user.get('id_utilisateur')
         session['user_prenom'] = user['prenom']
         session['user_nom'] = user['nom']
         session['user_role'] = user['role_id']
 
         flash(f"Connexion réussie ! Ravis de vous revoir {user['prenom']}.", "success")
-        # Redirection vers la page d'accueil
         return redirect(url_for('home'))
 
-    # Passage en méthode GET, affichage simple de la page
     return render_template('auth/login.html')
 
 

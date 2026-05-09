@@ -1,13 +1,11 @@
 import os
-import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # On importe les fonctions du dossier backend
-from backend.user import create_user, login_user
-from backend.database import get_connection
+from backend.user import create_user, login_user, validate_password, email_exists
 
 # On configure Flask
 app = Flask(
@@ -17,9 +15,10 @@ app = Flask(
     # Pointe vers les fichiers CSS/JS
     static_folder="frontend/static"
 )
-
-# Clé secrète obligatoire pour faire fonctionner la session et les messages flash()
-app.secret_key = os.getenv("SECRET_KEY", "cle_secrete_de_secours_vite_et_gourmand")
+# Sécurisation des cookies et clé secrète
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.secret_key = os.getenv("SECRET_KEY")
 @app.route('/')
 def home():
     return "Bienvenue sur Vite & Gourmand !"
@@ -90,24 +89,25 @@ def register_page():
             flash("Veuillez remplir tous les champs obligatoires.", "error")
             return render_template('auth/register.html')
 
+        # Validation du mot de passe
+        if not validate_password(password):
+            return render_template('auth/register.html', password_error=True)
+
+        # Validation du format Téléphone (10 chiffres)
+        if telephone and not (telephone.strip().isdigit() and len(telephone.strip()) == 10):
+            flash("Le numéro de téléphone doit contenir exactement 10 chiffres.", "error")
+            return render_template('auth/register.html')
+
+        # Validation du format Code Postal (5 chiffres)
+        if code_postal and not (code_postal.strip().isdigit() and len(code_postal.strip()) == 5):
+            flash("Le code postal doit contenir exactement 5 chiffres.", "error")
+            return render_template('auth/register.html')
+
         # Vérification de l'email doublon
-        connection = get_connection()
-        if connection:
-            try:
-                cursor = connection.cursor()
-                cursor.execute("SELECT utilisateur_id FROM utilisateur WHERE email = %s", (email,))
-                existing_user = cursor.fetchone()
+        if email_exists(email):
+            return render_template('auth/register.html', email_error=True)
 
-                if existing_user:
-                    return render_template('auth/register.html',email_error=True)
-
-            except mysql.connector.Error as err:
-                print(f"Erreur SQL detectee : {err}")
-            finally:
-                cursor.close()
-                connection.close()
-
-        # Tentative de création ( si l'email est non utilisé )
+        # Tentative de création
         success = create_user(
             email=email,
             password=password,

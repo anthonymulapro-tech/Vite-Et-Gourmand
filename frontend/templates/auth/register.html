@@ -107,14 +107,20 @@
                         <div class="mb-4">
                             <label for="password" class="form-label">Mot de passe</label>
                             <input type="password"
-                                   class="form-control py-2"
+                                   class="form-control py-2 {% if password_error %}is-invalid{% endif %}"
                                    id="password"
                                    name="password"
                                    required
                                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}"
-                                   placeholder="••••••••">
+                                   placeholder="••••••••"
+                                   oninput="this.classList.remove('is-invalid')">
+
                             <div class="invalid-feedback text-start mb-2">
-                                 Mot de passe invalide, voir les conditions ci-dessous.
+                                 {% if password_error %}
+                                     Le mot de passe ne respecte pas les critères de sécurité (10 caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial).
+                                 {% else %}
+                                     Mot de passe invalide, voir les conditions ci-dessous.
+                                 {% endif %}
                             </div>
                             <div class="form-text text-muted small">
                                 Minimum 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.

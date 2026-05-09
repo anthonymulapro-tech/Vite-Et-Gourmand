@@ -1,10 +1,139 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Vite & Gourmand - inscription</title>
-</head>
-<body>
-    <h1>Page d'inscription</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-9 col-lg-7 col-xl-6">
+
+            <div class="text-center mb-4">
+                <h1 class="title-brand">Vite & Gourmand</h1>
+            </div>
+
+            <div class="card card-custom shadow p-2">
+                <div class="card-body">
+                    
+                    <h2 class="card-title-custom">Inscription</h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('register_page') }}" method="POST" class="needs-validation" novalidate>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="prenom" class="form-label">Prénom</label>
+                                <input type="text" class="form-control py-2" id="prenom" name="prenom" required minlength="2" placeholder="Jean" value="{{ request.form.get('prenom', '') }}">
+                                <div class="invalid-feedback text-start">
+                                    Le prénom doit contenir au moins 2 caractères.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nom" class="form-label">Nom</label>
+                                <input type="text" class="form-control py-2" id="nom" name="nom" required minlength="2" placeholder="Dupont" value="{{ request.form.get('nom', '') }}">
+                                <div class="invalid-feedback text-start">
+                                    Le nom doit contenir au moins 2 caractères.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                           <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Adresse email</label>
+                                <input type="email"
+                                       class="form-control py-2 {% if email_error %}is-invalid{% endif %}"
+                                       id="email"
+                                       name="email"
+                                       required
+                                       placeholder="adresse@mail.com"
+                                       value="{{ request.form.get('email', '') }}"
+                                       oninput="this.classList.remove('is-invalid')">
+
+                                <div class="invalid-feedback text-start">
+                                    {% if email_error %}
+                                        Cette adresse email est déjà associée à un compte.
+                                    {% else %}
+                                        Saisissez une adresse email valide.
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control py-2" id="telephone" name="telephone" required pattern="[0-9]{10}" placeholder="0601020304" value="{{ request.form.get('telephone', '') }}">
+                                <div class="invalid-feedback text-start">
+                                    Le téléphone doit contenir exactement 10 chiffres.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adresse" class="form-label">Adresse</label>
+                            <input type="text" class="form-control py-2" id="adresse" name="adresse" required placeholder="12 Rue des Platanes" value="{{ request.form.get('adresse', '') }}">
+                            <div class="invalid-feedback text-start">
+                                Veuillez renseigner votre adresse de livraison.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-5 mb-3">
+                                <label for="ville" class="form-label">Ville</label>
+                                <input type="text" class="form-control py-2" id="ville" name="ville" required placeholder="Lyon" value="{{ request.form.get('ville', '') }}">
+                                <div class="invalid-feedback text-start">
+                                    Veuillez renseigner votre ville.
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="code_postal" class="form-label">Code Postal</label>
+                                <input type="text" class="form-control py-2" id="code_postal" name="code_postal" required pattern="[0-9]{5}" placeholder="69000" value="{{ request.form.get('code_postal', '') }}">
+                                <div class="invalid-feedback text-start">
+                                    Doit contenir 5 chiffres.
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="pays" class="form-label">Pays</label>
+                                <input type="text" class="form-control py-2" id="pays" name="pays" value="{{ request.form.get('pays', 'France') }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password"
+                                   class="form-control py-2"
+                                   id="password"
+                                   name="password"
+                                   required
+                                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}"
+                                   placeholder="••••••••">
+                            <div class="invalid-feedback text-start mb-2">
+                                 Mot de passe invalide, voir les conditions ci-dessous.
+                            </div>
+                            <div class="form-text text-muted small">
+                                Minimum 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-brand-brown w-100 py-2.5 rounded-pill fs-5">Créer mon compte</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <p class="text-muted small">Déjà un compte ?
+                    <a href="{{ url_for('login_page') }}" class="link-brand text-decoration-none fw-bold">Connectez-vous ici</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

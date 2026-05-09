@@ -55,7 +55,7 @@ body {
 
 /* Carte personnalisée de connexion et inscription */
 .card-custom {
-    background-color: #FFFFFF;
+    background-color: #FFDE96;
     border: 3px solid var(--brand-brown);
     border-radius: 20px;
 }
@@ -164,4 +164,42 @@ body {
 .btn-close:focus {
     box-shadow: none !important;
     outline: none !important;
+}
+
+/* Style du texte saisi par l'utilisateur */
+.form-control {
+    /* Utilisation du marron foncé de ta charte pour rester chaleureux et lisible */
+    color: #885420 !important;
+    font-weight: 500; /* Un peu plus épais pour que ce soit très net */
+}
+
+/* Style du texte d'aide (placeholder) qui reste discret */
+.form-control::placeholder {
+    /* Gris moyen pour bien indiquer que c'est une indication et non une saisie */
+    color: #757575 !important;
+    font-weight: 400; /* Plus fin que le texte saisi */
+}
+
+
+/* -- PERSONNALISATION DE L'AUTOFILL (Saisie automatique de Google) -- */
+/* Élimine le fond jaune/bleu et le texte noir imposés par Google */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    -webkit-text-fill-color: #885420 !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+
+/* PERSONNALISATION DU FOCUS (Le cadre actif de Bootstrap) */
+/* Remplace le contour bleu par défaut de Bootstrap par les tons du site */
+.form-control:focus {
+
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem #FFCB97 !important;
+    color: #885420 !important;
+    background-color: #ffffff !important;
 }

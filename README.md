@@ -36,6 +36,7 @@ Le système d'authentification a été conçu en respectant les standards de sé
   * **Côté Serveur** : Double vérification de sécurité en Python (`app.py`) pour bloquer les requêtes malveillantes qui contourneraient le navigateur.
 * **Gestion intelligente des doublons** : Avant l'inscription, le backend vérifie l'unicité de l'adresse email. En cas de doublon, un message d'erreur ciblé est affiché directement sur le champ concerné sans recharger ni vider les autres saisies de l'utilisateur (grâce à Jinja2).
 * **Fidélité de la Charte Graphique** : Surcharge CSS des comportements natifs de Google Chrome (`-webkit-autofill`) et de Bootstrap (`:focus`) pour conserver les tons et le style visuel du site en toutes circonstances.
+* **Affichage / Masquage dynamique du mot de passe** : Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
 
 ## Installation et Déploiement Local
 
@@ -63,6 +64,7 @@ DB_HOST=127.0.0.1
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=vite_et_gourmand
+SECRET_KEY=une_cle_secrete_aleatoire_et_ultra_securisee
 ```
 
 #### 3. Configuration du Backend (Python)
@@ -98,3 +100,18 @@ Le serveur sera disponible en local sur : http://127.0.0.1:5000
 * a. Page d'accueil : http://127.0.0.1:5000
 * b. Inscription : http://127.0.0.1:5000/register
 * c. Connexion : http://127.0.0.1:5000/login
+
+
+### 6. Tests de sécurité automatisés (Assurance Qualité)
+Le projet intègre un script de test automatique permettant de vérifier la robustesse du backend face aux contournements des validations du navigateur (ex: scripts malveillants contournant les Regex HTML5).
+
+Pour exécuter le test de sécurité :
+
+Assurez-vous que le serveur Flask tourne toujours dans votre premier terminal (python app.py).
+
+Ouvrez un second terminal, activez votre environnement virtuel .venv, puis exécutez :
+
+```bash
+python tests/test_security.py
+```
+Le script simulera des requêtes HTTP directes et vous affichera un rapport de validation dans la console.

@@ -1,4 +1,5 @@
 import os
+import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from dotenv import load_dotenv
 
@@ -6,6 +7,7 @@ load_dotenv()
 
 # On importe les fonctions du dossier backend
 from backend.user import create_user, login_user
+from backend.database import get_connection
 
 # On configure Flask
 app = Flask(
@@ -65,9 +67,67 @@ def login_page():
     # Passage en méthode GET, affichage simple de la page
     return render_template('auth/login.html')
 
-# Route pour afficher le formulaire d'inscription
-@app.route('/register')
+
+# Route pour gérer l'inscription d'un nouvel utilisateur
+@app.route('/register', methods=['GET', 'POST'])
 def register_page():
+    if 'user_prenom' in session:
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        prenom = request.form.get('prenom')
+        nom = request.form.get('nom')
+        telephone = request.form.get('telephone')
+        adresse = request.form.get('adresse')
+        ville = request.form.get('ville')
+        code_postal = request.form.get('code_postal')
+        pays = request.form.get('pays', 'France')
+
+        # Double vérification de sécurité en Python
+        if not email or not password or not prenom or not nom:
+            flash("Veuillez remplir tous les champs obligatoires.", "error")
+            return render_template('auth/register.html')
+
+        # Vérification de l'email doublon
+        connection = get_connection()
+        if connection:
+            try:
+                cursor = connection.cursor()
+                cursor.execute("SELECT utilisateur_id FROM utilisateur WHERE email = %s", (email,))
+                existing_user = cursor.fetchone()
+
+                if existing_user:
+                    return render_template('auth/register.html',email_error=True)
+
+            except mysql.connector.Error as err:
+                print(f"Erreur SQL detectee : {err}")
+            finally:
+                cursor.close()
+                connection.close()
+
+        # Tentative de création ( si l'email est non utilisé )
+        success = create_user(
+            email=email,
+            password=password,
+            prenom=prenom,
+            nom=nom,
+            telephone=telephone,
+            pays=pays,
+            ville=ville,
+            adresse=adresse,
+            code_postal=code_postal
+        )
+
+        if success:
+            flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
+            return redirect(url_for('login_page'))
+        else:
+            # Erreur système imprévue (ex: perte de connexion BDD)
+            flash("Une erreur technique est survenue. Veuillez réessayer plus tard.", "error")
+            return render_template('auth/register.html')
+
     return render_template('auth/register.html')
 
 

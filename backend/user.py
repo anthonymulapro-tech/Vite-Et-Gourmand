@@ -1,4 +1,4 @@
-from database import get_connection
+from backend.database import get_connection
 import bcrypt
 import re
 import mysql.connector
@@ -15,6 +15,23 @@ def validate_password(password):
     ]
     return all(checks)
 
+# Vérifie si un email existe déjà (évite d'écrire du SQL dans app.py)
+def email_exists(email):
+    conn = get_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT utilisateur_id FROM utilisateur WHERE email = %s", (email.strip(),))
+            user = cursor.fetchone()
+            return user is not None
+        except mysql.connector.Error as err:
+            print(f"Erreur SQL lors de la vérification d'email : {err}")
+            return False
+        finally:
+            cursor.close()
+            conn.close()
+    return False
+
 # Creation d'un compte utilisateur avec mot de passe haché.
 def create_user(email, password, prenom, nom, telephone, pays, ville, adresse, code_postal):
     #Nettoyage des espaces.
@@ -23,23 +40,20 @@ def create_user(email, password, prenom, nom, telephone, pays, ville, adresse, c
     telephone = telephone.strip()
     code_postal = code_postal.strip()
 
-    # Validation du mot de passe selon les critères
     if not validate_password(password):
-        print("Le mot de passe ne respecte pas les critères de sécurité.")
+        print("Erreur de création : Le mot de passe ne respecte pas les critères de sécurité.")
         return False
-        # Validation Téléphone (10 chiffres)
+
     if not (telephone.isdigit() and len(telephone) == 10):
-        print("Le téléphone doit contenir exactement 10 chiffres.")
+        print("Erreur de création : Le téléphone doit contenir exactement 10 chiffres.")
         return False
 
-        # Validation Code Postal (5 chiffres)
     if not (code_postal.isdigit() and len(code_postal) == 5):
-        print("Le code postal doit contenir exactement 5 chiffres.")
+        print("Erreur de création : Le code postal doit contenir exactement 5 chiffres.")
         return False
 
-        # Validation Nom/Prénom (au moins 2 caractères)
-    if len(nom) < 2 or len(prenom) < 2:
-        print("Le nom et le prénom doivent avoir au moins 2 caractères.")
+    if len(nom.strip()) < 2 or len(prenom.strip()) < 2:
+        print("Erreur de création : Le nom et le prénom doivent avoir au moins 2 caractères.")
         return False
 
     # Hachage du mot de passe

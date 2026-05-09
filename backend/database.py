@@ -2,29 +2,46 @@ import mysql.connector
 import os
 from dotenv import load_dotenv
 
-# Chargement du fichier .env
-load_dotenv()
+# Détermination du chemin absolu vers la racine du projet pour trouver le .env
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dotenv_path = os.path.join(base_dir, '.env')
+
+# Chargement robuste du fichier .env
+load_dotenv(dotenv_path)
+
 
 # Connexion à la BDD
-def get_connection():
+def get_connection(connect_to_db=True):
     try:
-        connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME")
-        )
+        db_port = int(os.getenv("DB_PORT", 3306))
+
+        # Paramètres de connexion de base
+        conn_params = {
+            "host": os.getenv("DB_HOST"),
+            "user": os.getenv("DB_USER"),
+            "password": os.getenv("DB_PASSWORD"),
+            "port": db_port
+        }
+
+        # Sélection la base de données seulement si connect_to_db est True
+        if connect_to_db:
+            conn_params["database"] = os.getenv("DB_NAME")
+
+        connection = mysql.connector.connect(**conn_params)
         if connection.is_connected():
-            print("Connexion à la base de données réussie !")
             return connection
     except mysql.connector.Error as err:
-        print(f"Erreur : {err}")
+        # Affichage erreur
+        print(f"Erreur de connexion MySQL : {err}")
         return None
+
 
 # Initialisation des tables via le fichier SQL
 def init_database():
-    connection = get_connection()
+    # Connexion sans base de données au départ pour pouvoir la créer
+    connection = get_connection(connect_to_db=False)
     if connection is None:
+        print("Impossible de se connecter au serveur MySQL pour l'initialisation.")
         return
 
     try:
@@ -35,17 +52,17 @@ def init_database():
 
         with open(sql_file_path, 'r', encoding='utf-8') as file:
             sql_script = file.read()
+
         # Séparation du script en plusieurs commandes grâce au ";"
         sql_commands = sql_script.split(';')
-        print("Création des tables en cours...")
+        print("Création de la base de données et des tables en cours...")
 
         for command in sql_commands:
-            # Nettoyage des espaces et vérification que la commande ne soit pas vide
             clean_command = command.strip()
             if clean_command:
                 cursor.execute(clean_command)
         connection.commit()
-        print("Les tables ont été créées avec succès !")
+        print("La base de données et les tables ont été créées avec succès !")
 
     except Exception as e:
         print(f"Erreur lors de la création : {e}")
@@ -58,8 +75,11 @@ def init_database():
 
 def insert_initial_data():
     """Remplit la base de données (02_insert_data.sql)."""
-    connection = get_connection()
-    if connection is None: return
+    # La base de données a été créée
+    connection = get_connection(connect_to_db=True)
+    if connection is None:
+        print("Impossible de se connecter à la base de données pour insérer les données.")
+        return
 
     try:
         cursor = connection.cursor()
@@ -90,20 +110,21 @@ def insert_initial_data():
             cursor.close()
             connection.close()
 
+
 # Zone de test
 if __name__ == "__main__":
     print("--- INITIALISATION VITE & GOURMAND ---")
 
-    # 1. Test de connexion rapide
-    test_conn = get_connection()
+    # 1. Test de connexion rapide au serveur MySQL (sans BDD au cas où elle n'existe pas)
+    test_conn = get_connection(connect_to_db=False)
     if test_conn:
         print("Connexion au serveur MySQL : OK")
         test_conn.close()
 
-        # 2. Lancement de la structure
+        # 2. Lancement de la structure (Crée la base de données et les tables)
         init_database()
 
-        # 3. Lancement des données
+        # 3. Lancement des données (Remplit la base de données)
         insert_initial_data()
 
         print("\n--- CONFIGURATION TERMINÉE ---")

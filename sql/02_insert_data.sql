@@ -49,27 +49,27 @@ INSERT INTO horaire (jour, heure_midi_ouverture, heure_midi_fermeture, heure_soi
 
 -- a. Admin (José)
 INSERT INTO utilisateur (nom, prenom, telephone, email, password, adresse, ville, code_postal, role_id,  est_actif)
-VALUES ('Pascoli', 'José', '0600000000', 'jose.pascoli@viteetgourmand.fr', '25!Fru1tS&Or@nge!Mar0c!Av3nture!', '10 Rue du Palais', 'Bordeaux', '33000', 1, TRUE);
+VALUES ('Pascoli', 'José', '0600000000', 'jose.pascoli@viteetgourmand.fr', '$2b$12$LX/fWpoSSWFl.DYMWVPB4ODZLsRdxNiGjLRaxeDvngccnhrdZ1pz2', '10 Rue du Palais', 'Bordeaux', '33000', 1, TRUE);
 
 -- b. Admin (Julie)
 INSERT INTO utilisateur (nom, prenom, telephone, email, password, adresse, ville, code_postal, role_id,  est_actif)
-VALUES ('Pascoli', 'Julie', '0600000001', 'julie.pascoli@viteetgourmand.fr', 'Julie33_V&G_2026!','10 Rue du Palais', 'Bordeaux', '33000', 1, TRUE);
+VALUES ('Pascoli', 'Julie', '0600000001', 'julie.pascoli@viteetgourmand.fr', '$2b$12$Dp.BxRHQLL8XusFoWLkAXeu526XDiRlbkxCjeCeSa051GNbS8tUKu','10 Rue du Palais', 'Bordeaux', '33000', 1, TRUE);
 
 -- c. Employé (Nassim)
 INSERT INTO utilisateur (nom, prenom, telephone, email, password, adresse, ville, code_postal, role_id,  est_actif)
-VALUES ('Amir', 'Nassim', '0600000002', 'nassim.amir@viteetgourmand.fr', 'Nassim33_V&G_2026!', '5 Avenue de la Marne','Bordeaux', '33000', 2, TRUE);
+VALUES ('Amir', 'Nassim', '0600000002', 'nassim.amir@viteetgourmand.fr', '$2b$12$D94BqCUXqNrRxvCZ0LXYiOM/2yHxLyEsQK1ZD8iQmqvAb.cwN3GYi', '5 Avenue de la Marne','Bordeaux', '33000', 2, TRUE);
 
 -- d. Marcel (Ancien employé)
 INSERT INTO utilisateur (nom, prenom, telephone, email, password, adresse, ville, code_postal, role_id,  est_actif)
-VALUES ('Dupont', 'Marcel', '0600000003', 'jean.dupont@viteetgourmand.fr', 'Marcel33_V&G_2026!', '56 Place des Jacobins','Bordeaux', '33000', 2, FALSE);
+VALUES ('Dupont', 'Marcel', '0600000003', 'jean.dupont@viteetgourmand.fr', '$2b$12$QLmsW9ShpWu4aGKkBo.dDujV9lLh.vPHhf1a/GRWHgg2fNemmICmy', '56 Place des Jacobins','Bordeaux', '33000', 2, FALSE);
 
 -- e. Clients (Bernard, Jean, Sophie, Marie, Antoine)
 INSERT INTO utilisateur (nom, prenom, telephone, email, password, adresse, ville, code_postal, role_id,  est_actif) VALUES
-('Lebrun', 'Bernard', '0622334455', 'bernard.lebrun@orange.fr', 'Bern@rd!33', '12 Rue Neuve','Bordeaux', '33000', 3, TRUE),
-('Aftis', 'Jean', '0633445566', 'jean.aftis@outlook.fr', 'J3@n!33', '2 Bis Rue Messimy','Bordeaux', '33000', 3, TRUE),
-('Petit', 'Sophie', '0644556677', 'sophie.petit@gmail.com', 'Sophi3!33', '45 Rue des Lilas','Pessac', '33600', 3, TRUE),
-('Leroy', 'Marie', '0655667788', 'marie.leroy@gmail.com', 'M4rie!33', '25 Avenue des Roseaux','Talence', '33400', 3, TRUE),
-('El-Lifah', 'Antoine', '0666778899', 'antoine.el-lifah@hotmail.fr', 'Anto1n3!33', '32 Place des platanes','Talence', '33400', 3, TRUE);
+('Lebrun', 'Bernard', '0622334455', 'bernard.lebrun@orange.fr', '$2b$12$Vg2418/I5vDrXlSYCZ54oO.vqG20bLVSb3daywDz9uKJNmmNpB.ma', '12 Rue Neuve','Bordeaux', '33000', 3, TRUE),
+('Aftis', 'Jean', '0633445566', 'jean.aftis@outlook.fr', '$2b$12$zObGXBgzAiwyRAOHO1kvXOhbhqcrybpD9DADHJllhalOJSoqk.ys.', '2 Bis Rue Messimy','Bordeaux', '33000', 3, TRUE),
+('Petit', 'Sophie', '0644556677', 'sophie.petit@gmail.com', '$2b$12$gsLXCwuz5pzki2UF.dftkuYnGBQ/dU7cMWsu3TYhtIv8AHr0FQiCu', '45 Rue des Lilas','Pessac', '33600', 3, TRUE),
+('Leroy', 'Marie', '0655667788', 'marie.leroy@gmail.com', '$2b$12$Vh7.CSqPuBololwzviAS5ub0BwHr0en9tcJwO2PzoqW5v9j19KjYe', '25 Avenue des Roseaux','Talence', '33400', 3, TRUE),
+('El-Lifah', 'Antoine', '0666778899', 'antoine.el-lifah@hotmail.fr', '$2b$12$wZo9RQ54IJNHHjpDqHsEIePYlMAsrAjz/Ss7QkNBx2XQJkP7dHSVG', '32 Place des platanes','Talence', '33400', 3, TRUE);
 
 -- 4. MENUS
 

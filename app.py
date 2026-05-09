@@ -1,0 +1,131 @@
+import os
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# On importe les fonctions du dossier backend
+from backend.user import create_user, login_user, validate_password, email_exists
+
+# On configure Flask
+app = Flask(
+    __name__,
+    # Pointe vers les fichiers HTML
+    template_folder="frontend/templates",
+    # Pointe vers les fichiers CSS/JS
+    static_folder="frontend/static"
+)
+# Sécurisation des cookies et clé secrète
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.secret_key = os.getenv("SECRET_KEY")
+@app.route('/')
+def home():
+    return "Bienvenue sur Vite & Gourmand !"
+
+# Route pour déconnecter l'utilisateur
+@app.route('/logout')
+def logout():
+    # Vide toutes les informations de connexion
+    session.clear()
+    flash("Vous avez été déconnecté avec succès.", "success")
+    return redirect(url_for('login_page'))
+
+# Route pour gérer la connexion
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    if 'user_prenom' in session:
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Vérification email existant (Si non -> Rouge uniquement sur l'email)
+        if not email_exists(email):
+            return render_template('auth/login.html', email_error=True, email_saved=email)
+
+        # L'email est valide, mais vérification du mot de passe
+        user = login_user(email, password)
+
+        if not user:
+            return render_template('auth/login.html', password_error=True, email_saved=email)
+
+        # Connexion réussie !
+        session['user_id'] = user.get('id') or user.get('id_utilisateur')
+        session['user_prenom'] = user['prenom']
+        session['user_nom'] = user['nom']
+        session['user_role'] = user['role_id']
+
+        flash(f"Connexion réussie ! Ravis de vous revoir {user['prenom']}.", "success")
+        return redirect(url_for('home'))
+
+    return render_template('auth/login.html')
+
+
+# Route pour gérer l'inscription d'un nouvel utilisateur
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    if 'user_prenom' in session:
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        prenom = request.form.get('prenom')
+        nom = request.form.get('nom')
+        telephone = request.form.get('telephone')
+        adresse = request.form.get('adresse')
+        ville = request.form.get('ville')
+        code_postal = request.form.get('code_postal')
+        pays = request.form.get('pays', 'France')
+
+        # Double vérification de sécurité en Python
+        if not email or not password or not prenom or not nom:
+            flash("Veuillez remplir tous les champs obligatoires.", "error")
+            return render_template('auth/register.html')
+
+        # Validation du mot de passe
+        if not validate_password(password):
+            return render_template('auth/register.html', password_error=True)
+
+        # Validation du format Téléphone (10 chiffres)
+        if telephone and not (telephone.strip().isdigit() and len(telephone.strip()) == 10):
+            flash("Le numéro de téléphone doit contenir exactement 10 chiffres.", "error")
+            return render_template('auth/register.html')
+
+        # Validation du format Code Postal (5 chiffres)
+        if code_postal and not (code_postal.strip().isdigit() and len(code_postal.strip()) == 5):
+            flash("Le code postal doit contenir exactement 5 chiffres.", "error")
+            return render_template('auth/register.html')
+
+        # Vérification de l'email doublon
+        if email_exists(email):
+            return render_template('auth/register.html', email_error=True)
+
+        # Tentative de création
+        success = create_user(
+            email=email,
+            password=password,
+            prenom=prenom,
+            nom=nom,
+            telephone=telephone,
+            pays=pays,
+            ville=ville,
+            adresse=adresse,
+            code_postal=code_postal
+        )
+
+        if success:
+            flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
+            return redirect(url_for('login_page'))
+        else:
+            # Erreur système imprévue (ex: perte de connexion BDD)
+            flash("Une erreur technique est survenue. Veuillez réessayer plus tard.", "error")
+            return render_template('auth/register.html')
+
+    return render_template('auth/register.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

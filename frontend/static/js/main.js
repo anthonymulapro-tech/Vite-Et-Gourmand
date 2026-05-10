@@ -1,3 +1,5 @@
+/* FICHIER JS PRINCIPAL - VITE & GOURMAND */
+
 /* 1. INITIALISATION DE LA PAGE */
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -67,4 +69,59 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    /* 5. GESTION DES DOUBLE SLIDERS (FOURCHETTES PRIX ET CONVIVES - PAGE MENUS) */
+
+    /* Fonction interne pour mettre à jour la piste colorée et les textes */
+    function initDoubleSlider(minId, maxId, trackId, valueId, unit) {
+        const minInput = document.getElementById(minId);
+        const maxInput = document.getElementById(maxId);
+        const track = document.getElementById(trackId);
+        const valDisplay = document.getElementById(valueId);
+
+        /* Si l'un des éléments manque sur la page active, arrêt du script pour éviter un crash */
+        if (!minInput || !maxInput || !track || !valDisplay) return;
+
+        function updateSlider() {
+            let valMin = parseInt(minInput.value);
+            let valMax = parseInt(maxInput.value);
+
+            /* Sécurité anti-croisement : empêche le curseur Min de dépasser le curseur Max */
+            if (valMin >= valMax) {
+                minInput.value = valMax - parseInt(minInput.step || 1);
+                valMin = parseInt(minInput.value);
+            }
+
+            /* Calcul des pourcentages pour colorer l'espace entre les deux poignées */
+            const minPercent = ((valMin - minInput.min) / (minInput.max - minInput.min)) * 100;
+            const maxPercent = ((valMax - maxInput.min) / (maxInput.max - maxInput.min)) * 100;
+
+            /* Injection du dégradé linéaire CSS dynamique */
+            track.style.background = `linear-gradient(to right, 
+                var(--brand-peach) ${minPercent}%, 
+                var(--brand-brown) ${minPercent}%, 
+                var(--brand-brown) ${maxPercent}%, 
+                var(--brand-peach) ${maxPercent}%)`;
+
+            /* Mise à jour du texte indicateur de la fourchette */
+            if (unit === '€') {
+                valDisplay.innerText = `${valMin}€ - ${valMax}€`;
+            } else {
+                valDisplay.innerText = `${valMin} - ${valMax} pers.`;
+            }
+        }
+
+        /* Mouvements de l'utilisateur sur les deux curseurs */
+        minInput.addEventListener('input', updateSlider);
+        maxInput.addEventListener('input', updateSlider);
+
+        /* Premier rendu obligatoire pour initialiser les couleurs au chargement */
+        updateSlider();
+    }
+
+    /* Sécurité : initialisation des curseurs uniquement si le composant est présent dans la page */
+    if (document.getElementById('price-min')) {
+        initDoubleSlider('price-min', 'price-max', 'price-track', 'price-val', '€');
+        initDoubleSlider('people-min', 'people-max', 'people-track', 'people-val', 'pers');
+    }
 });

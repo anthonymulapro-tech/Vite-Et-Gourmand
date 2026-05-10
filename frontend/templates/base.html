@@ -5,19 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Titre dynamique personnalisé par chaque page enfant (Login, Register, etc.) -->
     <title>Vite & Gourmand - {% block title %}{% endblock %}</title>
-    <!-- Ensemble de liens -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- Chargement dynamique des ressources statiques avec url_for pour éviter les erreurs de chemin absolu -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="{% block body_class %}bg-cream{% endblock %}">
-    {% block content %}
-    {% endblock %}
+<!-- Classes d-flex, flex-column et min-vh-100 : forcent le footer à rester collé en bas de l'écran -->
+<body class="{% block body_class %}bg-cream{% endblock %} d-flex flex-column min-vh-100">
+    <!-- Conteneur principal : la classe 'no-borders' est injectée si la page enfant demande à masquer les bordures (auth) -->
+    <div class="custom-layout-container {% if sans_header_footer %}no-borders{% endif %} shadow-sm">
+        <!-- Affichage conditionnel du header : masqué sur les formulaires d'authentification -->
+        {% if not sans_header_footer %}
+        <header class="text-center pt-4 mb-4">
+            <h1 class="main-title font-pacifico text-brand-brown m-0">Vite & Gourmand</h1>
+
+            <nav class="navbar custom-navbar py-2 mt-3">
+                <div class="d-flex w-100 justify-content-center align-items-center nav-unified-container">
+                    <!-- request.endpoint : détecte dynamiquement la route active pour appliquer le soulignement CSS -->
+                    <a href="{{ url_for('home') }}" class="text-decoration-none">
+                        <img src="{{ url_for('static', filename='images/icon/Logo-V-&-G.svg') }}" alt="Logo Vite & Gourmand" class="nav-logo-img">
+                    </a>
+
+                    <span class="nav-divider">|</span>
+
+                    <a href="{{ url_for('home') }}" class="nav-link-custom {% if request.endpoint == 'home' %}active{% endif %}">Notre histoire</a>
+
+                    <span class="nav-divider">|</span>
+
+                    <a href="{{ url_for('menus_page') }}" class="nav-link-custom {% if request.endpoint == 'menus_page' %}active{% endif %}">Nos menus</a>
+
+                    <span class="nav-divider">|</span>
+
+                    <a href="#" class="nav-link-custom">Nous contacter</a>
+
+                    <span class="nav-divider">|</span>
+
+                    <a href="#" class="nav-link-custom">Livraison</a>
+
+                    <span class="nav-divider">|</span>
+
+                    <a href="{{ url_for('login_page') }}" class="nav-profile-svg-link text-decoration-none">
+                        <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 5C30.7174 5 21.815 8.68749 15.2513 15.2513C8.68749 21.815 5 30.7174 5 40C5 49.2826 8.68749 58.185 15.2513 64.7487C21.815 71.3125 30.7174 75 40 75C49.2826 75 58.185 71.3125 64.7487 64.7487C71.3125 58.185 75 49.2826 75 40C75 30.7174 71.3125 21.815 64.7487 15.2513C58.185 8.68749 49.2826 5 40 5V5ZM0 40C0 29.3913 4.21427 19.2172 11.7157 11.7157C19.2172 4.21427 29.3913 0 40 0C50.6087 0 60.7828 4.21427 68.2843 11.7157C75.7857 19.2172 80 29.3913 80 40C80 50.6087 75.7857 60.7828 68.2843 68.2843C60.7828 75.7857 50.6087 80 40 80C29.3913 80 19.2172 75.7857 11.7157 68.2843C4.21427 60.7828 0 50.6087 0 40V40Z" fill="currentColor"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 43C43.9782 43 47.7936 41.4196 50.6066 38.6066C53.4196 35.7936 55 31.9782 55 28C55 24.0218 53.4196 20.2064 50.6066 17.3934C47.7936 14.5804 43.9782 13 40 13C36.0218 13 32.2064 14.5804 29.3934 17.3934C26.5804 20.2064 25 24.0218 25 28C25 31.9782 26.5804 35.7936 29.3934 38.6066C32.2064 41.4196 36.0218 43 40 43V43Z" fill="currentColor"/>
+                            <path d="M67.68 62.85C64.13 57.13 56.315 51 40.34 51C24.365 51 16.555 57.125 13 62.85C16.2754 66.9562 20.4346 70.271 25.1681 72.5477C29.9015 74.8244 35.0875 76.0044 40.34 76C45.5925 76.0044 50.7785 74.8244 55.5119 72.5477C60.2454 70.271 64.4046 66.9562 67.68 62.85V62.85Z" fill="currentColor"/>
+                        </svg>
+                    </a>
+
+                </div>
+            </nav>
+        </header>
+        {% endif %}
+        <!-- Pied de page global : masqué sur les pages d'authentification et placé hors du conteneur pour occuper 100% de largeur -->
+        <main class="flex-grow-1 w-100">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+    {% if not sans_header_footer %}
+    <footer class="custom-footer text-center p-4 mt-auto">
+        <div class="footer-hours mb-3">
+            <p class="mb-1 fw-bold">Horaires et jours d'ouverture :</p>
+            <p class="mb-1 text-cream-light">mercredi au dimanche : 11h00 à 14h30 / 18h30 à 22h00</p>
+            <p class="mb-0 text-cream-light">lundi et mardi : Fermeture complète</p>
+        </div>
+        <div class="footer-links pt-2">
+            <a href="#" class="footer-link-item">Consulter nos mentions légales</a>
+            <span class="mx-2 text-muted">|</span>
+            <a href="#" class="footer-link-item">Consulter nos conditions générales de vente</a>
+        </div>
+    </footer>
+    {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

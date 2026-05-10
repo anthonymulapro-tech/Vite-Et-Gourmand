@@ -21,7 +21,7 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.secret_key = os.getenv("SECRET_KEY")
 @app.route('/')
 def home():
-    return "Bienvenue sur Vite & Gourmand !"
+    return render_template('home.html')
 
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')

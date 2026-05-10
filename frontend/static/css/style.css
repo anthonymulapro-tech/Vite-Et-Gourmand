@@ -1,23 +1,30 @@
-/* VARIABLES ET CONFIGURATION DE BASE */
+/* Variables et configuration de base */
 :root {
+    /* Palette de couleurs */
     --bg-cream: #FFEDC5;
     --brand-brown: #885420;
     --text-dark: #372D24;
     --brand-gold: #FFDE96;
     --brand-peach: #FFCB97;
     --text-muted-custom: #757575;
+    --white: #FFFFFF;
+    --brand-star: #FFBB01;
+
+    /* Typographies centralisées */
+    --title-font: 'Pacifico', cursive;
+    --body-font: 'Montserrat', sans-serif;
 }
 
 /* Style global du site */
 body {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--body-font);
     background-color: var(--bg-cream);
     color: var(--text-dark);
 }
 
 /* Utilitaire : Police Pacifico */
 .font-pacifico {
-    font-family: 'Pacifico', cursive;
+    font-family: var(--title-font);
 }
 
 /* Utilitaire : Couleur marron chocolat */
@@ -25,14 +32,20 @@ body {
     color: var(--brand-brown);
 }
 
+/* Utilitaire : Couleurs d'arrière-plan du body */
+.bg-cream {
+    background-color: var(--bg-cream) !important;
+}
+.bg-gold {
+    background-color: var(--brand-gold) !important;
+}
 
 /* ÉLÉMENTS DE STRUCTURE ET CARTES */
 
 /* Titre principal */
 .title-brand {
-    font-family: 'Pacifico', cursive;
+    font-family: var(--title-font);
     color: var(--brand-brown);
-    /* responsive */
     font-size: clamp(1.8rem, 7vw, 3rem);
     /* Retour à la ligne automatique sur mobile */
     white-space: normal;
@@ -49,14 +62,14 @@ body {
 
 /* Carte personnalisée de connexion et inscription */
 .card-custom {
-    background-color: #FFDE96;
+    background-color: var(--brand-gold);
     border: 3px solid var(--brand-brown);
     border-radius: 20px;
 }
 
 /* Titre Pacifico à l'intérieur des cartes */
 .card-title-custom {
-    font-family: 'Pacifico', cursive;
+    font-family: var(--title-font);
     color: var(--brand-brown);
     font-size: 2.2rem;
     text-align: center;
@@ -64,11 +77,11 @@ body {
 }
 
 
-/* FORMULAIRES ET INPUTS DE TEXTE */
+/* Formulaires et inputs de texte */
 
 /* Libellés des formulaires */
 .form-label {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--body-font);
     color: var(--brand-brown) !important;
     font-weight: 600;
 }
@@ -76,26 +89,28 @@ body {
 /* Champs de saisie standards */
 .form-control {
     border: 2px solid var(--brand-brown);
-    color: var(--text-muted-custom);
-    font-family: 'Montserrat', sans-serif;
+    color: var(--brand-brown) !important;
+    font-family: var(--body-font);
+    font-weight: 500;
 }
 
 /* Couleur du texte d'aide (placeholder) */
 .form-control::placeholder {
-    color: var(--text-muted-custom);
+    color: var(--text-muted-custom) !important;
+    font-weight: 400;
     opacity: 1;
 }
 
-/* Effet lors du clic dans un champ de saisie */
+/* Effet lors du clic (Focus) dans un champ de saisie standard */
 .form-control:focus {
-    border-color: var(--brand-brown);
-    color: var(--text-muted-custom);
-    /* Halo lumineux couleur pêche au clic */
-    box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.55);
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    background-color: #ffffff !important;
 }
 
 
-/* CASE À COCHER PERSONNALISÉE (CHECKBOX) */
+/* Case à cocher personnalisée (checkbox) */
 
 /* État par défaut et état valide après soumission */
 .form-check-input,
@@ -121,7 +136,7 @@ body {
 }
 
 
-/*  BOUTONS ET LIENS INTERACTIFS */
+/* Boutons et liens interactifs */
 
 /* Bouton marron principal "Se connecter" */
 .btn-brand-brown {
@@ -152,7 +167,7 @@ body {
 }
 
 
-/* AJUSTEMENTS ET CORRECTIONS GRAPHIQUES */
+/* Ajustements et corrections graphiques */
 
 /* Suppression du contour bleu d'accessibilité sur la croix des alertes */
 .btn-close:focus {
@@ -160,43 +175,18 @@ body {
     outline: none !important;
 }
 
-/* Style du texte saisi par l'utilisateur */
-.form-control {
-    color: #885420 !important;
-    font-weight: 500;
-}
-
-/* Style du texte d'aide (placeholder) */
-.form-control::placeholder {
-    color: #757575 !important;
-    font-weight: 400;
-}
-
-
-/* PERSONNALISATION DE L'AUTOFILL (Saisie automatique de Google) -- */
-
-/* Élimine le fond jaune/bleu et le texte noir imposés par Google */
+/* Personnalisationd de l'autofill (Saisie automatique de Google Chrome) */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-    -webkit-text-fill-color: #885420 !important;
-    font-family: 'Montserrat', sans-serif !important;
+    -webkit-text-fill-color: var(--brand-brown) !important;
+    font-family: var(--body-font) !important;
 }
 
 
-/* PERSONNALISATION DU FOCUS (Le cadre actif de Bootstrap) */
-
-/* Remplace le contour bleu par défaut de Bootstrap par les tons du site */
-.form-control:focus {
-    border-color: #8b5b40 !important;
-    box-shadow: 0 0 0 0.25rem #FFCB97 !important;
-    color: #885420 !important;
-    background-color: #ffffff !important;
-}
-
-/* STYLE DU CHAMP MOT DE PASSE UNIQUE (FUSION PARFAITE INPUT + OEIL) */
+/* Style du champ de mot de passe unique */
 
 /* On force l'input et le bouton à partager le même fond et la même bordure */
 .password-group .form-control {
@@ -208,6 +198,7 @@ input:-webkit-autofill:active {
     border-top-right-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
 }
+
 .password-group .btn-toggle-password {
     border: 2px solid var(--brand-brown) !important;
     border-left: none !important;
@@ -229,7 +220,7 @@ input:-webkit-autofill:active {
     color: #5e350f !important;
 }
 
-/* Effet focus unifié */
+/* Effet focus unifié du groupe mot de passe */
 .password-group:focus-within {
     border-radius: 0.375rem;
     box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.75) !important;
@@ -247,7 +238,8 @@ input:-webkit-autofill:active {
     border-color: var(--brand-brown) !important;
 }
 
-/* GESTION DE LA VALIDATION (Contours rouges/verts pour TOUT le bloc) */
+
+/* Gestion de la validation & refactoring des erreurs */
 
 /* Si invalide (Erreur) */
 .password-group .form-control.is-invalid,
@@ -258,14 +250,12 @@ input:-webkit-autofill:active {
     color: #dc3545 !important;
 }
 
-/* DÉSACTIVATION COMPLÈTE DU VERT DE VALIDATION SUR LE LOGIN */
-
-/* On force les inputs valides du login à garder leur apparence marron normale (sans espace) */
+/* Désactivation complète du vert de validation sur le login  */
 .login-form.was-validated .form-control:valid,
 .login-form .form-control.is-valid {
     border-color: var(--brand-brown) !important;
-    background-image: none !important; /* Supprime définitivement la coche verte */
-    padding-right: 12px !important; /* Recale le texte proprement */
+    background-image: none !important;
+    padding-right: 12px !important;
     color: var(--brand-brown) !important;
 }
 
@@ -280,11 +270,287 @@ input:-webkit-autofill:active {
 .login-form.was-validated .form-control:valid:focus,
 .login-form .form-control.is-valid:focus {
     border-color: #8b5b40 !important;
-    box-shadow: 0 0 0 0.25rem #FFCB97 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
 }
 
-/* Affichage de l'erreur à l'exterieur du groupe */
+/* Affichage dynamique de l'erreur à l'extérieur du groupe de mot de passe (sélecteur adjacent) */
 .password-group:has(.is-invalid) ~ .invalid-feedback,
 .was-validated .password-group:has(:invalid) ~ .invalid-feedback {
     display: block !important;
+}
+
+/* Mise en page de la page d'accueil */
+
+/* Structure principale calquée sur le layout 80% */
+.custom-layout-container {
+    width: 80%;
+    max-width: 1280px;
+    margin: 0 auto;
+    font-family: var(--body-font);
+}
+
+/* Header & Navigation */
+.main-title {
+    font-family: var(--title-font);
+    font-size: 64px;
+    color: var(--brand-brown);
+    margin: 0;
+}
+
+.nav-logo-circle {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    font-family: var(--title-font);
+    font-size: 24px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link-custom {
+    font-family: var(--body-font);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--brand-brown);
+    text-decoration: none;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active:hover {
+    color: var(--brand-peach) !important;
+    text-decoration: underline;
+}
+
+.nav-link-custom.active {
+    color: var(--brand-brown) !important;
+    text-decoration: underline;
+}
+
+.nav-divider {
+    color: var(--brand-brown);
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.nav-profile-icon {
+    border: 3px solid var(--brand-brown);
+    color: var(--brand-brown);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+
+/* Bannière rectangulaire */
+.banner-wrapper {
+    border: 3px solid var(--brand-brown);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 380px;
+}
+
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Grands Blocs Rectangulaires */
+.content-box {
+    background-color: var(--brand-gold);
+    border: 3px solid var(--brand-brown);
+    border-radius: 15px;
+    padding: 40px;
+}
+
+.box-title {
+    font-family: var(--title-font);
+    font-size: 40px;
+    color: var(--brand-brown);
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.box-text {
+    font-size: 20px;
+    line-height: 1.7;
+    color: var(--brand-brown);
+}
+
+/* Bouton d'action */
+.btn-custom-brown {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    font-family: var(--body-font);
+    font-size: 28px !important;
+    font-weight: 700;
+    border: 2px solid var(--text-dark);
+    padding: 12px 45px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.btn-custom-brown:hover {
+    background-color: var(--brand-peach) !important;
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    /* Léger effet de zoom dynamique */
+    transform: scale(1.02);
+}
+
+/* 4. Cartes Avis */
+.testimonial-card {
+    background-color: var(--white);
+    border: 2px solid var(--brand-brown);
+    border-radius: 10px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.stars {
+    color: var(--brand-star);
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+.testimonial-text {
+    font-size: 16px;
+    color: var(--brand-brown);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 5. Formulaire de contact */
+.custom-input, .custom-textarea {
+    background-color: var(--white) !important;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 8px !important;
+    font-size: 18px !important;
+    color: var(--brand-brown) !important;
+    padding: 12px 18px !important;
+}
+
+.custom-input::placeholder, .custom-textarea::placeholder {
+    color: var(--text-muted-custom) !important;
+    opacity: 0.7;
+}
+
+.custom-checkbox {
+    border: 2px solid var(--brand-brown) !important;
+    background-color: var(--white) !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 4px !important;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked {
+    background-color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* 6. Footer sombre */
+.custom-footer {
+    background-color: var(--text-dark);
+    border-radius: 0 0 0px 0px;
+    color: var(--white);
+}
+
+.footer-hours {
+    font-size: 16px;
+}
+
+.text-cream-light {
+    color: var(--bg-cream);
+}
+
+.footer-links {
+    border-top: 1px solid rgba(255, 237, 197, 0.15);
+}
+
+.footer-link-item {
+    color: var(--white);
+    font-size: 16px;
+    text-decoration: underline;
+}
+
+.footer-link-item:hover {
+    color: var(--bg-cream);
+}
+
+/* Logo V&G à gauche */
+.nav-logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.nav-logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Icône profil à droite */
+
+.nav-profile-svg-link {
+    color: var(--brand-brown);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.25s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Force la taille d'affichage idéale */
+.nav-profile-svg-link svg {
+    width: 90px;
+    height: 90px;
+}
+
+.nav-profile-svg-link:hover {
+    color: var(--brand-peach) !important;
+    transform: scale(1.05);
+}
+
+.nav-links {
+    gap: 70px;
+}
+
+.custom-layout-container {
+    width: 80%;
+    max-width: 2100px;
+    margin: 0 auto;
+    padding-top: 10px;
+    font-family: var(--body-font);
+    border-left: 3px solid var(--brand-brown);
+    border-right: 3px solid var(--brand-brown);
+    background-color: var(--bg-cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.banner-wrapper {
+    border-top: 3px solid var(--brand-brown);
+    border-bottom: 3px solid var(--brand-brown);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    overflow: hidden;
+    height: 380px;
+}
+
+.content-box {
+    background-color: var(--brand-gold);
+    border: 3px solid var(--brand-brown);
+    border-radius: 15px;
+    padding: 40px;
+    margin-left: 120px;
+    margin-right: 120px;
 }

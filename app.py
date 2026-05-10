@@ -127,5 +127,10 @@ def register_page():
     return render_template('auth/register.html')
 
 
+@app.route('/menus')
+def menus_page():
+    return render_template('menus.html', menus=None)
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

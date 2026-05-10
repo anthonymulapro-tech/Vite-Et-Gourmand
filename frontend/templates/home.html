@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div class="custom-layout-container">
+
+    <header class="text-center pt-4 mb-4">
+        <h1 class="main-title font-pacifico text-brand-brown">Vite & Gourmand</h1>
+
+        <nav class="navbar custom-navbar py-2 mt-3">
+                <div class="d-flex w-100 justify-content-between align-items-center px-2">
+                    <!-- Récupération du logo V&G -->
+                    <a href="{{ url_for('home') }}" class="text-decoration-none">
+                            <img src="{{ url_for('static', filename='images/icon/Logo-V-&-G.svg') }}" alt="Logo Vite & Gourmand" class="nav-logo-img">
+                        </a>
+                    <!-- Liens de nav -->
+                    <div class="nav-links d-flex align-items-center">
+                        <a href="{{ url_for('home') }}" class="nav-link-custom active">Notre histoire</a>
+                        <span class="nav-divider">|</span>
+                        <a href="#" class="nav-link-custom">Nos menus</a>
+                        <span class="nav-divider">|</span>
+                        <a href="#" class="nav-link-custom">Nous contacter</a>
+                        <span class="nav-divider">|</span>
+                        <a href="#" class="nav-link-custom">Livraison</a>
+                    </div>
+                    <!-- Récupération du fichier svg de l'icone profile pour pouvoir appliquer ensuite un hover dans le CSS -->
+                    <a href="{{ url_for('login_page') }}" class="nav-profile-svg-link text-decoration-none">
+                        <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 5C30.7174 5 21.815 8.68749 15.2513 15.2513C8.68749 21.815 5 30.7174 5 40C5 49.2826 8.68749 58.185 15.2513 64.7487C21.815 71.3125 30.7174 75 40 75C49.2826 75 58.185 71.3125 64.7487 64.7487C71.3125 58.185 75 49.2826 75 40C75 30.7174 71.3125 21.815 64.7487 15.2513C58.185 8.68749 49.2826 5 40 5V5ZM0 40C0 29.3913 4.21427 19.2172 11.7157 11.7157C19.2172 4.21427 29.3913 0 40 0C50.6087 0 60.7828 4.21427 68.2843 11.7157C75.7857 19.2172 80 29.3913 80 40C80 50.6087 75.7857 60.7828 68.2843 68.2843C60.7828 75.7857 50.6087 80 40 80C29.3913 80 19.2172 75.7857 11.7157 68.2843C4.21427 60.7828 0 50.6087 0 40V40Z" fill="currentColor"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 43C43.9782 43 47.7936 41.4196 50.6066 38.6066C53.4196 35.7936 55 31.9782 55 28C55 24.0218 53.4196 20.2064 50.6066 17.3934C47.7936 14.5804 43.9782 13 40 13C36.0218 13 32.2064 14.5804 29.3934 17.3934C26.5804 20.2064 25 24.0218 25 28C25 31.9782 26.5804 35.7936 29.3934 38.6066C32.2064 41.4196 36.0218 43 40 43V43Z" fill="currentColor"/>
+                            <path d="M67.68 62.85C64.13 57.13 56.315 51 40.34 51C24.365 51 16.555 57.125 13 62.85C16.2754 66.9562 20.4346 70.271 25.1681 72.5477C29.9015 74.8244 35.0875 76.0044 40.34 76C45.5925 76.0044 50.7785 74.8244 55.5119 72.5477C60.2454 70.271 64.4046 66.9562 67.68 62.85V62.85Z" fill="currentColor"/>
+                        </svg>
+                    </a>
+
+                </div>
+            </nav>
+        </header>
+
+        <div class="banner-wrapper mb-4">
+            <!-- Récupération de l'image principale -->
+            <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" alt="Gratin Dauphinois Traditionnel" class="img-fluid banner-img">
+        </div>
+        <!-- Bloc 1 -->
+        <section class="content-box mb-4">
+            <h2 class="box-title font-pacifico">Traiteur réputé à Bordeaux !</h2>
+            <p class="box-text text-center px-md-4">
+                Depuis <strong>25 ans à Bordeaux</strong>, Julie et José mettent leur passion au service de vos papilles. Que ce soit pour un <strong>repas dominical</strong>, un grand événement comme <strong>Noël</strong> ou <strong>Pâques</strong>, ou un moment de partage entre amis, notre équipe de professionnels conçoit pour vous des <strong>menus d'exception</strong>. Savourez une cuisine passionnée et <strong>artisanale</strong>, préparée avec soin et <strong>livrée directement à votre porte</strong>. Rejoignez nos habitués et découvrez une <strong>nouvelle façon de commander</strong> vos prestations traiteur en toute simplicité.
+            </p>
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-custom-brown px-5 py-3 rounded-pill">Découvrez nos menus</a>
+            </div>
+        </section>
+        <!-- Bloc 2 -->
+        <section class="content-box mb-4">
+            <h2 class="box-title font-pacifico">Ils nous ont fait confiance !</h2>
+
+            <div class="row g-3 justify-content-center px-md-3 mt-2">
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <div class="stars mb-2">★★★★★</div>
+                        <p class="testimonial-text">
+                            <strong>Bernard :</strong> Livraison à l'heure, très bon et personnel très sympathique, je recommande sans hésitation.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <div class="stars mb-2">★★★★★</div>
+                        <p class="testimonial-text">
+                            <strong>Sophie :</strong> Rien à dire, tout était parfait !
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <div class="stars mb-2">★★★★★</div>
+                        <p class="testimonial-text">
+                            <strong>Jean :</strong> Je commanderai à nouveau !
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 justify-content-center px-md-3 mt-1">
+                <div class="col-12 col-md-5">
+                    <div class="testimonial-card">
+                        <div class="stars mb-2">★★★★★</div>
+                        <p class="testimonial-text">
+                            <strong>Marie :</strong> Nous avons pris le menu fraîcheur pour 30 convives et nous n'avons pas été déçus.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-5">
+                    <div class="testimonial-card">
+                        <div class="stars mb-2">★★★★★</div>
+                        <p class="testimonial-text">
+                            <strong>Antoine :</strong> Tout est délicieux, un moyen pratique de faire des grands repas de famille.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Bloc 3 -->
+        <section class="content-box mb-4">
+            <h2 class="box-title font-pacifico">Contactez-nous !</h2>
+
+            <form action="#" method="POST" class="contact-form px-md-4 mt-4">
+                <div class="mb-3">
+                    <input type="text" class="form-control custom-input" id="motif" name="motif" placeholder="Motif de votre demande" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-3">
+                        <input type="text" class="form-control custom-input" id="prenom" name="prenom" placeholder="Prénom" required>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="text" class="form-control custom-input" id="nom" name="nom" placeholder="Nom" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="email" class="form-control custom-input" id="email" name="email" placeholder="adresse@mail.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <textarea class="form-control custom-textarea" id="message" name="message" rows="4" placeholder="Formulez votre demande ou vos questions directement ici" required></textarea>
+                </div>
+
+                <div class="form-check mb-4 d-flex align-items-center gap-2">
+                    <input class="form-check-input custom-checkbox" type="checkbox" id="rgpd" name="rgpd" required>
+                    <label class="form-check-label text-brand-brown fw-semibold small mb-0" for="rgpd">
+                        Cochez pour accepter que vos données soient utilisées
+                    </label>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-custom-brown px-5 py-3 rounded-pill">Envoyez !</button>
+                </div>
+            </form>
+        </section>
+    </div>
+<!-- Footer, en dehors de la div pour prendre toute la largeur -->
+<footer class="custom-footer text-center p-4">
+            <div class="footer-hours mb-3">
+                <p class="mb-1 fw-bold">Horaires et jours d'ouverture :</p>
+                <p class="mb-1 text-cream-light">mercredi au dimanche : 11h00 à 14h30 / 18h30 à 22h00</p>
+                <p class="mb-0 text-cream-light">lundi et mardi : Fermeture complète</p>
+            </div>
+            <div class="footer-links pt-2">
+                <a href="#" class="footer-link-item">Consulter nos mentions légales</a>
+                <span class="mx-2 text-muted">|</span>
+                <a href="#" class="footer-link-item">Consulter nos conditions générales de vente</a>
+            </div>
+        </footer>
+</div>
+{% endblock %}

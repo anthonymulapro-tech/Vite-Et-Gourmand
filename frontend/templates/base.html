@@ -13,11 +13,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100">
-    <!-- Zone d'injection principale pour le contenu spécifique de chaque vue -->
+<body class="{% block body_class %}bg-cream{% endblock %}">
     {% block content %}
     {% endblock %}
-    <!-- Source du JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

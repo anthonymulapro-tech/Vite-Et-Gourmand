@@ -783,13 +783,13 @@ input:-webkit-autofill:active {
     align-items: center;
 }
 
-/* On force les deux inputs à se superposer parfaitement au même endroit */
+/* Superposition au même endroit */
 .double-slider-box input[type="range"] {
     position: absolute;
     width: 100%;
     height: 8px;
     background: none;
-    pointer-events: none; /* Désactive le clic sur le fond pour pouvoir toucher la barre du dessous */
+    pointer-events: none;
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
@@ -803,7 +803,7 @@ input:-webkit-autofill:active {
     background: var(--bg-cream);
     border: 2px solid var(--brand-brown);
     cursor: pointer;
-    pointer-events: auto; /* Réactive le clic uniquement sur le rond marron */
+    pointer-events: auto;
     -webkit-appearance: none;
     appearance: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
@@ -839,5 +839,56 @@ input:-webkit-autofill:active {
     border-radius: 10px;
     background: var(--brand-peach);
     border: 2px solid var(--brand-brown);
-    pointer-events: none; /* Ne bloque pas le clic */
+    pointer-events: none;
+}
+
+/* --- Personnalisation de la Box de Profil --- */
+
+.custom-dropdown-box {
+    background-color: var(--brand-peach) !important;
+    min-width: 200px;
+    border-radius: 12px !important;
+    padding: 10px 0;
+}
+
+/* Changement de couleur au survol des liens dans le menu */
+.custom-dropdown-box .dropdown-item:hover {
+    background-color: var(--brand-peach) !important; /* Un ton un peu plus sombre au survol */
+    color: var(--brand-brown) !important; /* Ton marron de marque */
+}
+
+/* Supprime la flèche Bootstrap */
+.no-caret::after {
+    display: none !important;
+}
+
+/* Centrage de la box sous l'icone profile */
+.dropdown-center .dropdown-menu {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+}
+
+/* Couleur des liens du menu profil */
+.custom-dropdown-box .dropdown-item {
+    color: var(--brand-brown) !important;
+    font-weight: 500;
+}
+
+/* Couleur des icônes à l'intérieur des liens */
+.custom-dropdown-box .dropdown-item i {
+    color: var(--brand-brown) !important;
+}
+
+/* Hover pour garder la lisibilité */
+.custom-dropdown-box .dropdown-item:hover {
+    background-color: var(--brand-gold) !important;
+    color: var(--brand-brown) !important;
+    opacity: 0.8;
+}
+
+/* Déconnexion en rouge pour la sécurité */
+.custom-dropdown-box .dropdown-item.text-danger,
+.custom-dropdown-box .dropdown-item.text-danger i {
+    color: #dc3545 !important;
 }

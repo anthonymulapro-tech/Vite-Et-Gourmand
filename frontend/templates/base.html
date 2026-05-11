@@ -25,8 +25,7 @@
 
             <nav class="navbar custom-navbar py-2 mt-3">
                 <div class="d-flex w-100 justify-content-center align-items-center nav-unified-container">
-                     <!-- request.endpoint : détecte dynamiquement la route active pour appliquer le soulignement CSS -->
-                    <a href="{{ url_for('home') }}" class="text-decoration-none">
+                     <a href="{{ url_for('home') }}" class="text-decoration-none">
                         <img src="{{ url_for('static', filename='images/icon/Logo-V-&-G.svg') }}" alt="Logo Vite & Gourmand" class="nav-logo-img">
                     </a>
 
@@ -48,13 +47,33 @@
 
                     <span class="nav-divider">|</span>
 
-                    <a href="{{ url_for('login_page') }}" class="nav-profile-svg-link text-decoration-none" title="Se connecter">
-                        <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 5C30.7174 5 21.815 8.68749 15.2513 15.2513C8.68749 21.815 5 30.7174 5 40C5 49.2826 8.68749 58.185 15.2513 64.7487C21.815 71.3125 30.7174 75 40 75C49.2826 75 58.185 71.3125 64.7487 64.7487C71.3125 58.185 75 49.2826 75 40C75 30.7174 71.3125 21.815 64.7487 15.2513C58.185 8.68749 49.2826 5 40 5V5ZM0 40C0 29.3913 4.21427 19.2172 11.7157 11.7157C19.2172 4.21427 29.3913 0 40 0C50.6087 0 60.7828 4.21427 68.2843 11.7157C75.7857 19.2172 80 29.3913 80 40C80 50.6087 75.7857 60.7828 68.2843 68.2843C60.7828 75.7857 50.6087 80 40 80C29.3913 80 19.2172 75.7857 11.7157 68.2843C4.21427 60.7828 0 50.6087 0 40V40Z" fill="currentColor"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M40 43C43.9782 43 47.7936 41.4196 50.6066 38.6066C53.4196 35.7936 55 31.9782 55 28C55 24.0218 53.4196 20.2064 50.6066 17.3934C47.7936 14.5804 43.9782 13 40 13C36.0218 13 32.2064 14.5804 29.3934 17.3934C26.5804 20.2064 25 24.0218 25 28C25 31.9782 26.5804 35.7936 29.3934 38.6066C32.2064 41.4196 36.0218 43 40 43V43Z" fill="currentColor"/>
-                            <path d="M67.68 62.85C64.13 57.13 56.315 51 40.34 51C24.365 51 16.555 57.125 13 62.85C16.2754 66.9562 20.4346 70.271 25.1681 72.5477C29.9015 74.8244 35.0875 76.0044 40.34 76C45.5925 76.0044 50.7785 74.8244 55.5119 72.5477C60.2454 70.271 64.4046 66.9562 67.68 62.85V62.85Z" fill="currentColor"/>
-                        </svg>
-                    </a>
+                    {% if session.get('user_prenom') %}
+                        <div class="dropdown dropdown-center">
+                            <a href="#" class="nav-profile-svg-link text-decoration-none dropdown-toggle no-caret" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Mon compte">
+                                <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M40 5C30.7174 5 21.815 8.68749 15.2513 15.2513C8.68749 21.815 5 30.7174 5 40C5 49.2826 8.68749 58.185 15.2513 64.7487C21.815 71.3125 30.7174 75 40 75C49.2826 75 58.185 71.3125 64.7487 64.7487C71.3125 58.185 75 49.2826 75 40C75 30.7174 71.3125 21.815 64.7487 15.2513C58.185 8.68749 49.2826 5 40 5V5ZM0 40C0 29.3913 4.21427 19.2172 11.7157 11.7157C19.2172 4.21427 29.3913 0 40 0C50.6087 0 60.7828 4.21427 68.2843 11.7157C75.7857 19.2172 80 29.3913 80 40C80 50.6087 75.7857 60.7828 68.2843 68.2843C60.7828 75.7857 50.6087 80 40 80C29.3913 80 19.2172 75.7857 11.7157 68.2843C4.21427 60.7828 0 50.6087 0 40V40Z" fill="currentColor"/>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M40 43C43.9782 43 47.7936 41.4196 50.6066 38.6066C53.4196 35.7936 55 31.9782 55 28C55 24.0218 53.4196 20.2064 50.6066 17.3934C47.7936 14.5804 43.9782 13 40 13C36.0218 13 32.2064 14.5804 29.3934 17.3934C26.5804 20.2064 25 24.0218 25 28C25 31.9782 26.5804 35.7936 29.3934 38.6066C32.2064 41.4196 36.0218 43 40 43V43Z" fill="currentColor"/>
+                                    <path d="M67.68 62.85C64.13 57.13 56.315 51 40.34 51C24.365 51 16.555 57.125 13 62.85C16.2754 66.9562 20.4346 70.271 25.1681 72.5477C29.9015 74.8244 35.0875 76.0044 40.34 76C45.5925 76.0044 50.7785 74.8244 55.5119 72.5477C60.2454 70.271 64.4046 66.9562 67.68 62.85V62.85Z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end custom-dropdown-box shadow border-0 mt-2" aria-labelledby="profileDropdown">
+                                <li class="px-3 py-2 fw-bold text-brand-brown">Bonjour, {{ session.get('user_prenom') }}</li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mon Profil</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-bag me-2"></i>Mes Commandes</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('login_page') }}" class="nav-profile-svg-link text-decoration-none" title="Se connecter">
+                            <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M40 5C30.7174 5 21.815 8.68749 15.2513 15.2513C8.68749 21.815 5 30.7174 5 40C5 49.2826 8.68749 58.185 15.2513 64.7487C21.815 71.3125 30.7174 75 40 75C49.2826 75 58.185 71.3125 64.7487 64.7487C71.3125 58.185 75 49.2826 75 40C75 30.7174 71.3125 21.815 64.7487 15.2513C58.185 8.68749 49.2826 5 40 5V5ZM0 40C0 29.3913 4.21427 19.2172 11.7157 11.7157C19.2172 4.21427 29.3913 0 40 0C50.6087 0 60.7828 4.21427 68.2843 11.7157C75.7857 19.2172 80 29.3913 80 40C80 50.6087 75.7857 60.7828 68.2843 68.2843C60.7828 75.7857 50.6087 80 40 80C29.3913 80 19.2172 75.7857 11.7157 68.2843C4.21427 60.7828 0 50.6087 0 40V40Z" fill="currentColor"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M40 43C43.9782 43 47.7936 41.4196 50.6066 38.6066C53.4196 35.7936 55 31.9782 55 28C55 24.0218 53.4196 20.2064 50.6066 17.3934C47.7936 14.5804 43.9782 13 40 13C36.0218 13 32.2064 14.5804 29.3934 17.3934C26.5804 20.2064 25 24.0218 25 28C25 31.9782 26.5804 35.7936 29.3934 38.6066C32.2064 41.4196 36.0218 43 40 43V43Z" fill="currentColor"/>
+                                <path d="M67.68 62.85C64.13 57.13 56.315 51 40.34 51C24.365 51 16.555 57.125 13 62.85C16.2754 66.9562 20.4346 70.271 25.1681 72.5477C29.9015 74.8244 35.0875 76.0044 40.34 76C45.5925 76.0044 50.7785 74.8244 55.5119 72.5477C60.2454 70.271 64.4046 66.9562 67.68 62.85V62.85Z" fill="currentColor"/>
+                            </svg>
+                        </a>
+                    {% endif %}
 
                 </div>
             </nav>

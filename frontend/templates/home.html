@@ -2,28 +2,40 @@
 
 {% block body_class %}bg-gold{% endblock %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Accueil - Vite & Gourmand{% endblock %}
 
 {% block content %}
-        <div class="banner-wrapper mb-4">
-            <!-- Récupération de l'image principale -->
-            <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" alt="Gratin Dauphinois Traditionnel" class="img-fluid banner-img">
-        </div>
-        <!-- Bloc 1 -->
-        <section class="content-box mb-4">
-            <h2 class="box-title font-pacifico">Traiteur réputé à Bordeaux !</h2>
-            <p class="box-text text-center px-md-4">
-                Depuis <strong>25 ans à Bordeaux</strong>, Julie et José mettent leur passion au service de vos papilles. Que ce soit pour un <strong>repas dominical</strong>, un grand événement comme <strong>Noël</strong> ou <strong>Pâques</strong>, ou un moment de partage entre amis, notre équipe de professionnels conçoit pour vous des <strong>menus d'exception</strong>. Savourez une cuisine passionnée et <strong>artisanale</strong>, préparée avec soin et <strong>livrée directement à votre porte</strong>. Rejoignez nos habitués et découvrez une <strong>nouvelle façon de commander</strong> vos prestations traiteur en toute simplicité.
-            </p>
-            <div class="text-center mt-4">
-                <a href="#" class="btn btn-custom-brown px-5 py-3 rounded-pill">Découvrez nos menus</a>
-            </div>
-        </section>
-        <!-- Bloc 2 -->
-        <section class="content-box mb-4">
-            <h2 class="box-title font-pacifico">Ils nous ont fait confiance !</h2>
+<div class="py-5">
+    <div class="banner-wrapper mb-4">
+        <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" alt="Gratin Dauphinois Traditionnel" class="img-fluid banner-img">
+    </div>
 
-            <div class="row g-3 justify-content-center px-md-3 mt-2">
+    <section class="content-box mb-4">
+        <h2 class="box-title font-pacifico">Traiteur réputé à Bordeaux !</h2>
+        <p class="box-text text-center px-md-4">
+            Depuis <strong>25 ans à Bordeaux</strong>, Julie et José mettent leur passion au service de vos papilles. Que ce soit pour un <strong>repas dominical</strong>, un grand événement comme <strong>Noël</strong> ou <strong>Pâques</strong>, ou un moment de partage entre amis, notre équipe de professionnels conçoit pour vous des <strong>menus d'exception</strong>. Savourez une cuisine passionnée et <strong>artisanale</strong>, préparée avec soin et <strong>livrée directement à votre porte</strong>. Rejoignez nos habitués et découvrez une <strong>nouvelle façon de commander</strong> vos prestations traiteur en toute simplicité.
+        </p>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('menus_page') }}" class="btn btn-custom-brown px-5 py-3 rounded-pill">Découvrez nos menus</a>
+        </div>
+    </section>
+
+    <section class="content-box mb-4">
+        <h2 class="box-title font-pacifico">Ils nous ont fait confiance !</h2>
+
+        <div class="row g-3 justify-content-center px-md-3 mt-2">
+            {% if les_avis %}
+                {% for un_avis in les_avis %}
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card h-100">
+                        <div class="stars mb-2 text-warning">{{ '★' * un_avis.note }}</div>
+                        <p class="testimonial-text">
+                            <strong>{{ un_avis.utilisateur.prenom }} :</strong> {{ un_avis.commentaire }}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
                 <div class="col-12 col-md-4">
                     <div class="testimonial-card">
                         <div class="stars mb-2">★★★★★</div>
@@ -48,64 +60,46 @@
                         </p>
                     </div>
                 </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section id="contact-section" class="content-box mb-4">
+        <h2 class="box-title font-pacifico">Contactez-nous !</h2>
+
+        <form action="{{ url_for('contact') }}" method="POST" class="contact-form px-md-4 mt-4 needs-validation" novalidate>
+
+            <div class="mb-3">
+                <input type="text" class="form-control custom-input" id="motif" name="motif" placeholder="Motif de votre demande" required>
             </div>
 
-            <div class="row g-3 justify-content-center px-md-3 mt-1">
-                <div class="col-12 col-md-5">
-                    <div class="testimonial-card">
-                        <div class="stars mb-2">★★★★★</div>
-                        <p class="testimonial-text">
-                            <strong>Marie :</strong> Nous avons pris le menu fraîcheur pour 30 convives et nous n'avons pas été déçus.
-                        </p>
-                    </div>
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-md-3">
+                    <input type="text" class="form-control custom-input" id="prenom_contact" name="prenom_contact" placeholder="Prénom" required>
                 </div>
-                <div class="col-12 col-md-5">
-                    <div class="testimonial-card">
-                        <div class="stars mb-2">★★★★★</div>
-                        <p class="testimonial-text">
-                            <strong>Antoine :</strong> Tout est délicieux, un moyen pratique de faire des grands repas de famille.
-                        </p>
-                    </div>
+                <div class="col-12 col-md-3">
+                    <input type="text" class="form-control custom-input" id="nom_contact" name="nom_contact" placeholder="Nom" required>
+                </div>
+                <div class="col-12 col-md-6">
+                    <input type="email" class="form-control custom-input" id="email_contact" name="email_contact" placeholder="adresse@mail.com" required>
                 </div>
             </div>
-        </section>
-        <!-- Bloc 3 -->
-        <section class="content-box mb-4">
-            <h2 class="box-title font-pacifico">Contactez-nous !</h2>
 
-            <form action="#" method="POST" class="contact-form px-md-4 mt-4">
-                <div class="mb-3">
-                    <input type="text" class="form-control custom-input" id="motif" name="motif" placeholder="Motif de votre demande" required>
-                </div>
+            <div class="mb-3">
+                <textarea class="form-control custom-textarea" id="description_contact" name="description_contact" rows="4" placeholder="Formulez votre demande ou vos questions directement ici" required></textarea>
+            </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control custom-input" id="prenom" name="prenom" placeholder="Prénom" required>
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control custom-input" id="nom" name="nom" placeholder="Nom" required>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <input type="email" class="form-control custom-input" id="email" name="email" placeholder="adresse@mail.com" required>
-                    </div>
-                </div>
+            <div class="form-check mb-4 d-flex align-items-center gap-2">
+                <input class="form-check-input custom-checkbox" type="checkbox" id="rgpd" name="rgpd" required>
+                <label class="form-check-label text-brand-brown fw-semibold small mb-0" for="rgpd">
+                    Cochez pour accepter que vos données soient utilisées
+                </label>
+            </div>
 
-                <div class="mb-3">
-                    <textarea class="form-control custom-textarea" id="message" name="message" rows="4" placeholder="Formulez votre demande ou vos questions directement ici" required></textarea>
-                </div>
-
-                <div class="form-check mb-4 d-flex align-items-center gap-2">
-                    <input class="form-check-input custom-checkbox" type="checkbox" id="rgpd" name="rgpd" required>
-                    <label class="form-check-label text-brand-brown fw-semibold small mb-0" for="rgpd">
-                        Cochez pour accepter que vos données soient utilisées
-                    </label>
-                </div>
-
-                <div class="text-center">
-                    <button type="submit" class="btn btn-custom-brown px-5 py-3 rounded-pill">Envoyez !</button>
-                </div>
-            </form>
-        </section>
-    </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-custom-brown px-5 py-3 rounded-pill">Envoyez !</button>
+            </div>
+        </form>
+    </section>
 </div>
 {% endblock %}

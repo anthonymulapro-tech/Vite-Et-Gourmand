@@ -48,7 +48,6 @@
                              <!-- Champ mot de passe -->
                             <div class="mb-3">
                                 <label for="password" class="form-label">Mot de passe</label>
-
                                 <div class="input-group password-group">
                                     <input type="password"
                                            class="form-control py-2 {% if password_error %}is-invalid{% endif %}"
@@ -56,13 +55,9 @@
                                            name="password"
                                            required
                                            placeholder="••••••••"
-                                           oninput="this.classList.remove('is-invalid')">
-
-                                    <button class="btn btn-toggle-password toggle-password" type="button">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-
-                                </div> <div class="invalid-feedback text-start">
+                                           oninput="this.classList.remove('is-invalid')"><button class="btn btn-toggle-password toggle-password" type="button"><i class="bi bi-eye"></i></button>
+                                </div>
+                                    <div class="invalid-feedback text-start">
                                          {% if password_error %}
                                              Mot de passe incorrect.
                                          {% else %}

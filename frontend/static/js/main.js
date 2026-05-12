@@ -125,3 +125,74 @@ document.addEventListener("DOMContentLoaded", function () {
         initDoubleSlider('people-min', 'people-max', 'people-track', 'people-val', 'pers');
     }
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+    const display = document.getElementById("total-price-display");
+    // SI l'élément n'existe pas sur cette page, on arrête tout de suite !
+    if (!display) return;
+    const selector = document.querySelector(".custom-quantity-selector");
+    const input = document.getElementById("quantity-input");
+
+
+    // Récupération des règles depuis les data-attributes
+    const unitPrice = parseFloat(display.getAttribute("data-unit-price"));
+    const minVal = parseInt(display.getAttribute("data-min-convives"));
+    const seuilRemise = parseInt(display.getAttribute("data-seuil-remise")); // ex: 5
+    const pctRemise = parseInt(display.getAttribute("data-pct-remise")) / 100; // ex: 0.10
+
+    function updatePrice() {
+    const qty = parseInt(input.value) || minVal;
+    const badge = document.getElementById("discount-badge");
+    let total = qty * unitPrice;
+
+    // 1. Logique de remise
+    if (qty >= (minVal + seuilRemise)) {
+        total = total * (1 - pctRemise);
+        badge.innerHTML = `<span style="color: var(--brand-brown);">Remise de ${Math.round(pctRemise * 100)}% appliquée !</span>`;
+    } else {
+        badge.innerHTML = "";
+    }
+
+    // 2. Préparation du prix formaté
+    const formattedPrice = total.toFixed(2).replace('.', ',');
+
+    // 3. Mise à jour de l'affichage
+    display.innerHTML = `${formattedPrice}€ <span class="fs-6 fw-normal" style="color: var(--brand-brown) !important; opacity: 0.7;">TTC total</span>`;
+}
+
+    // --- Gestion du compteur (récupération de ton code précédent) ---
+    let timer;
+    function startRepeat(delta) {
+        let val = parseInt(input.value) || minVal;
+        val += delta;
+        if (val < minVal) val = minVal;
+        input.value = val;
+        updatePrice();
+
+        timer = setTimeout(() => {
+            timer = setInterval(() => {
+                let v = parseInt(input.value) + delta;
+                if (v >= minVal) {
+                    input.value = v;
+                    updatePrice();
+                }
+            }, 100);
+        }, 500);
+    }
+
+    function stopRepeat() { clearInterval(timer); clearTimeout(timer); }
+
+    // Événements boutons
+    document.querySelector(".btn-plus").addEventListener("mousedown", () => startRepeat(1));
+    document.querySelector(".btn-minus").addEventListener("mousedown", () => startRepeat(-1));
+    window.addEventListener("mouseup", stopRepeat);
+
+    // Événement saisie manuelle
+    input.addEventListener("input", updatePrice);
+    input.addEventListener("change", function() {
+        if (this.value < minVal) this.value = minVal;
+        updatePrice();
+    });
+    // Initialisation au chargement
+    updatePrice();
+});

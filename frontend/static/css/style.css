@@ -19,7 +19,7 @@
 body {
     font-family: var(--body-font);
     background-color: var(--bg-cream);
-    color: var(--text-dark);
+    color: var(--brand-brown);
 }
 
 /* Utilitaire : Police Pacifico */
@@ -742,7 +742,7 @@ input:-webkit-autofill:active {
 }
 
 .menu-card-description {
-    color: var(--text-dark);
+    color: var(--brand-brown);
     font-size: 0.95rem;
     line-height: 1.6;
 }
@@ -853,8 +853,8 @@ input:-webkit-autofill:active {
 
 /* Changement de couleur au survol des liens dans le menu */
 .custom-dropdown-box .dropdown-item:hover {
-    background-color: var(--brand-peach) !important; /* Un ton un peu plus sombre au survol */
-    color: var(--brand-brown) !important; /* Ton marron de marque */
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
 }
 
 /* Supprime la flèche Bootstrap */
@@ -892,3 +892,217 @@ input:-webkit-autofill:active {
 .custom-dropdown-box .dropdown-item.text-danger i {
     color: #dc3545 !important;
 }
+
+.btn-back-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: var(--brand-brown);
+    border: 1px solid var(--text-dark);
+    border-radius: 12px;
+    color: var(--brand-gold);
+    text-decoration: none;
+    font-weight: bold;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.btn-back-box:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    border: 1px solid var(--brand-brown);
+}
+
+/* Bordure pour la carte de commande */
+.border-top-brand {
+    border-top: 4px solid #885420 !important;
+}
+
+/* Assurer que les images ont toutes la même dimension */
+.content-box img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   PAGE DÉTAIL DU MENU
+   ========================================================================== */
+
+/* Limite la largeur des grandes cartes sur écran PC */
+.menu-detail-card {
+    max-width: 1100px;
+}
+
+/* Limite la largeur du texte de description pour faciliter la lecture */
+.menu-description-text {
+    max-width: 900px;
+}
+
+/* Texte des allergènes légèrement plus petit */
+.allergen-text {
+    font-size: 0.85rem;
+}
+
+/* Séparateurs (Lignes horizontales) */
+.divider-80 {
+    width: 80%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-40 {
+    width: 40%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-30 {
+    width: 30%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+
+/* Correction du champ d'entrée Nombre de convives */
+.input-convives {
+    width: 80px !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-radius: 5px;
+    border: 2px solid var(--brand-brown) !important;
+    text-align: center;
+}
+
+/* Garde le fond crème même quand on clique dans le champ */
+.input-convives:focus {
+    background-color: var(--bg-cream) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Texte d'aide convives */
+.help-text-convives {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    bottom: -20px;
+    margin-right: 140px;
+    color: var(--brand-brown);
+    opacity: 0.8;
+    display: block;
+}
+
+/* Bouton spécifique pour l'ajout au panier (Taille réduite) */
+.btn-panier {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    font-family: var(--body-font);
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    border: 2px solid var(--text-dark);
+    padding: 10px 30px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 40px !important; /
+    transition: all 0.25s ease-in-out;
+}
+
+.btn-panier:hover {
+    background-color: var(--brand-peach) !important;
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   SÉLECTEUR DE QUANTITÉ PERSONNALISÉ (Type + et -)
+   ========================================================================== */
+
+/* Conteneur principal du sélecteur */
+.custom-quantity-selector {
+    width: 130px;
+    height: 45px;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px;
+    background-color: var(--bg-cream);
+    padding: 0 5px; /
+    transition: all 0.2s ease;
+}
+
+/* Effet halo au focus */
+.custom-quantity-selector:focus-within {
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Stylisation commune pour les boutons + et -  */
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 2px solid transparent;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+/* Symbole '−' (U+2212) plus propre que le trait d'union '-' */
+.btn-minus {
+    content: "\2212";
+}
+
+/* Symbole '+' */
+.btn-plus {
+    content: "\002B";
+}
+
+/* Hover et clic effects sur les boutons */
+.quantity-btn:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    border-color: var(--brand-brown);
+}
+
+.quantity-btn:active {
+    transform: scale(0.92);
+}
+
+/* Stylisation de la valeur centrale (le nombre) */
+.quantity-value {
+    color: var(--brand-brown);
+    line-height: 1;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* --- Finition de l'intégration dans Bootstrap --- */
+.selector-label-container {
+    align-items: center;
+}
+
+.quantity-input-field {
+    width: 50px;
+    background: transparent;
+    border: none;
+    text-align: center;
+    color: var(--brand-brown);
+    font-family: inherit;
+    outline: none;
+}
+
+/* Changement sur les flèches par défaut du navigateur pour garder le même design */
+.quantity-input-field::-webkit-outer-spin-button,
+.quantity-input-field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.quantity-input-field {
+    -moz-appearance: textfield;
+}
+
+
+

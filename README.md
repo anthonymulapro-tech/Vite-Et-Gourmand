@@ -1,6 +1,5 @@
 # Vite-Et-Gourmand
-Projet d'évaluation (ECF) : Application de gestion pour un traiteur événementiel permettant la personnalisation de menus selon des thèmes et des régimes alimentaires.
-
+Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce projet couvre l'intégralité du cycle de développement : de la conception (UML/MCD), au design (UI/UX), jusqu'au développement complet du Backend et du Frontend.
 # Aperçu du Projet
 
 ## Design Desktop & Mobile
@@ -9,9 +8,13 @@ Projet d'évaluation (ECF) : Application de gestion pour un traiteur événement
 <br>
 <img src="docs/img/mobile_page_accueil_preview.png" width="300" alt="Maquette Mobile Accueil">
 
-## Conception de la Base de Données (MCD)
+## Documentation Technique
+### Conception de la Base de Données (MCD)
 
 <img src="docs/img/mcd_preview.png" width="700" alt="Modèle Conceptuel de Données">
+
+- **UML & MCD** : `/docs/conception_technique/`
+- **Design & Wireframes** : `/docs/design_maquettes/` et `/docs/wireframes/`
 
 ## Stack Technique
 - [x] **Conception** : _Draw.io_ (UML/MCD)
@@ -22,11 +25,29 @@ Projet d'évaluation (ECF) : Application de gestion pour un traiteur événement
 - [X] **Frontend** : _HTML / CSS / Bootstrap / JS_ (Intégration fluide et responsive)
 - [ ] **NoSQL** : _MongoDB_ (À venir)
 
-## Documentation Technique
-- **UML & MCD** : `/docs/conception_technique/`
-- **Design & Wireframes** : `/docs/design_maquettes/` et `/docs/wireframes/`
+### Architecture du Projet
+```text
+Vite-Et-Gourmand/
+├── backend/          # Logique métier, modèles SQL et requêtes
+├── frontend/         # Vues et assets (CSS, JS, Images, templates HTML)
+├── docs/             # Documentation technique (MCD, UML, Maquettes)
+├── sql/              # Scripts de création et d'insertion BDD
+├── tests/            # Scripts d'assurance qualité et sécurité
+├── app.py            # Point d'entrée de l'application Flask et routes
+└── requirements.txt  # Dépendances du projet 
+```
 
-## Fonctionnalités & Sécurité Implémentées
+## Fonctionnalités
+* **Fidélité de la Charte Graphique** : Surcharge CSS des comportements natifs de Google Chrome (`-webkit-autofill`) et de Bootstrap (`:focus`) pour conserver les tons et le style visuel du site en toutes circonstances.
+* **Affichage / Masquage dynamique du mot de passe** : Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
+* **Catalogue Dynamique :** Affichage des menus depuis la base de données avec gestion des stocks en temps réel.
+* **Filtres Avancés :** Recherche multicritères (budget, nombre de convives, thèmes, régimes et allergènes).
+* **Tunnel de Commande (Panier) :** * Calcul dynamique des prix selon le nombre de convives.
+  * Application automatique de règles métier (ex: seuil de réduction pour commandes volumineuses).
+  * Persistance du panier via les sessions Flask.
+
+
+## Sécurité Implémentées
 
 Le système d'authentification a été conçu en respectant les standards de sécurité actuels et en optimisant l'expérience utilisateur (UX) :
 
@@ -35,8 +56,6 @@ Le système d'authentification a été conçu en respectant les standards de sé
   * **Côté Client** : Validation immédiate en HTML5/JS (Regex pour mot de passe fort, format de téléphone à 10 chiffres, emails valides) pour un retour utilisateur instantané sans rechargement de page.
   * **Côté Serveur** : Double vérification de sécurité en Python (`app.py`) pour bloquer les requêtes malveillantes qui contourneraient le navigateur.
 * **Gestion intelligente des doublons** : Avant l'inscription, le backend vérifie l'unicité de l'adresse email. En cas de doublon, un message d'erreur ciblé est affiché directement sur le champ concerné sans recharger ni vider les autres saisies de l'utilisateur (grâce à Jinja2).
-* **Fidélité de la Charte Graphique** : Surcharge CSS des comportements natifs de Google Chrome (`-webkit-autofill`) et de Bootstrap (`:focus`) pour conserver les tons et le style visuel du site en toutes circonstances.
-* **Affichage / Masquage dynamique du mot de passe** : Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
 
 ## Installation et Déploiement Local
 
@@ -101,8 +120,16 @@ Le serveur sera disponible en local sur : http://127.0.0.1:5000
 * b. Inscription : http://127.0.0.1:5000/register
 * c. Connexion : http://127.0.0.1:5000/login
 
+## 6. Comptes de Test (Jeu de données)
+Pour faciliter l'évaluation, la base de données est fournie avec plusieurs profils de test :
 
-### 6. Tests de sécurité automatisés (Assurance Qualité)
+| Rôle | Email | Mot de passe                             |
+| :--- | :--- |:-----------------------------------------|
+| **Administrateur** | `jose.pascoli@viteetgourmand.fr` | *`25!Fru1tS&Or@nge!Mar0c!Av3nture!`*     |
+| **Employé** | `nassim.amir@viteetgourmand.fr` | *`Nassim33_V&G_2026!`*                   |
+| **Client** | `bernard.lebrun@orange.fr` | *`Bern@rd!33`*                           |
+
+### 7. Tests de sécurité automatisés (Assurance Qualité)
 Le projet intègre un script de test automatique permettant de vérifier la robustesse du backend face aux contournements des validations du navigateur (ex: scripts malveillants contournant les Regex HTML5).
 
 Pour exécuter le test de sécurité :

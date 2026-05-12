@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-gold{% endblock %}
+{% block title %}Détail - {{ menu.titre_menu }}{% endblock %}
+
+{% block content %}
+<div class="py-5">
+
+    <div class="d-flex justify-content-center mb-5">
+        <a href="{{ url_for('menus_page') }}" class="btn-back-box shadow-sm">
+            <i class="bi bi-arrow-left me-2"></i> Retour aux menus
+        </a>
+    </div>
+
+
+    <div class="content-box shadow-lg mb-3 mx-auto menu-detail-card">
+
+        <h1 class="font-pacifico text-brand-brown text-center display-4 mb-2">{{ menu.titre_menu }}</h1>
+        <hr class="mb-4 mx-auto divider-40">
+        <p class="text-center fs-3 fw-bold text-brand-brown mb-4">{{ menu.prix_par_personne }}€ / personne</p>
+        <hr class="mb-4 mx-auto divider-30">
+
+        <p class="text-center box-text mx-auto mb-4 fw-medium menu-description-text">
+            {{ menu.description_menu }}
+        </p>
+
+        <hr class="my-4 mx-auto divider-80">
+
+        <div class="row text-center mb-4 fw-bold text-brand-brown justify-content-center">
+            <div class="col-12 col-md-10">
+                <div class="row mb-3">
+                    <div class="col-md-4">&bull; {{ menu.nom_theme }}</div>
+                    <div class="col-md-4">&bull; {{ menu.nom_regime }}</div>
+                    <div class="col-md-4">&bull; {{ menu.nombre_personne_min }} personnes minimum</div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-md-5">&bull; {{ (menu.prix_par_personne * menu.nombre_personne_min)|int }}€ minimum</div>
+                    <div class="col-md-6">&bull; {{ menu.seuil_reduction }} menus en plus pour obtenir {{ menu.pourcentage_reduction }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="mb-5 mx-auto divider-80">
+
+        <div class="row align-items-center justify-content-center">
+            <div class="col-md-5 text-center pe-md-4">
+                <h3 class="font-pacifico text-brand-brown h2 mb-4">Entrée</h3>
+                {% for p in menu.entrees %}
+                    <div class="mb-4">
+                        <p class="fw-bold fs-5 mb-0 text-brand-brown">&bull; {{ p.titre_plat }}</p>
+                        {% if p.allergenes %}
+                            <p class="text-muted small fst-italic mt-1 allergen-text">
+                                ({{ p.allergenes }})
+                            </p>
+                        {% endif %}
+                        {% if not loop.last %}<p class="text-brand-brown small fst-italic mt-3">ou</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-5">
+                <img src="{{ url_for('static', filename='images/dishes/' + (menu.entrees[0].url_photo if menu.entrees else 'default.jpg')) }}"
+                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Entrée">
+            </div>
+        </div>
+
+        <hr class="my-5 mx-auto divider-80">
+
+        <div class="row align-items-center flex-md-row-reverse justify-content-center">
+            <div class="col-md-5 text-center ps-md-4">
+                <h3 class="font-pacifico text-brand-brown h2 mb-4">Plat</h3>
+                {% for p in menu.plats_principaux %}
+                    <div class="mb-4">
+                        <p class="fw-bold fs-5 mb-0 text-brand-brown">&bull; {{ p.titre_plat }}</p>
+                        {% if p.allergenes %}
+                            <p class="text-muted small fst-italic mt-1 allergen-text">
+                                ({{ p.allergenes }})
+                            </p>
+                        {% endif %}
+                        {% if not loop.last %}<p class="text-brand-brown small fst-italic mt-3">ou</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-5">
+                <img src="{{ url_for('static', filename='images/dishes/' + (menu.plats_principaux[0].url_photo if menu.plats_principaux else 'default.jpg')) }}"
+                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Plat">
+            </div>
+        </div>
+
+        <hr class="my-5 mx-auto divider-80">
+
+        <div class="row align-items-center justify-content-center">
+            <div class="col-md-5 text-center pe-md-4">
+                <h3 class="font-pacifico text-brand-brown h2 mb-4">Dessert</h3>
+                {% for p in menu.desserts %}
+                    <div class="mb-4">
+                        <p class="fw-bold fs-5 mb-0 text-brand-brown">&bull; {{ p.titre_plat }}</p>
+                        {% if p.allergenes %}
+                            <p class="text-muted small fst-italic mt-1 allergen-text">
+                                ({{ p.allergenes }})
+                            </p>
+                        {% endif %}
+                        {% if not loop.last %}<p class="text-brand-brown small fst-italic mt-3">ou</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-5">
+                <img src="{{ url_for('static', filename='images/dishes/' + (menu.desserts[0].url_photo if menu.desserts else 'default.jpg')) }}"
+                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Dessert">
+            </div>
+        </div>
+
+        <hr class="mt-5 mb-4 mx-auto divider-80">
+
+        <p class="text-center fw-bold text-brand-brown fs-5 mb-4">
+            {{ menu.conditions if menu.conditions else "Livrable sous 48h ouvrées" }}
+        </p>
+
+        <hr class="mb-4 mx-auto divider-40">
+
+        <div class="text-center mt-3">
+            {% if menu.quantite_restante and menu.quantite_restante > 0 %}
+                <p class="fw-bold fs-5 text-brand-brown mb-0">{{ menu.quantite_restante }} menus restant, commandez vite !</p>
+            {% else %}
+                <p class="fw-bold fs-5 text-muted mb-0">INDISPONIBLE ACTUELLEMENT !</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<form action="{{ url_for('add_to_cart') }}" method="POST">
+    <input type="hidden" name="id_menu" value="{{ menu.menu_id }}">
+    <div class="content-box shadow px-4 py-4 text-center mx-auto menu-detail-card mb-5">
+        <div class="row align-items-center">
+
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center justify-content-center position-relative">
+
+                    <p class="mb-0 fs-3 fw-bold text-brand-brown"
+                       id="total-price-display"
+                       data-unit-price="{{ menu.prix_par_personne }}"
+                       data-min-convives="{{ menu.nombre_personne_min }}"
+                       data-seuil-remise="{{ menu.seuil_reduction }}"
+                       data-pct-remise="{{ menu.pourcentage_reduction }}">
+                        {{ "{:,.2f}".format(menu.prix_par_personne * menu.nombre_personne_min).replace('.', ',') }}€
+                        <span class="fs-6 fw-normal" style="color: var(--brand-brown) !important; opacity: 0.7;">TTC total</span>
+                    </p>
+
+                    <div id="discount-badge" class="fw-bold position-absolute"
+                         style="bottom: -22px; width: 100%; font-size: 0.8rem; color: #28a745;">
+                         </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center justify-content-center position-relative">
+
+                    <div class="d-flex align-items-center justify-content-center gap-3 selector-label-container">
+                        <label class="fw-bold text-brand-brown mb-0">Nombre de convives :</label>
+
+                        <div class="custom-quantity-selector d-flex align-items-center justify-content-between shadow-sm"
+                             data-min="{{ menu.nombre_personne_min }}">
+
+                            <span class="quantity-btn btn-minus d-flex align-items-center justify-content-center">&minus;</span>
+
+                            <input type="number" id="quantity-input" name="quantity"
+                                   class="quantity-input-field fs-5 fw-bold text-brand-brown"
+                                   value="{{ menu.nombre_personne_min }}"
+                                   min="{{ menu.nombre_personne_min }}"
+                                   inputmode="numeric">
+
+                            <span class="quantity-btn btn-plus d-flex align-items-center justify-content-center">&plus;</span>
+                        </div>
+                    </div>
+
+                    <small class="help-text-convives position-absolute">
+                        Minimum {{ menu.nombre_personne_min }} personnes
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-panier">
+                    Ajoutez et voir le panier
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

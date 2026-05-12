@@ -130,28 +130,28 @@
                             </p>
 
                             <div class="menu-details-list my-3">
-                                <div class="menu-detail-item">
+                                <div class="menu-detail-item text-brand-brown">
                                     Issu de notre thème {{ menu.theme.nom_theme if menu.theme else "Classique" }}, convient aux {{ (menu.regime.nom_regime if menu.regime else "Classique")|lower }}s
                                 </div>
                                 <div class="menu-detail-item border-top py-1">Minimum de {{ menu.nombre_personne_min }} personnes</div>
                                 <div class="menu-detail-item border-top py-1">Dès {{ (menu.prix_par_personne * menu.nombre_personne_min)|int }}€ TTC</div>
-                                <div class="menu-detail-item border-top py-1 text-muted small">
+                                <div class="menu-detail-item border-top py-1 text-brand-brown small">
                                     Ajouter {{ menu.seuil_reduction }} menus {{ menu.titre_menu }} supplémentaires pour bénéficier de {{ menu.pourcentage_reduction }}%
                                 </div>
-                                <div class="menu-detail-item border-top py-1 font-monospace text-muted">{{ menu.conditions if menu.conditions else "Livraison sous 48h ouvrées" }}</div>
+                                <div class="menu-detail-item border-top py-1 font-monospace text-brand-brown">{{ menu.conditions if menu.conditions else "Livraison sous 48h ouvrées" }}</div>
                             </div>
 
                             <div class="mt-auto">
-                                <a href="{{ url_for('menu_detail', menu_id=menu.menu_id) }}" class="btn btn-custom-brown w-100 py-2 rounded-pill">
+                                <a href="{{ url_for('detail_menu', id_menu=menu.menu_id) }}" class="btn btn-custom-brown w-100 py-2 rounded-pill">
                                     Voir le détail
                                 </a>
                             </div>
 
                             <div class="menu-stock-alert mt-3 text-center">
-                                {% if menu.quantite_restante and menu.quantite_restante > 0 %}
-                                    <small class="text-danger fw-bold">Il ne reste plus que {{ menu.quantite_restante }} menus, commandez vite !</small>
+                                {% if menu.quantite_restante and menu.quantite_restante >= 0 %}
+                                    <small class="text-brand-brown fw-bold">Il ne reste plus que {{ menu.quantite_restante }} menus, commandez vite !</small>
                                 {% else %}
-                                    <small class="text-muted fw-bold">PERSONNALISABLE SUR DEMANDE !</small>
+                                    <small class="text-danger fw-bold"> INDISPONIBLE ACTUELLEMENT !</small>
                                 {% endif %}
                             </div>
                         </div>

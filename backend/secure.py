@@ -18,15 +18,15 @@ try:
 
     # Liste des mots de passe en clair présents dans 02_insert_data.sql
     passwords_to_hash = [
-        "25!Fru1tS&Or@nge!Mar0c!Av3nture!",
-        "Julie33_V&G_2026!",
-        "Nassim33_V&G_2026!",
-        "Marcel33_V&G_2026!",
-        "Bern@rd!33",
-        "J3@n!33",
-        "Sophi3!33",
-        "M4rie!33",
-        "Anto1n3!33"
+        "ExempleMotDePasse1!",
+        "ExempleMotDePasse2!",
+        "ExempleMotDePasse3!"
+        "ExempleMotDePasse4!",
+        "ExempleMotDePasse5!",
+        "ExempleMotDePasse6!"
+        "ExempleMotDePasse7!",
+        "ExempleMotDePasse8!",
+        "ExempleMotDePasse9!"
     ]
 
     print("Hachage de tes mots de passe avec Bcrypt...")

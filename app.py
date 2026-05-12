@@ -13,6 +13,8 @@ from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
 from backend.contact import save_contact_message
 from backend.schedule import get_schedule
+from backend.menu_model import get_menu_details
+from backend.database import get_connection
 
 # Configuration de Flask
 app = Flask(
@@ -194,6 +196,24 @@ def register_page():
 
     return render_template('auth/register.html')
 
+@app.route('/menu/<int:id_menu>')
+def detail_menu(id_menu):
+    db = get_connection()  # Ouverture de la connexion
+    if db is None:
+        return "Erreur de connexion à la base de données", 500
+
+    try:
+        # On passe la connexion et l'ID au modèle
+        menu = get_menu_details(db, id_menu)
+
+        if menu is None:
+            return "Menu non trouvé", 404
+
+        return render_template('detail_menu.html', menu=menu)
+    finally:
+        # Fermeture
+        db.close()
+
 
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')
@@ -202,10 +222,6 @@ def logout():
     flash("Vous avez été déconnecté avec succès.", "success")
     return redirect(url_for('login_page'))
 
-# Route temporaire pour la fiche détaillée (évite le plantage de url_for dans menus.html)
-@app.route('/menu/<int:menu_id>')
-def menu_detail(menu_id):
-    return f"<h1>Détail du menu {menu_id}</h1><p>Cette page est actuellement en cours de développement sur ta prochaine branche !</p><a href='{url_for('menus_page')}'>Retour aux menus</a>"
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

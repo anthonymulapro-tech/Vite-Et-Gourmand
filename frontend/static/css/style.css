@@ -742,7 +742,7 @@ input:-webkit-autofill:active {
 }
 
 .menu-card-description {
-    color: var(--text-dark);
+    color: var(--brand-brown);
     font-size: 0.95rem;
     line-height: 1.6;
 }
@@ -853,8 +853,8 @@ input:-webkit-autofill:active {
 
 /* Changement de couleur au survol des liens dans le menu */
 .custom-dropdown-box .dropdown-item:hover {
-    background-color: var(--brand-peach) !important; /* Un ton un peu plus sombre au survol */
-    color: var(--brand-brown) !important; /* Ton marron de marque */
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
 }
 
 /* Supprime la flèche Bootstrap */
@@ -891,4 +891,89 @@ input:-webkit-autofill:active {
 .custom-dropdown-box .dropdown-item.text-danger,
 .custom-dropdown-box .dropdown-item.text-danger i {
     color: #dc3545 !important;
+}
+
+.btn-back-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: var(--brand-brown); /* fond crème */
+    border: 1px solid var(--text-dark);
+    border-radius: 12px;
+    color: var(--brand-gold);
+    text-decoration: none;
+    font-weight: bold;
+    min-width: 200px; /* Force une largeur minimale pour l'aspect "box" */
+    transition: all 0.3s ease;
+}
+
+.btn-back-box:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    transform: translateY(-2px); /* Petit effet de survol */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    border: 1px solid var(--brand-brown);
+}
+
+/* Bordure pour la carte de commande */
+.border-top-brand {
+    border-top: 4px solid #885420 !important;
+}
+
+/* Assurer que les images ont toutes la même dimension */
+.content-box img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   PAGE DÉTAIL DU MENU
+   ========================================================================== */
+
+/* Limite la largeur des grandes cartes pour qu'elles respirent sur écran PC */
+.menu-detail-card {
+    max-width: 1100px;
+}
+
+/* Limite la largeur du texte de description pour faciliter la lecture */
+.menu-description-text {
+    max-width: 900px;
+}
+
+/* Texte des allergènes légèrement plus petit */
+.allergen-text {
+    font-size: 0.85rem;
+}
+
+/* Séparateurs (Lignes horizontales) */
+.divider-80 {
+    width: 80%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-40 {
+    width: 40%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-30 {
+    width: 30%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+
+/* Champ de saisie pour le nombre de convives */
+.input-convives {
+    width: 100px;
+    border-radius: 10px;
+    border: 2px solid var(--brand-brown) !important;
+}
+
+.btn-radius-20 {
+    border-radius: 20px !important;
 }

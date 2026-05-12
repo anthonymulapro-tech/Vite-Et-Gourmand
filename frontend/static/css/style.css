@@ -19,7 +19,7 @@
 body {
     font-family: var(--body-font);
     background-color: var(--bg-cream);
-    color: var(--text-dark);
+    color: var(--brand-brown);
 }
 
 /* Utilitaire : Police Pacifico */
@@ -898,20 +898,20 @@ input:-webkit-autofill:active {
     align-items: center;
     justify-content: center;
     padding: 12px 25px;
-    background-color: var(--brand-brown); /* fond crème */
+    background-color: var(--brand-brown);
     border: 1px solid var(--text-dark);
     border-radius: 12px;
     color: var(--brand-gold);
     text-decoration: none;
     font-weight: bold;
-    min-width: 200px; /* Force une largeur minimale pour l'aspect "box" */
+    min-width: 200px;
     transition: all 0.3s ease;
 }
 
 .btn-back-box:hover {
     background-color: var(--brand-peach);
     color: var(--brand-brown);
-    transform: translateY(-2px); /* Petit effet de survol */
+    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
     border: 1px solid var(--brand-brown);
 }
@@ -932,7 +932,7 @@ input:-webkit-autofill:active {
    PAGE DÉTAIL DU MENU
    ========================================================================== */
 
-/* Limite la largeur des grandes cartes pour qu'elles respirent sur écran PC */
+/* Limite la largeur des grandes cartes sur écran PC */
 .menu-detail-card {
     max-width: 1100px;
 }
@@ -967,13 +967,139 @@ input:-webkit-autofill:active {
 }
 
 
-/* Champ de saisie pour le nombre de convives */
+/* Correction du champ d'entrée Nombre de convives */
 .input-convives {
-    width: 100px;
-    border-radius: 10px;
+    width: 80px !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-radius: 5px;
     border: 2px solid var(--brand-brown) !important;
+    text-align: center;
 }
 
-.btn-radius-20 {
-    border-radius: 20px !important;
+/* Garde le fond crème même quand on clique dans le champ */
+.input-convives:focus {
+    background-color: var(--bg-cream) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
 }
+
+/* Texte d'aide convives */
+.help-text-convives {
+    font-size: 0.8rem;
+    margin-top: -5px;
+    color: var(--brand-brown);
+    opacity: 0.8;
+    display: block;
+}
+
+
+/* Bouton spécifique pour l'ajout au panier (Taille réduite) */
+.btn-panier {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    font-family: var(--body-font);
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    border: 2px solid var(--text-dark);
+    padding: 10px 30px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 40px !important; /
+    transition: all 0.25s ease-in-out;
+}
+
+.btn-panier:hover {
+    background-color: var(--brand-peach) !important;
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   SÉLECTEUR DE QUANTITÉ PERSONNALISÉ (Type + et -)
+   ========================================================================== */
+
+/* Conteneur principal du sélecteur */
+.custom-quantity-selector {
+    width: 130px;
+    height: 45px;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px;
+    background-color: var(--bg-cream);
+    padding: 0 5px; /
+    transition: all 0.2s ease;
+}
+
+/* Effet halo au focus */
+.custom-quantity-selector:focus-within {
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Stylisation commune pour les boutons + et -  */
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 2px solid transparent;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+/* Symbole '−' (U+2212) plus propre que le trait d'union '-' */
+.btn-minus {
+    content: "\2212";
+}
+
+/* Symbole '+' */
+.btn-plus {
+    content: "\002B";
+}
+
+/* Hover et clic effects sur les boutons */
+.quantity-btn:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    border-color: var(--brand-brown);
+}
+
+.quantity-btn:active {
+    transform: scale(0.92);
+}
+
+/* Stylisation de la valeur centrale (le nombre) */
+.quantity-value {
+    color: var(--brand-brown);
+    line-height: 1;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* --- Finition de l'intégration dans Bootstrap --- */
+.selector-label-container {
+    align-items: center;
+}
+
+.quantity-input-field {
+    width: 50px;
+    background: transparent;
+    border: none;
+    text-align: center;
+    color: var(--brand-brown);
+    font-family: inherit;
+    outline: none;
+}
+
+/* Changement sur les flèches par défaut du navigateur pour garder le même design */
+.quantity-input-field::-webkit-outer-spin-button,
+.quantity-input-field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.quantity-input-field {
+    -moz-appearance: textfield;
+}
+

@@ -8,6 +8,7 @@ load_dotenv()
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
 from backend.user import create_user, login_user, validate_password, email_exists
+from backend.cart import calculer_prix_total
 # Importation des futures fonctions SQL
 from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
@@ -15,6 +16,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
+
 
 # Configuration de Flask
 app = Flask(
@@ -214,6 +216,60 @@ def detail_menu(id_menu):
         # Fermeture
         db.close()
 
+
+@app.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    # 1. Récupération des données du formulaire
+    id_menu_form = request.form.get('id_menu')
+    raw_quantity = request.form.get('quantity')
+
+    print(f"--- TENTATIVE D'AJOUT ---")
+    print(f"ID Menu reçu du formulaire: {id_menu_form}")
+    print(f"Quantité reçue: {raw_quantity}")
+
+    # 2. Sécurité : conversion en entier
+    try:
+        quantite = int(raw_quantity)
+    except (ValueError, TypeError):
+        print("ERREUR: La quantité n'est pas un nombre valide")
+        return redirect(url_for('menus_page'))
+
+    # 3. Récupération BDD
+    db = get_connection()
+    menu = get_menu_details(db, id_menu_form)
+    db.close()
+
+    if not menu:
+        print(f"ERREUR: Aucun menu trouvé pour l'ID {id_menu_form}")
+        return redirect(url_for('menus_page'))
+
+    # --- LA CORRECTION EST ICI ---
+    # On utilise menu['menu_id'] car c'est le nom de la colonne dans ta table SQL
+    prix_final = calculer_prix_total(
+        quantite=quantite,
+        prix_unitaire=menu['prix_par_personne'],
+        min_convives=menu['nombre_personne_min'],
+        seuil_reduction=menu['seuil_reduction'],
+        pourcentage_reduction=menu['pourcentage_reduction']
+    )
+
+    if 'panier' not in session:
+        session['panier'] = []
+
+    session['panier'].append({
+        'id_menu': menu['menu_id'], # On prend la clé réelle de la BDD
+        'nom': menu['titre_menu'],
+        'quantite': quantite,
+        'prix_total': prix_final
+    })
+    session.modified = True
+
+    print("SUCCÈS: Redirection vers le panier")
+    return redirect(url_for('cart_page'))
+@app.route('/cart')
+def cart_page():
+    cart = session.get('panier', [])
+    return render_template('cart.html', cart=cart)
 
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')

@@ -129,7 +129,7 @@
 
 <form action="{{ url_for('add_to_cart') }}" method="POST">
     <input type="hidden" name="id_menu" value="{{ menu.menu_id }}">
-    <div class="content-box shadow p-3 text-center border-top-brand mx-auto menu-detail-card mb-5">
+    <div class="content-box shadow px-4 py-4 text-center mx-auto menu-detail-card mb-5">
         <div class="row align-items-center">
 
             <div class="col-md-4">
@@ -172,7 +172,7 @@
                         </div>
                     </div>
 
-                    <small class="help-text-convives position-absolute" style="bottom: -20px;">
+                    <small class="help-text-convives position-absolute">
                         Minimum {{ menu.nombre_personne_min }} personnes
                     </small>
                 </div>

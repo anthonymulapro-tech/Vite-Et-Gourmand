@@ -986,12 +986,13 @@ input:-webkit-autofill:active {
 /* Texte d'aide convives */
 .help-text-convives {
     font-size: 0.8rem;
-    margin-top: -5px;
+    margin-bottom: 10px;
+    bottom: -20px;
+    margin-right: 140px;
     color: var(--brand-brown);
     opacity: 0.8;
     display: block;
 }
-
 
 /* Bouton spécifique pour l'ajout au panier (Taille réduite) */
 .btn-panier {
@@ -1102,4 +1103,6 @@ input:-webkit-autofill:active {
 .quantity-input-field {
     -moz-appearance: textfield;
 }
+
+
 

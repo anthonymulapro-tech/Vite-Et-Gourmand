@@ -196,3 +196,71 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialisation au chargement
     updatePrice();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const subtotalElement = document.getElementById('display_subtotal');
+    const discountElement = document.getElementById('display_discount');
+
+    if (!subtotalElement) return;
+
+    // Récupération des valeurs calculées par Python depuis l'HTML
+    const baseSubtotal = parseFloat(subtotalElement.textContent) || 0;
+    const baseDiscount = discountElement ? parseFloat(discountElement.textContent) : 0;
+
+    const deliveryZone = document.getElementById('delivery_zone');
+    const distanceContainer = document.getElementById('distance_container');
+    const distanceKm = document.getElementById('distance_km');
+    const displayDelivery = document.getElementById('display_delivery');
+    const displayGrandTotal = document.getElementById('display_grand_total');
+
+    function calculateTotal() {
+        let deliveryCost = 0;
+        // Le total TTC est le Sous-total - Remise
+        let finalTotal = baseSubtotal - baseDiscount;
+
+        // 2. Gestion de la livraison
+        if (deliveryZone.value === 'outside') {
+            distanceContainer.classList.remove('d-none');
+            let km = parseFloat(distanceKm.value) || 0;
+            if (km > 0) {
+                deliveryCost = 5 + (km * 0.59);
+            } else {
+                deliveryCost = 5;
+            }
+        } else {
+            distanceContainer.classList.add('d-none');
+            distanceKm.value = 0;
+        }
+
+        displayDelivery.textContent = deliveryCost.toFixed(2);
+        finalTotal += deliveryCost;
+
+        // 3. Mise à jour du Total TTC
+        displayGrandTotal.textContent = finalTotal.toFixed(2);
+    }
+
+    const btnDistMinus = document.getElementById('btn_dist_minus');
+    const btnDistPlus = document.getElementById('btn_dist_plus');
+
+    if (btnDistMinus && btnDistPlus) {
+        btnDistMinus.addEventListener('click', function() {
+            let currentVal = parseInt(distanceKm.value) || 0;
+            if (currentVal > 0) {
+                distanceKm.value = currentVal - 1;
+                calculateTotal(); // Met à jour le prix immédiatement
+            }
+        });
+
+        btnDistPlus.addEventListener('click', function() {
+            let currentVal = parseInt(distanceKm.value) || 0;
+            distanceKm.value = currentVal + 1;
+            calculateTotal(); // Met à jour le prix immédiatement
+        });
+    }
+
+    deliveryZone.addEventListener('change', calculateTotal);
+    distanceKm.addEventListener('input', calculateTotal);
+
+    // Calcul initial
+    calculateTotal();
+});

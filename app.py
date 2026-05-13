@@ -219,35 +219,25 @@ def detail_menu(id_menu):
 
 @app.route('/add-to-cart', methods=['POST'])
 def add_to_cart():
-    # 1. Récupération des données du formulaire
     id_menu_form = request.form.get('id_menu')
     raw_quantity = request.form.get('quantity')
 
-    print(f"--- TENTATIVE D'AJOUT ---")
-    print(f"ID Menu reçu du formulaire: {id_menu_form}")
-    print(f"Quantité reçue: {raw_quantity}")
-
-    # 2. Sécurité : conversion en entier
     try:
         quantite = int(raw_quantity)
     except (ValueError, TypeError):
-        print("ERREUR: La quantité n'est pas un nombre valide")
         return redirect(url_for('menus_page'))
 
-    # 3. Récupération BDD
     db = get_connection()
     menu = get_menu_details(db, id_menu_form)
     db.close()
 
     if not menu:
-        print(f"ERREUR: Aucun menu trouvé pour l'ID {id_menu_form}")
         return redirect(url_for('menus_page'))
 
-    # --- LA CORRECTION EST ICI ---
-    # On utilise menu['menu_id'] car c'est le nom de la colonne dans ta table SQL
-    prix_final = calculer_prix_total(
+    # Récupération des 3 prix calculés
+    prix_calcules = calculer_prix_total(
         quantite=quantite,
-        prix_unitaire=menu['prix_par_personne'],
+        prix_unitaire=float(menu['prix_par_personne']),
         min_convives=menu['nombre_personne_min'],
         seuil_reduction=menu['seuil_reduction'],
         pourcentage_reduction=menu['pourcentage_reduction']
@@ -256,20 +246,51 @@ def add_to_cart():
     if 'panier' not in session:
         session['panier'] = []
 
+    # Enregistrement du tout en session
     session['panier'].append({
-        'id_menu': menu['menu_id'], # On prend la clé réelle de la BDD
-        'nom': menu['titre_menu'],
-        'quantite': quantite,
-        'prix_total': prix_final
+        'id_menu': menu['menu_id'],
+        'name': menu['titre_menu'],
+        'quantity': quantite,
+        'price': float(menu['prix_par_personne']),
+        'prix_brut': prix_calcules['prix_brut'],
+        'remise': prix_calcules['remise'],
+        'total_price': prix_calcules['prix_final']
     })
+
+    session.modified = True
+    return redirect(url_for('cart'))
+
+
+@app.route('/cart', methods=['GET'])
+def cart():
+    cart_items = session.get('panier', [])
+
+    # Calcule le vrai Sous-total HT (SANS les remises)
+    subtotal = sum(item.get('prix_brut', item['total_price']) for item in cart_items)
+
+    # Calcule le total des remises cumulées
+    total_discount = sum(item.get('remise', 0) for item in cart_items)
+
+    return render_template('cart.html', cart_items=cart_items, subtotal=subtotal, total_discount=total_discount)
+
+
+@app.route('/clear-cart')
+def clear_cart():
+    # On vide la clé 'panier' de la session
+    session.pop('panier', None)
     session.modified = True
 
-    print("SUCCÈS: Redirection vers le panier")
-    return redirect(url_for('cart_page'))
-@app.route('/cart')
-def cart_page():
-    cart = session.get('panier', [])
-    return render_template('cart.html', cart=cart)
+    # Info
+    flash("Votre panier a été vidé.", "info")
+
+    # Redirection sur le panier ( message de panier vide + voir les menus )
+    return redirect(url_for('cart'))
+
+
+# Route pour gérer la validation du panier ( à faire ensuite )
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    return redirect(url_for('home'))
 
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')

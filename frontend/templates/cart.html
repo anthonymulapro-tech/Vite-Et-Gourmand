@@ -1,29 +1,137 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container py-5">
-    <h1 class="font-pacifico text-brand-brown">Mon Panier</h1>
-    <hr>
+{% block body_class %}bg-gold{% endblock %}
 
-    {% if panier %}
-        <div class="list-group">
-            {% for item in panier %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-1">{{ item.nom }}</h5>
-                        <small>Quantité : {{ item.quantite }} convives</small>
-                    </div>
-                    <span class="badge bg-primary rounded-pill">{{ item.prix_total }}€</span>
+{% block title %}Mon Panier - Vite & Gourmand{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+
+    {% if cart_items %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0" style="color: var(--brand-brown);">Votre panier !</h2>
+        <a href="{{ url_for('menus_page') }}" class="btn btn-return">
+            <i class="bi bi-arrow-left"></i> Retour aux menus
+        </a>
+    </div>
+
+    <form action="{{ url_for('checkout') }}" method="POST" id="cartForm">
+        <div class="row">
+            <div class="col-lg-8">
+
+                <div class="table-responsive shadow-sm p-3 mb-4 theme-box rounded">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Menu</th>
+                                <th>Convives</th>
+                                <th>Prix Unitaire</th>
+                                <th>Total Ligne</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td><strong>{{ item.name }}</strong></td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price }} €</td>
+                                <td>{{ item.total_price }} €</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            {% endfor %}
+
+
+               <div class="d-flex justify-content-end mb-4 mt-2">
+                    <a href="{{ url_for('clear_cart') }}" class="btn btn-empty-cart" onclick="return confirm('Voulez-vous vraiment vider tout votre panier ?');">
+                        <i class="bi bi-trash"></i> Vider le panier
+                    </a>
+                </div>
+
+
+                <div class="card shadow-sm mb-4 theme-box">
+                    <div class="card-body">
+                        <h5 class="card-title">Options de la commande</h5>
+
+                        <div class="form-check mt-3 mb-3">
+                            <input class="form-check-input" type="checkbox" id="need_material" name="need_material" value="yes">
+                            <label class="form-check-label" for="need_material">
+                                Je souhaite bénéficier du prêt de matériel gratuit inclus (Vaisselle, couverts, nappes)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm theme-box">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Livraison & Paiement</h5>
+
+                        <div class="mb-3">
+                            <label for="delivery_zone" class="form-label">Zone de livraison :</label>
+                            <select class="form-select" id="delivery_zone" name="delivery_zone" required>
+                                <option value="bordeaux" selected>Bordeaux Centre (Gratuit)</option>
+                                <option value="outside">Hors Bordeaux</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 d-none" id="distance_container">
+                            <label for="distance_km" class="form-label">Distance depuis Bordeaux (en km) :</label>
+                            <div class="input-group mb-2">
+                                <button class="btn btn-distance" type="button" id="btn_dist_minus"><i class="bi bi-dash"></i></button>
+                                <input type="number" class="form-control" id="distance_km" name="distance_km" min="0" value="0">
+                                <button class="btn btn-distance" type="button" id="btn_dist_plus"><i class="bi bi-plus"></i></button>
+                            </div>
+                            <small>Frais : 5€ de base + 0,59€/km</small>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total HT :</span>
+                            <strong><span id="display_subtotal">{{ subtotal }}</span> €</strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2 {% if total_discount == 0 %}d-none{% endif %}" id="discount_row">
+                            <span>Remise appliquée :</span>
+                            <strong>- <span id="display_discount">{{ total_discount }}</span> €</strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Frais de livraison :</span>
+                            <strong>+ <span id="display_delivery">0.00</span> €</strong>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <h4 class="mb-0">TOTAL TTC :</h4>
+                            <h4 class="mb-0"><span id="display_grand_total">{{ subtotal }}</span> €</h4>
+                        </div>
+
+                        <button type="submit" class="btn btn-checkout w-100 btn-lg mb-3">Confirmer et se diriger vers la page de paiement</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mt-4 text-end">
-            <a href="{{ url_for('menus_page') }}" class="btn btn-outline-secondary">Continuer mes achats</a>
-            <button class="btn btn-success">Valider la commande</button>
-        </div>
+    </form>
     {% else %}
-        <p>Votre panier est vide.</p>
-        <a href="{{ url_for('menus_page') }}" class="btn btn-custom-brown">Voir les menus</a>
+    <div class="text-center py-5">
+        <p class="lead" style="color: var(--brand-brown); font-weight: 500;">Votre panier est vide pour le moment.</p>
+        <a href="{{ url_for('menus_page') }}" class="btn btn-discover mt-3">
+            Découvrez nos menus
+        </a>
+    </div>
     {% endif %}
 </div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

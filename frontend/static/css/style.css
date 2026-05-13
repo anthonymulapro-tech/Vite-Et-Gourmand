@@ -1104,5 +1104,213 @@ input:-webkit-autofill:active {
     -moz-appearance: textfield;
 }
 
+/* Styles spécifiques à la page panier */
+#cartForm .card {
+    border-radius: 10px;
+}
+
+/* --- 4. Conteneur Distance kilométrique --- */
+#distance_container {
+    background-color: var(--brand-brown) !important;
+    border: 1px solid var(--brand-peach) !important; /* Barre latérale crème pour contraster avec le fond marron */
+    border-radius: 20px;
+    padding: 10px;
+}
+
+/* Force tous les textes à l'intérieur de ce conteneur à être crème */
+#distance_container label,
+#distance_container small {
+    color: var(--bg-cream) !important;
+}
+
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#display_grand_total {
+    font-weight: bold;
+}
+
+/* --- DESIGN DES BOÎTES DU PANIER --- */
+.theme-box {
+    background-color: var(--brand-gold) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown) !important;
+}
+
+/* Force tous les textes à l'intérieur des boîtes à être marron */
+.theme-box h4,
+.theme-box h5,
+.theme-box span,
+.theme-box strong,
+.theme-box small,
+.theme-box label,
+.theme-box td,
+.theme-box th {
+    color: var(--brand-brown) !important;
+}
+
+/* Adaptation du tableau pour fondre avec le fond gold */
+.theme-box table {
+    border-color: var(--brand-brown) !important;
+}
+
+.theme-box .table-light th {
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--brand-brown) !important;
+}
+
+/*L'icône de la poubelle prend aussi la couleur */
+.btn-outline-danger {
+    color: var(--brand-brown);
+    border-color: var(--brand-brown);
+}
+.btn-outline-danger:hover {
+    background-color: var(--brand-brown);
+    color: var(--brand-gold);
+}
+
+/* --- CONTRASTE INTÉRIEUR : Données et Formulaires --- */
+
+/* 1. Lignes de données du tableau (Fond marron, texte crème) */
+.theme-box table tbody tr,
+.theme-box table tbody td,
+.theme-box table tbody td strong {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
 
 
+}
+
+/* 2. Champs de saisie : Zone de livraison et Distance */
+.theme-box .form-select,
+.theme-box .form-control {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important; /* Bordure dorée pour le style */
+    border-radius: 20px;
+}
+
+/* 3. Garder les couleurs lors du clic (Focus) */
+.theme-box .form-select:focus,
+.theme-box .form-control:focus {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border-radius: 20px;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+.theme-box .form-select option {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+}
+
+/* Masquer les flèches natives du navigateur pour les champs number */
+#distance_container input[type="number"]::-webkit-inner-spin-button,
+#distance_container input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#distance_container input[type="number"] {
+    /* Pour Firefox */
+    -moz-appearance: textfield; /
+    text-align: center; /
+}
+
+/* Style des nouveaux boutons + et - de la distance */
+.btn-distance {
+    background-color: var(--brand-gold) !important;
+    color: var(--brand-brown) !important;
+    border: 1px solid var(--brand-peach) !important;
+}
+.btn-distance:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- Suppression du halo de clic (focus) sur le compteur de distance --- */
+#distance_container .form-control:focus,
+#distance_container .btn-distance:focus,
+#distance_container .btn-distance:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--brand-gold) !important;
+}
+
+/* --- Bouton de Paiement Principal --- */
+.btn-checkout {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+/* Effet au survol : fond crème et texte marron */
+.btn-checkout:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* --- Bouton Vider le Panier --- */
+.btn-empty-cart {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-size: 0.9rem;
+    padding: 6px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-empty-cart:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- Bouton "Découvrir nos menus" (Panier vide) --- */
+.btn-discover {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: bold;
+    padding: 10px 30px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Effet au survol : fond marron et texte doré */
+.btn-discover:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* --- Bouton "Retour aux menus" (En-tête panier) --- */
+.btn-return {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: 500;
+    padding: 6px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-return:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- Correction des bordures noires sur le compteur de distance --- */
+#distance_container .input-group .btn-distance,
+#distance_container .input-group .form-control {
+    border-color: var(--brand-gold) !important;
+}
+
+#distance_container .input-group .form-control:focus,
+#distance_container .input-group .btn-distance:focus {
+    border-color: var(--brand-gold) !important;
+}

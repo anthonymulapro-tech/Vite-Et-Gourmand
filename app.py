@@ -1,15 +1,16 @@
 import os
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from dotenv import load_dotenv
 
 load_dotenv()
 
+from backend.user import create_user, login_user, validate_password, email_exists
+from backend.cart import calculer_prix_total
+from backend.order import create_order
 # ==========================================================================
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
-from backend.user import create_user, login_user, validate_password, email_exists
-from backend.cart import calculer_prix_total
-# Importation des futures fonctions SQL
 from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
 from backend.contact import save_contact_message
@@ -110,28 +111,30 @@ def login_page():
     if 'user_prenom' in session:
         return redirect(url_for('home'))
 
+    # On récupère l'éventuelle page suivante
+    next_page = request.args.get('next')
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Vérification email existant
         if not email_exists(email):
             return render_template('auth/login.html', email_error=True, email_saved=email)
 
-        # L'email est valide, mais vérification du mot de passe
         user = login_user(email, password)
-
         if not user:
             return render_template('auth/login.html', password_error=True, email_saved=email)
 
-        # Connexion réussie !
-        session['user_id'] = user.get('id') or user.get('id_utilisateur')
+        # Connexion réussie
+        session['user_id'] = user.get('utilisateur_id')
         session['user_prenom'] = user['prenom']
         session['user_nom'] = user['nom']
         session['user_role'] = user['role_id']
 
         flash(f"Connexion réussie ! Ravis de vous revoir {user['prenom']}.", "success")
-        return redirect(url_for('home'))
+
+        # Redirection intelligente : vers next_page si elle existe, sinon vers home
+        return redirect(next_page or url_for('home'))
 
     return render_template('auth/login.html')
 
@@ -289,8 +292,85 @@ def clear_cart():
 
 # Route pour gérer la validation du panier ( à faire ensuite )
 @app.route('/checkout', methods=['POST'])
-def checkout():
-    return redirect(url_for('home'))
+def checkout_step_1():
+    """Étape 1 : Enregistrement des options choisies dans le panier et on redirige vers le formulaire d'adresse."""
+    if 'user_id' not in session:
+        flash("Veuillez vous connecter pour continuer.", "error")
+        return redirect(url_for('login_page', next=url_for('cart')))
+
+    # On stocke les options temporaires en session pour les retrouver à l'étape finale
+    session['checkout_options'] = {
+        'delivery_zone': request.form.get('delivery_zone'),
+        'distance_km': float(request.form.get('distance_km', 0) or 0),
+        'need_material': request.form.get('need_material')
+    }
+    session.modified = True
+    return redirect(url_for('order_details'))
+
+
+@app.route('/order-details', methods=['GET'])
+def order_details():
+    """Étape 2 : Affiche le formulaire d'adresse précise."""
+    if 'user_id' not in session or 'checkout_options' not in session:
+        return redirect(url_for('cart'))
+
+    cart_items = session.get('panier', [])
+    total_menus = sum(item['total_price'] for item in cart_items)
+
+    # Récupération des frais de livraison calculés
+    opts = session['checkout_options']
+    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+
+    # Date minimale de livraison (J+2)
+    min_date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+
+    return render_template('validate_order.html',
+                           total_menus=total_menus,
+                           total_delivery=total_delivery,
+                           min_date=min_date)
+
+
+@app.route('/confirm-order', methods=['POST'])
+def confirm_order():
+    """Étape 3 : On récupère l'adresse et on insère enfin en BDD."""
+    if 'user_id' not in session: return redirect(url_for('login_page'))
+
+    opts = session.get('checkout_options')
+    cart_items = session.get('panier', [])
+
+    # Récupération des nouvelles infos de livraison
+    adresse_precise = request.form.get('adresse')
+    ville = request.form.get('ville')
+    cp = request.form.get('code_postal')
+    date_prestation = request.form.get('date_prestation')
+    heure_livraison = request.form.get('heure_livraison')
+
+    total_menus = sum(item['total_price'] for item in cart_items)
+    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+
+    # Appel au backend/order.py
+    success, result = create_order(
+        user_id=session['user_id'],
+        cart_items=cart_items,
+        total_menus=total_menus,
+        total_delivery=total_delivery,
+        delivery_zone=opts['delivery_zone'],
+        need_material=opts['need_material'],
+        adresse=adresse_precise,
+        ville=ville,
+        cp=cp,
+        date_prestation=date_prestation,
+        heure_livraison=heure_livraison
+    )
+
+    if success:
+        session.pop('panier', None)
+        session.pop('checkout_options', None)
+        flash(f"Commande validée ! Référence : {result}", "success")
+        return redirect(url_for('home'))
+
+    flash(result, "error")
+    return redirect(url_for('order_details'))
 
 # Route pour déconnecter l'utilisateur
 @app.route('/logout')

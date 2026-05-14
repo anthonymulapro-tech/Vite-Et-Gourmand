@@ -20,7 +20,18 @@
         </a>
     </div>
 
-    <form action="{{ url_for('checkout') }}" method="POST" id="cartForm">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('checkout_step_1') }}" method="POST" id="cartForm">
         <div class="row">
             <div class="col-lg-8">
 

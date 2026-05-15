@@ -17,7 +17,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
-from backend.order_history import get_user_orders
+from backend.order_history import get_user_orders, get_order_details
 
 load_dotenv()
 
@@ -330,22 +330,20 @@ def order_details():
 
 @app.route('/confirm-order', methods=['POST'])
 def confirm_order():
-    """Génère la session de paiement Stripe."""
     if 'user_id' not in session: return redirect(url_for('login_page'))
 
-    # Sauvegarde des données de livraison finales en session avant de partir sur Stripe
+    # Sauvegarde des données de livraison avec LES BONS NOMS
     opts = session.get('checkout_options', {})
-    opts['adresse'] = request.form.get('adresse')
-    opts['ville'] = request.form.get('ville')
-    opts['cp'] = request.form.get('code_postal')
+    opts['adresse_livraison'] = request.form.get('adresse_livraison')
+    opts['ville_livraison'] = request.form.get('ville_livraison')
+    opts['code_postal_livraison'] = request.form.get('code_postal_livraison')
     opts['date_prestation'] = request.form.get('date_prestation')
     opts['heure_livraison'] = request.form.get('heure_livraison')
     session['checkout_options'] = opts
     session.modified = True
 
     cart_items = session.get('panier', [])
-    total_menus = sum(item['total_price'] for item in cart_items)
-    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+    total_delivery = 5 + (opts.get('distance_km', 0) * 0.59) if opts.get('delivery_zone') == 'outside' else 0
 
     # Création des "Lignes" pour Stripe
     line_items = []
@@ -359,7 +357,6 @@ def confirm_order():
             'quantity': item['quantity'],
         })
 
-    # Ajout des frais de livraison comme un produit à part
     if total_delivery > 0:
         line_items.append({
             'price_data': {
@@ -371,15 +368,24 @@ def confirm_order():
         })
 
     try:
-        # Création de la session Stripe
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=url_for('payment_success', _external=True),
+            success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('payment_cancel', _external=True),
+            # METADATA AVEC LES NOMS ALIGNÉS !
+            metadata={
+                'adresse_livraison': str(opts.get('adresse_livraison', '')),
+                'ville_livraison': str(opts.get('ville_livraison', '')),
+                'code_postal_livraison': str(opts.get('code_postal_livraison', '')),
+                'date_prestation': str(opts.get('date_prestation', '')),
+                'heure_livraison': str(opts.get('heure_livraison', '')),
+                'pret_materiel': str(opts.get('need_material', False)),
+                'distance_km': str(opts.get('distance_km', 0)),
+                'delivery_zone': str(opts.get('delivery_zone', 'inside'))
+            }
         )
-        # Redirection vers la page de paiement sécurisée de Stripe
         return redirect(checkout_session.url, code=303)
 
     except Exception as e:
@@ -389,38 +395,67 @@ def confirm_order():
 
 @app.route('/payment-success')
 def payment_success():
-    """Le client a payé, on insère la commande en base de données."""
-    if 'user_id' not in session or 'checkout_options' not in session:
+    # 1. Récupération de l'ID envoyé par Stripe
+    session_id = request.args.get('session_id')
+    if not session_id:
         return redirect(url_for('home'))
 
-    opts = session['checkout_options']
+    # 2. Demande d'infos de session à Stripe
+    stripe_session = stripe.checkout.Session.retrieve(session_id)
+    metadata = stripe_session.metadata
+
+    # --- Fonction pour lire le metadata Stripe ---
+    def get_meta(key, default_value=''):
+        if not metadata:
+            return default_value
+        try:
+            # Lecture de la clé comme dans un dictionnaire standard
+            return metadata[key]
+        except Exception:
+            return default_value
+
+    # -----------------------------------------------------
+
+    # 3. Récupération du  panier
     cart_items = session.get('panier', [])
+    if not cart_items:
+        return redirect(url_for('home'))
 
+    # 4. Calculs des totaux
     total_menus = sum(item['total_price'] for item in cart_items)
-    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
 
+    # Récupération de la valeur brute avec la fonction sécurisée
+    raw_dist = get_meta('distance_km', '0')
+
+    # Converssion en float
+    try:
+        dist_km = float(raw_dist) if raw_dist else 0.0
+    except (ValueError, TypeError):
+        dist_km = 0.0
+
+    total_delivery = 5 + (dist_km * 0.59) if get_meta('delivery_zone') == 'outside' else 0
+
+    # 5. Insertion en BDD
     success, result = create_order(
         utilisateur_id=session['user_id'],
         cart_items=cart_items,
         prix_menu=total_menus,
         prix_livraison=total_delivery,
-        pret_materiel=opts['need_material'],
-        adresse_livraison=opts['adresse'],
-        ville_livraison=opts['ville'],
-        code_postal_livraison=opts['cp'],
-        date_prestation=opts['date_prestation'],
-        heure_livraison=opts['heure_livraison']
+        pret_materiel=get_meta('pret_materiel'),
+        adresse_livraison=get_meta('adresse_livraison'),
+        ville_livraison=get_meta('ville_livraison'),
+        code_postal_livraison=get_meta('code_postal_livraison'),
+        date_prestation=get_meta('date_prestation'),
+        heure_livraison=get_meta('heure_livraison')
     )
 
     if success:
         session.pop('panier', None)
         session.pop('checkout_options', None)
-        # Utilisation de la succès
         return render_template('success.html', reference=result)
     else:
-        flash(result, "error")
+        flash("Erreur lors de l'enregistrement : " + result, "error")
         return redirect(url_for('cart'))
-
 
 @app.route('/payment-cancel')
 def payment_cancel():
@@ -433,11 +468,16 @@ def my_orders():
     if 'user_id' not in session:
         return redirect(url_for('login_page'))
 
-    # 1. On va chercher les commandes du client
-    commandes = get_user_orders(session['user_id'])
+    # Récupère les commandes de base
+    commandes_raw = get_user_orders(session['user_id'])
 
-    # 2. On les envoie à la page HTML !
-    return render_template('my_orders.html', commandes=commandes)
+    # Pour chaque commande, on va chercher ses menus
+    commandes_completes = []
+    for cmd in commandes_raw:
+        cmd['details'] = get_order_details(cmd['commande_id'])
+        commandes_completes.append(cmd)
+
+    return render_template('my_orders.html', commandes=commandes_completes)
 @app.route('/logout')
 def logout():
     session.clear()

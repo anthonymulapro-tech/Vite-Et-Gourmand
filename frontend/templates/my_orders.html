@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Commandes - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 60vh;">
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-2">Mes commandes</h1>
+        <p class="fs-5 text-brand-brown">Retrouvez ici tout votre historique.</p>
+    </div>
+
+    {% if commandes %}
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                {% for cmd in commandes %}
+                <div class="card shadow-sm mb-4 theme-box rounded-4 border-top-brand transition-hover">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center text-brand-brown">
+
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Référence</span>
+                                <strong class="fs-5 font-monospace">#{{ cmd.reference_commande }}</strong>
+                            </div>
+
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Livraison prévue le</span>
+                                <strong>{{ cmd.date_prestation.strftime('%d/%m/%Y') }}</strong> à {{ cmd.heure_livraison }}
+                            </div>
+
+                            <div class="col-md-2 text-md-center mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Total</span>
+                                <span class="fs-5 fw-bold">{{ "%.2f"|format(cmd.total_ttc) }} €</span>
+                            </div>
+
+                            <div class="col-md-2 text-md-center mb-3 mb-md-0">
+                                <span class="badge badge-vg-status rounded-pill px-3 py-2 shadow-sm">
+                                    {% if cmd.statut_commande == 'En attente' %}
+                                        En attente de vailidation par nos équipes
+                                    {% elif cmd.statut_commande == 'Validée' %}
+                                        En cours de préparation/livraison
+                                    {% elif cmd.statut_commande == 'Terminée' %}
+                                        Commande livré
+                                    {% elif cmd.statut_commande == 'Annulée' %}
+                                        Votre commande a été annulé
+                                    {% else %}
+                                        {{ cmd.statut_commande }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-md-2 text-md-end text-center mt-2 mt-md-0">
+                                <a href="#" class="btn btn-details-vg w-80 w-md-auto px-4 shadow-sm">
+                                    <i class="bi bi-eye me-1"></i> Détails
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5 content-box mx-auto shadow-sm" style="max-width: 600px;">
+            <i class="bi bi-bag-x mb-3 d-block text-brand-brown" style="font-size: 4rem;"></i>
+            <h3 class="mb-4 text-brand-brown font-pacifico">Vous n'avez pas encore passé de commande.</h3>
+            <a href="{{ url_for('menus_page') }}" class="btn btn-brand-brown rounded-pill fs-5 px-4 py-2 mt-2">
+                Découvrir la carte
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

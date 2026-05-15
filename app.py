@@ -17,6 +17,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
+from backend.order_history import get_user_orders
 
 load_dotenv()
 
@@ -430,9 +431,13 @@ def payment_cancel():
 @app.route('/my-orders')
 def my_orders():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_page'))
 
-    return render_template('my_orders.html')
+    # 1. On va chercher les commandes du client
+    commandes = get_user_orders(session['user_id'])
+
+    # 2. On les envoie à la page HTML !
+    return render_template('my_orders.html', commandes=commandes)
 @app.route('/logout')
 def logout():
     session.clear()

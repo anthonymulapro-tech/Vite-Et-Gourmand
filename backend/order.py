@@ -41,7 +41,7 @@ def create_order(utilisateur_id, cart_items, prix_menu, prix_livraison, pret_mat
             ville_livraison,
             adresse_livraison,
             code_postal_livraison,
-            'Payée',
+            'En cours de traitement',
             pret_materiel_bool
         )
 

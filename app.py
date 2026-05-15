@@ -133,8 +133,6 @@ def login_page():
         session['user_nom'] = user['nom']
         session['user_role'] = user['role_id']
 
-        flash(f"Connexion réussie ! Ravis de vous revoir {user['prenom']}.", "success")
-
         # Redirection intelligente : vers next_page si elle existe, sinon vers home
         return redirect(next_page or url_for('home'))
 
@@ -285,9 +283,6 @@ def clear_cart():
     session.pop('panier', None)
     session.modified = True
 
-    # Info
-    flash("Votre panier a été vidé.", "info")
-
     # Redirection sur le panier ( message de panier vide + voir les menus )
     return redirect(url_for('cart'))
 
@@ -429,9 +424,15 @@ def payment_success():
 @app.route('/payment-cancel')
 def payment_cancel():
     """L'utilisateur a annulé le paiement sur la page Stripe."""
-    flash("Le paiement a été annulé. Votre panier est toujours disponible.", "info")
     return redirect(url_for('order_details'))
 # Route pour déconnecter l'utilisateur
+
+@app.route('/my-orders')
+def my_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    return render_template('my_orders.html')
 @app.route('/logout')
 def logout():
     session.clear()

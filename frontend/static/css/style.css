@@ -1219,7 +1219,7 @@ input:-webkit-autofill:active {
 
 /* Style des nouveaux boutons + et - de la distance */
 .btn-distance {
-    background-color: var(--brand-gold) !important;
+    background-color: var(--bg-cream) !important;
     color: var(--brand-brown) !important;
     border: 1px solid var(--brand-peach) !important;
 }
@@ -1313,4 +1313,134 @@ input:-webkit-autofill:active {
 #distance_container .input-group .form-control:focus,
 #distance_container .input-group .btn-distance:focus {
     border-color: var(--brand-gold) !important;
+}
+
+/* ==========================================================================
+   MENU DÉROULANT CUSTOM (PANIER) - HOVER CRÈME
+   ========================================================================== */
+
+/* Masque la flèche interne du dropdown Bootstrap pour laisser agir celle du form-select */
+.custom-delivery-dropdown button::after {
+    display: none !important;
+}
+
+/* Apparence du menu déroulant */
+.custom-delivery-dropdown .dropdown-menu {
+    background-color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 15px;
+    margin-top: 5px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.custom-delivery-dropdown .dropdown-item {
+    color: var(--bg-cream) !important;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.custom-delivery-dropdown .dropdown-item:hover,
+.custom-delivery-dropdown .dropdown-item:focus {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+#selected-zone-text {
+    color: var(--bg-cream) !important;
+}
+
+/* =========================================
+   CHAMPS DE SAISIE (PANIER VS CHECKOUT)
+   ========================================= */
+
+/* PANIER */
+.theme-box .form-select,
+.theme-box .form-control {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 20px;
+}
+.theme-box .form-select:focus,
+.theme-box .form-control:focus {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border-radius: 20px;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* CHECKOUT */
+.checkout-box .form-control,
+.checkout-box .form-select {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px;
+}
+.checkout-box .form-control:focus,
+.checkout-box .form-select:focus {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* ==========================================================================
+   SCROLLBAR PERSONNALISÉE (HEURE DE LIVRAISON)
+   ========================================================================== */
+
+/* 1. Pour Firefox  */
+.custom-delivery-dropdown .dropdown-menu {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-peach) var(--brand-brown);
+}
+
+/* 2. Pour Chrome, Safari et Edge */
+
+/* Largeur de la barre entière */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar {
+    width: 14px;
+}
+
+/* Le fond de la barre (La piste) */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-track {
+    background: var(--brand-brown);
+    border-radius: 0 15px 15px 0;
+}
+
+/* Curseur */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: var(--brand-peach);
+    border-radius: 10px;
+    border: 3px solid var(--brand-brown);
+}
+
+/* Hover */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background-color: var(--brand-peach);
+}
+
+/* Les boutons contenant les flèches (Haut et Bas) */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button {
+    background-color: var(--brand-brown);
+    display: block;
+    height: 18px;
+}
+
+/* Flèche du Haut  */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFEDC5'%3e%3Cpath d='M8 5.5l5 5H3z'/%3e%3C/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center 6px;
+    background-size: 10px;
+}
+
+/* Flèche du Bas  */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFEDC5'%3e%3Cpath d='M8 10.5l-5-5h10z'/%3e%3C/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center 2px;
+    background-size: 10px;
 }

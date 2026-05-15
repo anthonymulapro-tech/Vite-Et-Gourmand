@@ -14,13 +14,24 @@
     {% if cart_items %}
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0" style="color: var(--brand-brown);">Votre panier !</h2>
+        <h2 class="title-brand mb-0" style="color: var(--brand-brown);">Votre panier !</h2>
         <a href="{{ url_for('menus_page') }}" class="btn btn-return">
             <i class="bi bi-arrow-left"></i> Retour aux menus
         </a>
     </div>
 
-    <form action="{{ url_for('checkout') }}" method="POST" id="cartForm">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('checkout_step_1') }}" method="POST" id="cartForm">
         <div class="row">
             <div class="col-lg-8">
 
@@ -73,14 +84,22 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm theme-box">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Livraison & Paiement</h5>
+                        <h5 class="card-title mb-4">Estimation frais de livraison</h5>
 
                         <div class="mb-3">
                             <label for="delivery_zone" class="form-label">Zone de livraison :</label>
-                            <select class="form-select" id="delivery_zone" name="delivery_zone" required>
-                                <option value="bordeaux" selected>Bordeaux Centre (Gratuit)</option>
-                                <option value="outside">Hors Bordeaux</option>
-                            </select>
+
+                            <div class="dropdown custom-delivery-dropdown">
+                                <button class="form-select text-start d-flex justify-content-between align-items-center" type="button" id="deliveryDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span id="selected-zone-text">Bordeaux Centre (Gratuit)</span>
+                                </button>
+                                <ul class="dropdown-menu w-100 shadow-sm" aria-labelledby="deliveryDropdownBtn">
+                                    <li><a class="dropdown-item" href="#" data-value="bordeaux">Bordeaux Centre (Gratuit)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-value="outside">Hors Bordeaux</a></li>
+                                </ul>
+                            </div>
+
+                            <input type="hidden" id="delivery_zone" name="delivery_zone" value="bordeaux">
                         </div>
 
                         <div class="mb-3 d-none" id="distance_container">
@@ -117,7 +136,7 @@
                             <h4 class="mb-0"><span id="display_grand_total">{{ subtotal }}</span> €</h4>
                         </div>
 
-                        <button type="submit" class="btn btn-checkout w-100 btn-lg mb-3">Confirmer et se diriger vers la page de paiement</button>
+                        <button type="submit" class="btn btn-checkout w-100 btn-lg mb-3">Confirmer et accéder à l'adresse de livraison</button>
                     </div>
                 </div>
             </div>

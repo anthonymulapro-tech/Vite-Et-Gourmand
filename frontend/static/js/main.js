@@ -261,6 +261,46 @@ document.addEventListener('DOMContentLoaded', function() {
     deliveryZone.addEventListener('change', calculateTotal);
     distanceKm.addEventListener('input', calculateTotal);
 
-    // Calcul initial
+    // --- GESTION DU MENU DÉROULANT CUSTOM (Zone de livraison) ---
+    const dropdownItems = document.querySelectorAll('.custom-delivery-dropdown .dropdown-item');
+    const selectedZoneText = document.getElementById('selected-zone-text');
+
+    if (dropdownItems.length > 0) {
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // 1. Change le texte affiché sur le bouton
+                selectedZoneText.textContent = this.textContent;
+
+                // 2. Change la valeur de l'input caché
+                deliveryZone.value = this.getAttribute('data-value');
+
+                // 3. Déclenche manuellement l'événement 'change' pour forcer le recalcul des frais
+                deliveryZone.dispatchEvent(new Event('change'));
+            });
+        });
+    }
+
+
     calculateTotal();
 });
+
+// --- GESTION DU MENU DÉROULANT CUSTOM (Heure de livraison) ---
+    const timeItems = document.querySelectorAll('.time-item');
+    const selectedTimeText = document.getElementById('selected-time-text');
+    const inputHeureLivraison = document.getElementById('heure_livraison');
+
+    if (timeItems.length > 0 && selectedTimeText && inputHeureLivraison) {
+        timeItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // 1. Change le texte affiché sur le bouton
+                selectedTimeText.textContent = this.textContent;
+
+                // 2. Change la valeur de l'input caché pour le formulaire
+                inputHeureLivraison.value = this.getAttribute('data-value');
+            });
+        });
+    }

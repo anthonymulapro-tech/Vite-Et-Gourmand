@@ -29,7 +29,7 @@
                             {% endif %}
                         {% endwith %}
 
-                        <form action="{{ url_for('login_page') }}" method="POST" class="needs-validation login-form" novalidate>
+                        <form action="{{ url_for('login_page', next=request.args.get('next')) }}" method="POST" class="needs-validation login-form" novalidate>
                              <!-- Champ email -->
                             <div class="mb-3">
                                 <label for="email" class="form-label">Adresse email</label>

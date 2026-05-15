@@ -1,15 +1,16 @@
 import os
+import stripe
+
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from dotenv import load_dotenv
 
-load_dotenv()
-
+from backend.user import create_user, login_user, validate_password, email_exists
+from backend.cart import calculer_prix_total
+from backend.order import create_order
 # ==========================================================================
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
-from backend.user import create_user, login_user, validate_password, email_exists
-from backend.cart import calculer_prix_total
-# Importation des futures fonctions SQL
 from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
 from backend.contact import save_contact_message
@@ -17,7 +18,9 @@ from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
 
+load_dotenv()
 
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 # Configuration de Flask
 app = Flask(
     __name__,
@@ -110,28 +113,28 @@ def login_page():
     if 'user_prenom' in session:
         return redirect(url_for('home'))
 
+    # On récupère l'éventuelle page suivante
+    next_page = request.args.get('next')
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Vérification email existant
         if not email_exists(email):
             return render_template('auth/login.html', email_error=True, email_saved=email)
 
-        # L'email est valide, mais vérification du mot de passe
         user = login_user(email, password)
-
         if not user:
             return render_template('auth/login.html', password_error=True, email_saved=email)
 
-        # Connexion réussie !
-        session['user_id'] = user.get('id') or user.get('id_utilisateur')
+        # Connexion réussie
+        session['user_id'] = user.get('utilisateur_id')
         session['user_prenom'] = user['prenom']
         session['user_nom'] = user['nom']
         session['user_role'] = user['role_id']
 
-        flash(f"Connexion réussie ! Ravis de vous revoir {user['prenom']}.", "success")
-        return redirect(url_for('home'))
+        # Redirection intelligente : vers next_page si elle existe, sinon vers home
+        return redirect(next_page or url_for('home'))
 
     return render_template('auth/login.html')
 
@@ -280,19 +283,156 @@ def clear_cart():
     session.pop('panier', None)
     session.modified = True
 
-    # Info
-    flash("Votre panier a été vidé.", "info")
-
     # Redirection sur le panier ( message de panier vide + voir les menus )
     return redirect(url_for('cart'))
 
 
 # Route pour gérer la validation du panier ( à faire ensuite )
 @app.route('/checkout', methods=['POST'])
-def checkout():
-    return redirect(url_for('home'))
+def checkout_step_1():
+    """Étape 1 : Enregistrement des options choisies dans le panier et on redirige vers le formulaire d'adresse."""
+    if 'user_id' not in session:
+        flash("Veuillez vous connecter pour continuer.", "error")
+        return redirect(url_for('login_page', next=url_for('cart')))
 
+    # On stocke les options temporaires en session pour les retrouver à l'étape finale
+    session['checkout_options'] = {
+        'delivery_zone': request.form.get('delivery_zone'),
+        'distance_km': float(request.form.get('distance_km', 0) or 0),
+        'need_material': request.form.get('need_material')
+    }
+    session.modified = True
+    return redirect(url_for('order_details'))
+
+
+@app.route('/order-details', methods=['GET'])
+def order_details():
+    """Étape 2 : Affiche le formulaire d'adresse précise."""
+    if 'user_id' not in session or 'checkout_options' not in session:
+        return redirect(url_for('cart'))
+
+    cart_items = session.get('panier', [])
+    total_menus = sum(item['total_price'] for item in cart_items)
+
+    # Récupération des frais de livraison calculés
+    opts = session['checkout_options']
+    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+
+    # Date minimale de livraison (J+2)
+    min_date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+
+    return render_template('validate_order.html',
+                           total_menus=total_menus,
+                           total_delivery=total_delivery,
+                           min_date=min_date)
+
+
+@app.route('/confirm-order', methods=['POST'])
+def confirm_order():
+    """Génère la session de paiement Stripe."""
+    if 'user_id' not in session: return redirect(url_for('login_page'))
+
+    # Sauvegarde des données de livraison finales en session avant de partir sur Stripe
+    opts = session.get('checkout_options', {})
+    opts['adresse'] = request.form.get('adresse')
+    opts['ville'] = request.form.get('ville')
+    opts['cp'] = request.form.get('code_postal')
+    opts['date_prestation'] = request.form.get('date_prestation')
+    opts['heure_livraison'] = request.form.get('heure_livraison')
+    session['checkout_options'] = opts
+    session.modified = True
+
+    cart_items = session.get('panier', [])
+    total_menus = sum(item['total_price'] for item in cart_items)
+    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+
+    # Création des "Lignes" pour Stripe
+    line_items = []
+    for item in cart_items:
+        line_items.append({
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {'name': item['name']},
+                'unit_amount': int((item['total_price'] / item['quantity']) * 100),
+            },
+            'quantity': item['quantity'],
+        })
+
+    # Ajout des frais de livraison comme un produit à part
+    if total_delivery > 0:
+        line_items.append({
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {'name': 'Frais de livraison'},
+                'unit_amount': int(total_delivery * 100),
+            },
+            'quantity': 1,
+        })
+
+    try:
+        # Création de la session Stripe
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=url_for('payment_success', _external=True),
+            cancel_url=url_for('payment_cancel', _external=True),
+        )
+        # Redirection vers la page de paiement sécurisée de Stripe
+        return redirect(checkout_session.url, code=303)
+
+    except Exception as e:
+        flash(f"Erreur avec le service de paiement : {e}", "error")
+        return redirect(url_for('order_details'))
+
+
+@app.route('/payment-success')
+def payment_success():
+    """Le client a payé, on insère la commande en base de données."""
+    if 'user_id' not in session or 'checkout_options' not in session:
+        return redirect(url_for('home'))
+
+    opts = session['checkout_options']
+    cart_items = session.get('panier', [])
+
+    total_menus = sum(item['total_price'] for item in cart_items)
+    total_delivery = 5 + (opts['distance_km'] * 0.59) if opts['delivery_zone'] == 'outside' else 0
+
+    success, result = create_order(
+        utilisateur_id=session['user_id'],
+        cart_items=cart_items,
+        prix_menu=total_menus,
+        prix_livraison=total_delivery,
+        pret_materiel=opts['need_material'],
+        adresse_livraison=opts['adresse'],
+        ville_livraison=opts['ville'],
+        code_postal_livraison=opts['cp'],
+        date_prestation=opts['date_prestation'],
+        heure_livraison=opts['heure_livraison']
+    )
+
+    if success:
+        session.pop('panier', None)
+        session.pop('checkout_options', None)
+        # Utilisation de la succès
+        return render_template('success.html', reference=result)
+    else:
+        flash(result, "error")
+        return redirect(url_for('cart'))
+
+
+@app.route('/payment-cancel')
+def payment_cancel():
+    """L'utilisateur a annulé le paiement sur la page Stripe."""
+    return redirect(url_for('order_details'))
 # Route pour déconnecter l'utilisateur
+
+@app.route('/my-orders')
+def my_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    return render_template('my_orders.html')
 @app.route('/logout')
 def logout():
     session.clear()

@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="filter-section content-box mb-5">
+    <div class="filter-section vg-box vg-box-padded vg-layout-margins mb-5">
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="filter-label d-flex justify-content-between mb-2">
@@ -107,12 +107,12 @@
         </div>
     </div>
 
-    <div class="menus-grid-container mb-5">
+    <div class="menus-grid-container vg-layout-margins mb-5">
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% if menus %}
                 {% for menu in menus %}
                 <div class="col">
-                    <div class="card h-100 menu-card shadow-sm">
+                    <div class="card h-100 menu-card vg-boxshadow-sm">
                         <div class="card-body d-flex flex-column text-center p-4">
                             <h2 class="menu-card-title font-pacifico">{{ menu.titre_menu }}</h2>
                             <p class="menu-card-price mb-3">{{ menu.prix_par_personne }}€ / personne</p>

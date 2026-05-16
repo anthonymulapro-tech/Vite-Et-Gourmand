@@ -60,57 +60,12 @@ body {
     }
 }
 
-/* Carte personnalisée de connexion et inscription */
-.card-custom {
-    background-color: var(--brand-gold);
-    border: 3px solid var(--brand-brown);
-    border-radius: 20px;
-}
-
-/* Titre Pacifico à l'intérieur des cartes */
-.card-title-custom {
-    font-family: var(--title-font);
-    color: var(--brand-brown);
-    font-size: 2.2rem;
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-
-/* Formulaires et inputs de texte */
-
 /* Libellés des formulaires */
 .form-label {
     font-family: var(--body-font);
     color: var(--brand-brown) !important;
     font-weight: 600;
 }
-
-/* Champs de saisie standards */
-.form-control {
-    border: 2px solid var(--brand-brown);
-    color: var(--brand-brown) !important;
-    font-family: var(--body-font);
-    font-weight: 500;
-}
-
-/* Couleur du texte d'aide (placeholder) */
-.form-control::placeholder {
-    color: var(--text-muted-custom) !important;
-    font-weight: 400;
-    opacity: 1;
-}
-
-/* Effet lors du clic (Focus) dans un champ de saisie standard */
-.form-control:focus {
-    border-color: #8b5b40 !important;
-    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-    background-color: #ffffff !important;
-}
-
-
-/* Case à cocher personnalisée (checkbox) */
 
 /* État par défaut et état valide après soumission */
 .form-check-input,
@@ -135,11 +90,6 @@ body {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23FFEDC5' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
 }
 
-
-/* Boutons et liens interactifs */
-
-
-
 /* Style des liens (Inscription, mot de passe oublié) */
 .link-brand {
     color: var(--brand-brown);
@@ -150,9 +100,6 @@ body {
 .link-brand:hover {
     color: var(--brand-peach) !important;
 }
-
-
-/* Ajustements et corrections graphiques */
 
 /* Suppression du contour bleu d'accessibilité sur la croix des alertes */
 .btn-close:focus {
@@ -170,108 +117,19 @@ input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;          /* Empêche le retour du bleu */
 }
 
-
-/* Style du champ de mot de passe unique */
-
-/* On force l'input et le bouton à partager le même fond et la même bordure */
-.password-group .form-control {
-    border: 2px solid var(--brand-brown) !important;
-    border-right: none !important;
-    background-color: #ffffff !important;
-    border-top-left-radius: 0.375rem !important;
-    border-bottom-left-radius: 0.375rem !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-}
-
-.password-group .btn-toggle-password {
-    border: 2px solid var(--brand-brown) !important;
-    border-left: none !important;
-    background-color: #ffffff !important;
-    color: var(--brand-brown) !important;
-    border-top-right-radius: 0.375rem !important;
-    border-bottom-right-radius: 0.375rem !important;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    padding-right: 15px;
-    padding-left: 10px;
-    display: flex;
-    align-items: center;
-    transition: color 0.2s ease-in-out;
-}
-
-/* Effet au survol de l'œil */
-.password-group .btn-toggle-password:hover {
-    color: #5e350f !important;
-}
-
-/* Effet focus unifié du groupe mot de passe */
-.password-group:focus-within {
-    border-radius: 0.375rem;
-    box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.75) !important;
-}
-
-/* Quand on clique dans le champ, la bordure complète s'assombrit légèrement */
-.password-group:focus-within .form-control,
-.password-group:focus-within .btn-toggle-password {
-    border-color: #8b5b40 !important;
-}
-
-/* Désactivation du comportement de focus individuel par défaut de Bootstrap */
-.password-group .form-control:focus {
-    box-shadow: none !important;
-    border-color: var(--brand-brown) !important;
-}
-
-
-/* Gestion de la validation & refactoring des erreurs */
-
-/* Si invalide (Erreur) */
-.password-group .form-control.is-invalid,
-.password-group .form-control.is-invalid + .btn-toggle-password,
-.was-validated .password-group .form-control:invalid,
-.was-validated .password-group .form-control:invalid + .btn-toggle-password {
-    border-color: #dc3545 !important;
-    color: #dc3545 !important;
-}
-
-/* Désactivation complète du vert de validation sur le login  */
-.login-form.was-validated .form-control:valid,
-.login-form .form-control.is-valid {
-    border-color: var(--brand-brown) !important;
-    background-image: none !important;
-    padding-right: 12px !important;
-    color: var(--brand-brown) !important;
-}
-
-/* On force l'oeil du mot de passe à rester marron et sans bordure verte */
-.login-form.was-validated .password-group .form-control:valid + .btn-toggle-password,
-.login-form .password-group .form-control.is-valid + .btn-toggle-password {
-    border-color: var(--brand-brown) !important;
-    color: var(--brand-brown) !important;
-}
-
-/* On conserve le halo orange/pêche chaleureux lors du clic */
-.login-form.was-validated .form-control:valid:focus,
-.login-form .form-control.is-valid:focus {
-    border-color: #8b5b40 !important;
-    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
-}
-
-/* Affichage dynamique de l'erreur à l'extérieur du groupe de mot de passe (sélecteur adjacent) */
-.password-group:has(.is-invalid) ~ .invalid-feedback,
-.was-validated .password-group:has(:invalid) ~ .invalid-feedback {
-    display: block !important;
-}
-
-/* Mise en page de la page d'accueil */
-
 /* Structure principale calquée sur le layout 80% */
 .custom-layout-container {
     width: 80%;
-    max-width: 1280px;
+    max-width: 2100px;
     margin: 0 auto;
+    padding-top: 10px;
     font-family: var(--body-font);
+    border-left: 3px solid var(--brand-brown);
+    border-right: 3px solid var(--brand-brown);
+    background-color: var(--bg-cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header & Navigation */
@@ -334,8 +192,8 @@ input:-webkit-autofill:active {
 
 /* Bannière rectangulaire */
 .banner-wrapper {
-    border: 3px solid var(--brand-brown);
-    border-radius: 12px;
+    border-top: 3px solid var(--brand-brown);
+    border-bottom: 3px solid var(--brand-brown);
     overflow: hidden;
     height: 380px;
 }
@@ -344,14 +202,6 @@ input:-webkit-autofill:active {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-/* Grands Blocs Rectangulaires */
-.content-box {
-    background-color: var(--brand-gold);
-    border: 3px solid var(--brand-brown);
-    border-radius: 15px;
-    padding: 40px;
 }
 
 .box-title {
@@ -367,9 +217,6 @@ input:-webkit-autofill:active {
     line-height: 1.7;
     color: var(--brand-brown);
 }
-
-/* Bouton d'action */
-
 
 /* 4. Cartes Avis */
 .testimonial-card {
@@ -392,21 +239,6 @@ input:-webkit-autofill:active {
     color: var(--brand-brown);
     margin: 0;
     line-height: 1.5;
-}
-
-/* 5. Formulaire de contact */
-.custom-input, .custom-textarea {
-    background-color: var(--white) !important;
-    border: 2px solid var(--brand-brown) !important;
-    border-radius: 8px !important;
-    font-size: 18px !important;
-    color: var(--brand-brown) !important;
-    padding: 12px 18px !important;
-}
-
-.custom-input::placeholder, .custom-textarea::placeholder {
-    color: var(--text-muted-custom) !important;
-    opacity: 0.7;
 }
 
 .custom-checkbox {
@@ -519,29 +351,6 @@ input:-webkit-autofill:active {
     }
 }
 
-.custom-layout-container {
-    width: 80%;
-    max-width: 2100px;
-    margin: 0 auto;
-    padding-top: 10px;
-    font-family: var(--body-font);
-    border-left: 3px solid var(--brand-brown);
-    border-right: 3px solid var(--brand-brown);
-    background-color: var(--bg-cream);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.banner-wrapper {
-    border-top: 3px solid var(--brand-brown);
-    border-bottom: 3px solid var(--brand-brown);
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
-    overflow: hidden;
-    height: 380px;
-}
 
 .content-box {
     background-color: var(--brand-gold);
@@ -628,24 +437,6 @@ input:-webkit-autofill:active {
     font-weight: 700;
     color: var(--brand-brown);
     display: block;
-}
-
-/* Curseur (Sliders de prix/personnes) aux couleurs de la marque */
-.custom-range::-webkit-slider-thumb {
-    background: var(--brand-brown) !important;
-}
-.custom-range::-moz-range-thumb {
-    background: var(--brand-brown) !important;
-}
-.custom-range::-webkit-slider-runnable-track {
-    background: var(--white) !important;
-    border: 2px solid var(--brand-brown) !important;
-    border-radius: 10px;
-}
-
-.range-limits {
-    font-size: 0.85rem;
-    color: var(--brand-brown);
 }
 
 /* Boutons filtres en forme de pilules interactives */
@@ -778,10 +569,6 @@ input:-webkit-autofill:active {
     transition: transform 0.15s ease-in-out;
 }
 
-.double-slider-box input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.15); /* Léger zoom au survol */
-}
-
 /* Style des ronds (Handles) pour Firefox */
 .double-slider-box input[type="range"]::-moz-range-thumb {
     height: 18px;
@@ -795,6 +582,9 @@ input:-webkit-autofill:active {
     transition: transform 0.15s ease-in-out;
 }
 
+/* --- FUSION DES HOVERS ---
+   Léger zoom au survol pour tous les navigateurs */
+.double-slider-box input[type="range"]::-webkit-slider-thumb:hover,
 .double-slider-box input[type="range"]::-moz-range-thumb:hover {
     transform: scale(1.15);
 }
@@ -1083,33 +873,6 @@ input:-webkit-autofill:active {
 }
 
 /* --- DESIGN DES BOÎTES DU PANIER --- */
-.theme-box {
-    background-color: var(--brand-gold) !important;
-    color: var(--brand-brown) !important;
-    border: 2px solid var(--brand-brown) !important;
-}
-
-/* Force tous les textes à l'intérieur des boîtes à être marron */
-.theme-box h4,
-.theme-box h5,
-.theme-box span,
-.theme-box strong,
-.theme-box small,
-.theme-box label,
-.theme-box td,
-.theme-box th {
-    color: var(--brand-brown) !important;
-}
-
-/* Adaptation du tableau pour fondre avec le fond gold */
-.theme-box table {
-    border-color: var(--brand-brown) !important;
-}
-
-.theme-box .table-light th {
-    background-color: transparent !important;
-    border-bottom: 2px solid var(--brand-brown) !important;
-}
 
 /*L'icône de la poubelle prend aussi la couleur */
 .btn-outline-danger {
@@ -1121,39 +884,6 @@ input:-webkit-autofill:active {
     color: var(--brand-gold);
 }
 
-/* --- CONTRASTE INTÉRIEUR : Données et Formulaires --- */
-
-/* 1. Lignes de données du tableau (Fond marron, texte crème) */
-.theme-box table tbody tr,
-.theme-box table tbody td,
-.theme-box table tbody td strong {
-    background-color: var(--bg-cream) !important;
-    color: var(--brand-brown) !important;
-
-
-}
-
-/* 2. Champs de saisie : Zone de livraison et Distance */
-.theme-box .form-select,
-.theme-box .form-control {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important; /* Bordure dorée pour le style */
-    border-radius: 20px;
-}
-
-/* 3. Garder les couleurs lors du clic (Focus) */
-.theme-box .form-select:focus,
-.theme-box .form-control:focus {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border-radius: 20px;
-    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
-}
-.theme-box .form-select option {
-    background-color: var(--brand-brown);
-    color: var(--bg-cream);
-}
 
 /* Masquer les flèches natives du navigateur pour les champs number */
 #distance_container input[type="number"]::-webkit-inner-spin-button,
@@ -1186,17 +916,6 @@ input:-webkit-autofill:active {
     outline: none !important;
     border-color: var(--brand-gold) !important;
 }
-
-/* --- Bouton de Paiement Principal --- */
-
-
-/* --- Bouton Vider le Panier --- */
-
-/* --- Bouton "Découvrir nos menus" (Panier vide) --- */
-
-
-/* --- Bouton "Retour aux menus" (En-tête panier) --- */
-
 
 /* --- Correction des bordures noires sur le compteur de distance --- */
 #distance_container .input-group .btn-distance,
@@ -1243,42 +962,6 @@ input:-webkit-autofill:active {
 
 #selected-zone-text {
     color: var(--bg-cream) !important;
-}
-
-/* =========================================
-   CHAMPS DE SAISIE (PANIER VS CHECKOUT)
-   ========================================= */
-
-/* PANIER */
-.theme-box .form-select,
-.theme-box .form-control {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    border-radius: 20px;
-}
-.theme-box .form-select:focus,
-.theme-box .form-control:focus {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border-radius: 20px;
-    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
-}
-
-/* CHECKOUT */
-.checkout-box .form-control,
-.checkout-box .form-select {
-    background-color: var(--white) !important;
-    color: var(--brand-brown) !important;
-    border: 2px solid var(--brand-brown) !important;
-    border-radius: 20px;
-}
-.checkout-box .form-control:focus,
-.checkout-box .form-select:focus {
-    background-color: var(--white) !important;
-    color: var(--brand-brown) !important;
-    border-color: var(--brand-brown) !important;
-    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
 }
 
 /* ==========================================================================
@@ -1355,8 +1038,6 @@ span.badge.badge-vg-status {
     display: inline-block;
 }
 
-/* Bouton Détails */
-
 /* Style barre */
 
 .border-brand-brown {
@@ -1382,4 +1063,208 @@ span.badge.badge-vg-status {
     color: var(--brand-brown) !important;
     border-color: var(--brand-brown) !important;
     transform: scale(1.02);
+}
+
+/* ==========================================================================
+   LE CONTENEUR UNIVERSEL VITE & GOURMAND (.vg-box)
+   ========================================================================== */
+.vg-box {
+    background-color: var(--brand-gold) !important;
+    border: 3px solid var(--brand-brown) !important;
+    border-radius: 15px !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Version avec padding pour l'accueil, les filtres et les formulaires */
+.vg-box-padded {
+    padding: 40px;
+}
+
+/* Gestion spécifique des marges à 120px pour l'accueil et la grille (Écrans PC) */
+.vg-layout-margins {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+/* Réduction des grandes marges pour que ça respire sur tablette et mobile */
+@media (max-width: 992px) {
+    .vg-layout-margins {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* --- COULEUR MARRON SUR TOUS LES TEXTES INTERNES --- */
+.vg-box h4, .vg-box h5, .vg-box span, .vg-box strong,
+.vg-box small, .vg-box label, .vg-box td, .vg-box th {
+    color: var(--brand-brown) !important;
+}
+
+/* --- LOGIQUE DE CONTRASTE DES TABLEAUX (PANIER / HISTORIQUE) --- */
+.vg-box table {
+    border-color: var(--brand-brown) !important;
+}
+
+.vg-box .table-light th {
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--brand-brown) !important;
+}
+
+/* Fond les lignes du tableau */
+.vg-box table tbody tr,
+.vg-box table tbody td,
+.vg-box table tbody td strong {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- CHAMPS DE SAISIE SOMBRES UNIQUEMENT POUR LE PANIER (.vg-box-dark-fields) --- */
+.vg-box-dark-fields .form-select,
+.vg-box-dark-fields .form-control {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 20px;
+}
+
+/* Conserver les couleurs au clic (Focus) */
+.vg-box-dark-fields .form-select:focus,
+.vg-box-dark-fields .form-control:focus {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+.vg-box-dark-fields .form-select option {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+}
+
+/* ==========================================================================
+   LES FORMULAIRES CLAIRS (CONNEXION, INSCRIPTION, FINALISATION)
+   ========================================================================== */
+
+/* Style par défaut pour les champs sur fond clair */
+.login-form .form-control,
+.needs-validation .form-control,
+.needs-validation .form-select {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px !important;
+    font-weight: 500;
+}
+
+/* Effet au clic (Focus) pour les champs clairs */
+.login-form .form-control:focus,
+.needs-validation .form-control:focus,
+.needs-validation .form-select:focus {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Style du texte d'aide (Placeholder) */
+.login-form .form-control::placeholder,
+.needs-validation .form-control::placeholder {
+    color: var(--text-muted-custom) !important;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   GESTION DU CHAMP DE MOT DE PASSE UNIQUE (.password-group)
+   ========================================================================== */
+
+/* On force l'input et le bouton à partager le même fond et la même bordure */
+.password-group .form-control {
+    border: 2px solid var(--brand-brown) !important;
+    border-right: none !important;
+    background-color: #ffffff !important;
+    border-top-left-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.password-group .btn-toggle-password {
+    border: 2px solid var(--brand-brown) !important;
+    border-left: none !important;
+    background-color: #ffffff !important;
+    color: var(--brand-brown) !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    padding-right: 15px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease-in-out;
+}
+
+/* Effet au survol de l'œil */
+.password-group .btn-toggle-password:hover {
+    color: #5e350f !important;
+}
+
+/* Effet focus unifié du groupe mot de passe (Passé à 20px pour correspondre au site) */
+.password-group:focus-within {
+    border-radius: 20px !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Quand on clique dans le champ, la bordure complète s'assombrit légèrement */
+.password-group:focus-within .form-control,
+.password-group:focus-within .btn-toggle-password {
+    border-color: #8b5b40 !important;
+}
+
+/* Désactivation du comportement de focus individuel par défaut de Bootstrap */
+.password-group .form-control:focus {
+    box-shadow: none !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* --- GESTION DE LA VALIDATION & ERREURS --- */
+
+/* Si invalide (Erreur) */
+.password-group .form-control.is-invalid,
+.password-group .form-control.is-invalid + .btn-toggle-password,
+.was-validated .password-group .form-control:invalid,
+.was-validated .password-group .form-control:invalid + .btn-toggle-password {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+/* Désactivation complète du vert de validation sur le login */
+.login-form.was-validated .form-control:valid,
+.login-form .form-control.is-valid {
+    border-color: var(--brand-brown) !important;
+    background-image: none !important;
+    padding-right: 12px !important;
+    color: var(--brand-brown) !important;
+}
+
+/* On force l'œil du mot de passe à rester marron et sans bordure verte */
+.login-form.was-validated .password-group .form-control:valid + .btn-toggle-password,
+.login-form .password-group .form-control.is-valid + .btn-toggle-password {
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* On conserve le halo orange/pêche chaleureux lors du clic */
+.login-form.was-validated .form-control:valid:focus,
+.login-form .form-control.is-valid:focus {
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Affichage dynamique de l'erreur à l'extérieur du groupe de mot de passe (sélecteur adjacent) */
+.password-group:has(.is-invalid) ~ .invalid-feedback,
+.was-validated .password-group:has(:invalid) ~ .invalid-feedback {
+    display: block !important;
 }

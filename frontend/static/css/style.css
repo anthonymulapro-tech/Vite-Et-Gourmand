@@ -138,22 +138,7 @@ body {
 
 /* Boutons et liens interactifs */
 
-/* Bouton marron principal "Se connecter" */
-.btn-brand-brown {
-    background-color: var(--brand-brown);
-    color: var(--bg-cream);
-    border: 2px solid var(--text-dark);
-    font-weight: 600;
-    transition: all 0.25s ease-in-out;
-}
 
-/* Effet de survol sur le bouton */
-.btn-brand-brown:hover {
-    background-color: var(--brand-peach);
-    border-color: var(--brand-brown);
-    color: var(--brand-brown);
-    transform: scale(1.02);
-}
 
 /* Style des liens (Inscription, mot de passe oublié) */
 .link-brand {
@@ -384,24 +369,7 @@ input:-webkit-autofill:active {
 }
 
 /* Bouton d'action */
-.btn-custom-brown {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    font-family: var(--body-font);
-    font-size: 28px !important;
-    font-weight: 700;
-    border: 2px solid var(--text-dark);
-    padding: 12px 45px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
 
-.btn-custom-brown:hover {
-    background-color: var(--brand-peach) !important;
-    border-color: var(--brand-brown) !important;
-    color: var(--brand-brown) !important;
-    /* Léger effet de zoom dynamique */
-    transform: scale(1.02);
-}
 
 /* 4. Cartes Avis */
 .testimonial-card {
@@ -995,25 +963,7 @@ input:-webkit-autofill:active {
 }
 
 /* Bouton spécifique pour l'ajout au panier (Taille réduite) */
-.btn-panier {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    font-family: var(--body-font);
-    font-size: 1.1rem !important;
-    font-weight: 700;
-    border: 2px solid var(--text-dark);
-    padding: 10px 30px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    border-radius: 40px !important; /
-    transition: all 0.25s ease-in-out;
-}
 
-.btn-panier:hover {
-    background-color: var(--brand-peach) !important;
-    border-color: var(--brand-brown) !important;
-    color: var(--brand-brown) !important;
-    transform: scale(1.02);
-}
 
 /* ==========================================================================
    SÉLECTEUR DE QUANTITÉ PERSONNALISÉ (Type + et -)
@@ -1238,71 +1188,15 @@ input:-webkit-autofill:active {
 }
 
 /* --- Bouton de Paiement Principal --- */
-.btn-checkout {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-}
 
-/* Effet au survol : fond crème et texte marron */
-.btn-checkout:hover {
-    background-color: var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-    border-color: var(--brand-brown) !important;
-}
 
 /* --- Bouton Vider le Panier --- */
-.btn-empty-cart {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    font-size: 0.9rem;
-    padding: 6px 15px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-.btn-empty-cart:hover {
-    background-color: var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-}
 
 /* --- Bouton "Découvrir nos menus" (Panier vide) --- */
-.btn-discover {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    font-weight: bold;
-    padding: 10px 30px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
 
-/* Effet au survol : fond marron et texte doré */
-.btn-discover:hover {
-    background-color: var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-    border-color: var(--brand-brown) !important;
-}
 
 /* --- Bouton "Retour aux menus" (En-tête panier) --- */
-.btn-return {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    font-weight: 500;
-    padding: 6px 15px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
 
-.btn-return:hover {
-    background-color: var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-}
 
 /* --- Correction des bordures noires sur le compteur de distance --- */
 #distance_container .input-group .btn-distance,
@@ -1462,26 +1356,30 @@ span.badge.badge-vg-status {
 }
 
 /* Bouton Détails */
-.btn-details-vg {
-    background-color: var(--brand-brown) !important;
-    color: var(--bg-cream) !important;
-    border: 2px solid var(--text-dark) !important;
-    border-radius: 20px; /* Style pilule */
-    font-weight: 600;
-    transition: all 0.25s ease-in-out;
-}
-
-/* Hover */
-.btn-details-vg:hover {
-    background-color: var(--brand-peach) !important;
-    color: var(--brand-brown) !important;
-    border-color: var(--brand-brown) !important;
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
 
 /* Style barre */
 
 .border-brand-brown {
     border-color: var(--brand-brown) !important;
+}
+
+/* =======================================
+   LE BOUTON UNIVERSEL VITE & GOURMAND
+   ======================================= */
+.btn-vg {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: 600;
+    transition: all 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-vg:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    transform: scale(1.02);
 }

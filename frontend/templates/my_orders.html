@@ -16,7 +16,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-11">
                 {% for cmd in commandes %}
-                <div class="card shadow-sm mb-4 theme-box rounded-4 border-top-brand transition-hover">
+                <div class="card shadow-sm mb-4 vg-box rounded-4 border-top-brand transition-hover">
                     <div class="card-body p-4">
                         <div class="row align-items-center text-brand-brown">
 
@@ -52,7 +52,7 @@
                             </div>
 
                             <div class="col-md-2 text-md-end text-center mt-2 mt-md-0">
-                                <button class="btn btn-details-vg w-80 w-md-auto px-4 shadow-sm"
+                                <button class="btn btn-vg rounded-pill w-80 w-md-auto px-4 shadow-sm"
                                         type="button"
                                         data-bs-toggle="collapse"
                                         data-bs-target="#details-{{ cmd.commande_id }}">
@@ -137,7 +137,7 @@
         <div class="text-center py-5 content-box mx-auto shadow-sm" style="max-width: 600px;">
             <i class="bi bi-bag-x mb-3 d-block text-brand-brown" style="font-size: 4rem;"></i>
             <h3 class="mb-4 text-brand-brown font-pacifico">Vous n'avez pas encore passé de commande.</h3>
-            <a href="{{ url_for('menus_page') }}" class="btn btn-brand-brown rounded-pill fs-5 px-4 py-2 mt-2">
+            <a href="{{ url_for('menus_page') }}" class="btn btn-vg rounded-pill fs-5 px-4 py-2 mt-2 shadow-sm">
                 Découvrir la carte
             </a>
         </div>

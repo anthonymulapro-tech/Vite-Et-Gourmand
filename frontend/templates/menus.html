@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="filter-section content-box mb-5">
+    <div class="filter-section vg-box vg-box-padded vg-layout-margins mb-5">
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="filter-label d-flex justify-content-between mb-2">
@@ -107,12 +107,12 @@
         </div>
     </div>
 
-    <div class="menus-grid-container mb-5">
+    <div class="menus-grid-container vg-layout-margins mb-5">
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% if menus %}
                 {% for menu in menus %}
                 <div class="col">
-                    <div class="card h-100 menu-card shadow-sm">
+                    <div class="card h-100 menu-card vg-boxshadow-sm">
                         <div class="card-body d-flex flex-column text-center p-4">
                             <h2 class="menu-card-title font-pacifico">{{ menu.titre_menu }}</h2>
                             <p class="menu-card-price mb-3">{{ menu.prix_par_personne }}€ / personne</p>
@@ -142,7 +142,7 @@
                             </div>
 
                             <div class="mt-auto">
-                                <a href="{{ url_for('detail_menu', id_menu=menu.menu_id) }}" class="btn btn-custom-brown w-100 py-2 rounded-pill">
+                                <a href="{{ url_for('detail_menu', id_menu=menu.menu_id) }}" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">
                                     Voir le détail
                                 </a>
                             </div>
@@ -178,7 +178,7 @@
                                 <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
                             </div>
                             <div class="mt-auto">
-                                <a href="#" class="btn btn-custom-brown w-100 py-2 rounded-pill">Voir le détail</a>
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
                             </div>
                             <div class="menu-stock-alert mt-3">
                                 <small class="text-danger fw-bold">Il ne reste plus que 42 menus, commandez vite !</small>
@@ -206,7 +206,7 @@
                                 <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
                             </div>
                             <div class="mt-auto">
-                                <a href="#" class="btn btn-custom-brown w-100 py-2 rounded-pill">Voir le détail</a>
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
                             </div>
                             <div class="menu-stock-alert mt-3">
                                 <small class="text-danger fw-bold">Il ne reste plus que 24 menus, commandez vite !</small>
@@ -234,7 +234,7 @@
                                 <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
                             </div>
                             <div class="mt-auto">
-                                <a href="#" class="btn btn-custom-brown w-100 py-2 rounded-pill">Voir le détail</a>
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
                             </div>
                             <div class="menu-stock-alert mt-3">
                                 <small class="text-muted fw-bold text-uppercase">PERSONNALISABLE SUR DEMANDE !</small>

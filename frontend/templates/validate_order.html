@@ -18,7 +18,7 @@
 
         <div class="col-lg-7 mb-4">
             <form action="{{ url_for('confirm_order') }}" method="POST" id="orderForm" class="needs-validation" novalidate>
-                <div class="card shadow-sm theme-box checkout-box">
+                <div class="card shadow-sm vg-box checkout-box">
                     <div class="card-body p-4 p-md-5">
 
                         <h5 class="card-title mb-4 fw-bold">
@@ -84,7 +84,7 @@
                         </div>
 
                         <div class="mt-5">
-                            <a href="{{ url_for('cart') }}" class="btn btn-brand-brown rounded-pill px-4 py-2 shadow-sm">
+                            <a href="{{ url_for('cart') }}" class="btn btn-vg rounded-pill px-4 py-2 shadow-sm">
                                 <i class="bi bi-arrow-left"></i> Retour au panier
                             </a>
                         </div>
@@ -95,7 +95,7 @@
         </div>
 
         <div class="col-lg-5">
-            <div class="card shadow-sm theme-box sticky-top" style="top: 30px;">
+            <div class="card shadow-sm vg-box sticky-top" style="top: 30px;">
                 <div class="card-body p-4">
                     <h5 class="card-title fw-bold pb-3 mb-4" style="border-bottom: 2px solid rgba(136, 84, 32, 0.2);">Résumé du panier</h5>
 
@@ -116,7 +116,7 @@
                         <h4 class="mb-0 fw-bold">{{ "%.2f"|format(total_menus + total_delivery) }} €</h4>
                     </div>
 
-                    <button type="submit" form="orderForm" class="btn btn-checkout w-100 py-3 fs-5 rounded-pill shadow-sm">
+                    <button type="submit" form="orderForm" class="btn btn-vg w-100 py-3 fs-5 rounded-pill shadow-sm">
                         Valider et accéder au paiement
                     </button>
 

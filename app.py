@@ -312,6 +312,10 @@ def order_details():
     if 'user_id' not in session or 'checkout_options' not in session:
         return redirect(url_for('cart'))
 
+    # 1. Récupération des infos de l'utilisateur en BDD
+    user_id = session['user_id']
+    current_user = get_user_by_id(user_id)
+
     cart_items = session.get('panier', [])
     total_menus = sum(item['total_price'] for item in cart_items)
 
@@ -322,10 +326,12 @@ def order_details():
     # Date minimale de livraison (J+2)
     min_date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
 
+    # 2.  'user=current_user' AU TEMPLATE HTML
     return render_template('validate_order.html',
                            total_menus=total_menus,
                            total_delivery=total_delivery,
-                           min_date=min_date)
+                           min_date=min_date,
+                           user=current_user)
 
 
 @app.route('/confirm-order', methods=['POST'])

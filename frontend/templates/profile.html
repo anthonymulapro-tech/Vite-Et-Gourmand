@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block content %}
+<div class="py-5">
+    <section class="vg-box vg-box-padded vg-layout-margins mb-4">
+
+        <h2 class="box-title font-pacifico">Mon Profil</h2>
+        <p class="box-text text-center px-md-4 mb-4">
+            Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="px-md-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('profile') }}" class="needs-validation px-md-4 mt-4" novalidate>
+
+            <div class="row g-5">
+                <div class="col-md-6">
+                    <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Informations Personnelles</h4>
+
+                    <div class="mb-3">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control custom-input" id="prenom" name="prenom" value="{{ user.prenom }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control custom-input" id="nom" name="nom" value="{{ user.nom }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Adresse Email <small class="text-muted">(Non modifiable)</small></label>
+                        <input type="email" class="form-control custom-input" id="email" value="{{ user.email }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telephone" class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control custom-input" id="telephone" name="telephone" value="{{ user.telephone or '' }}" placeholder="06XXXXXXXX">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Coordonnées de Livraison</h4>
+
+                    <div class="mb-3">
+                        <label for="adresse" class="form-label">Adresse complète</label>
+                        <input type="text" class="form-control custom-input" id="adresse" name="adresse" value="{{ user.adresse or '' }}">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label for="ville" class="form-label">Ville</label>
+                            <input type="text" class="form-control custom-input" id="ville" name="ville" value="{{ user.ville or '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="code_postal" class="form-label">Code Postal</label>
+                            <input type="text" class="form-control custom-input" id="code_postal" name="code_postal" value="{{ user.code_postal or '' }}" maxlength="5">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="pays" class="form-label">Pays</label>
+                        <input type="text" class="form-control custom-input" id="pays" name="pays" value="{{ user.pays or 'France' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-5 justify-content-center">
+                <button type="submit" class="btn btn-vg fs-5 px-5 py-2 rounded-pill">Enregistrer les modifications</button>
+            </div>
+
+        </form>
+    </section>
+</div>
+{% endblock %}

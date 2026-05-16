@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from dotenv import load_dotenv
 
-from backend.user import create_user, login_user, validate_password, email_exists
+from backend.user import create_user, login_user, validate_password, email_exists, get_user_by_id, update_user_profile
 from backend.cart import calculer_prix_total
 from backend.order import create_order
 # ==========================================================================
@@ -312,6 +312,10 @@ def order_details():
     if 'user_id' not in session or 'checkout_options' not in session:
         return redirect(url_for('cart'))
 
+    # 1. Récupération des infos de l'utilisateur en BDD
+    user_id = session['user_id']
+    current_user = get_user_by_id(user_id)
+
     cart_items = session.get('panier', [])
     total_menus = sum(item['total_price'] for item in cart_items)
 
@@ -322,10 +326,12 @@ def order_details():
     # Date minimale de livraison (J+2)
     min_date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
 
+    # 2.  'user=current_user' AU TEMPLATE HTML
     return render_template('validate_order.html',
                            total_menus=total_menus,
                            total_delivery=total_delivery,
-                           min_date=min_date)
+                           min_date=min_date,
+                           user=current_user)
 
 
 @app.route('/confirm-order', methods=['POST'])
@@ -478,6 +484,47 @@ def my_orders():
         commandes_completes.append(cmd)
 
     return render_template('my_orders.html', commandes=commandes_completes)
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    # 1. Vérification de la session (méthode de ton projet)
+    if 'user_id' not in session:
+        flash("Veuillez vous connecter pour accéder à votre profil.", "error")
+        return redirect(url_for('login_page'))
+
+    user_id = session['user_id']
+
+    # 2. Si le formulaire est soumis (POST)
+    if request.method == 'POST':
+        prenom = request.form.get('prenom')
+        nom = request.form.get('nom')
+        telephone = request.form.get('telephone')
+        adresse = request.form.get('adresse')
+        ville = request.form.get('ville')
+        code_postal = request.form.get('code_postal')
+        pays = request.form.get('pays', 'France')
+
+        # Mise à jour en BDD
+        success = update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
+
+        if success:
+            # MAJ de la session au cas où le prénom affiché dans le menu change
+            session['user_prenom'] = prenom
+            session['user_nom'] = nom
+            session.modified = True
+            flash("Votre profil a été mis à jour avec succès !", "success")
+        else:
+            flash("Erreur technique lors de la mise à jour de votre profil.", "error")
+
+        return redirect(url_for('profile'))
+
+    # 3. Affichage de la page (GET)
+    current_user = get_user_by_id(user_id)
+    if not current_user:
+        return redirect(url_for('logout'))
+
+    return render_template('profile.html', user=current_user)
 @app.route('/logout')
 def logout():
     session.clear()

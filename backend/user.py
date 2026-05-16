@@ -160,6 +160,38 @@ def delete_test_user(email):
             cursor.close()
             conn.close()
 
+def get_user_by_id(user_id):
+    """Récupère toutes les infos d'un utilisateur grâce à son ID."""
+    db = get_connection()
+    if not db:
+        return None
+    try:
+        # Utilisation de dictionary=True pour manipuler les résultats comme des dictionnaires
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM utilisateur WHERE utilisateur_id = %s", (user_id,))
+        return cursor.fetchone()
+    finally:
+        db.close()
+
+def update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays):
+    """Met à jour les informations du profil utilisateur."""
+    db = get_connection()
+    if not db:
+        return False
+    try:
+        cursor = db.cursor()
+        query = """UPDATE utilisateur
+                   SET prenom=%s, nom=%s, telephone=%s, adresse=%s, ville=%s, code_postal=%s, pays=%s
+                   WHERE utilisateur_id=%s"""
+        cursor.execute(query, (prenom, nom, telephone, adresse, ville, code_postal, pays, user_id))
+        db.commit()
+        return True
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour du profil : {e}")
+        return False
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     # Supprimer ce mail pour valider les test
     delete_test_user("doublon.test@mail.com")

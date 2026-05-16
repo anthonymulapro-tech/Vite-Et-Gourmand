@@ -844,11 +844,6 @@ input:-webkit-autofill:active {
     -moz-appearance: textfield;
 }
 
-/* Styles spécifiques à la page panier */
-#cartForm .card {
-    border-radius: 10px;
-}
-
 /* --- 4. Conteneur Distance kilométrique --- */
 #distance_container {
     background-color: var(--brand-brown) !important;

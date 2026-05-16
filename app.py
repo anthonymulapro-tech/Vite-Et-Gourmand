@@ -166,6 +166,13 @@ def register_page():
         if not validate_password(password):
             return render_template('auth/register.html', password_error=True)
 
+        confirm_password = request.form.get('confirm_password')
+
+        # 1. Vérification de la correspondance des mots de passe
+        if password != confirm_password:
+            # On renvoie la page avec la variable d'erreur à True
+            return render_template('auth/register.html', confirm_password_error=True)
+
         # Validation du format Téléphone (10 chiffres)
         if telephone and not (telephone.strip().isdigit() and len(telephone.strip()) == 10):
             flash("Le numéro de téléphone doit contenir exactement 10 chiffres.", "error")

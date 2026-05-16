@@ -4,9 +4,9 @@ def get_user_orders(user_id):
     connection = get_connection()
     try:
         with connection.cursor(dictionary=True) as cursor:
-            # AJOUTE LES COLONNES D'ADRESSE ICI 👇
             sql = """
                 SELECT commande_id, reference_commande, date_prestation, heure_livraison,
+                        prix_menu, prix_livraison, pret_materiel,
                         (IFNULL(prix_menu, 0) + IFNULL(prix_livraison, 0)) AS total_ttc,
                         statut_commande, adresse_livraison, ville_livraison, code_postal_livraison
                 FROM commande 

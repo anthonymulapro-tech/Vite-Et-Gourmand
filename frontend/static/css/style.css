@@ -683,7 +683,7 @@ input:-webkit-autofill:active {
 /* Boutons filtres en forme de pilules interactives */
 .btn-outline-custom-pill {
     border: 2px solid var(--brand-brown) !important;
-    background-color: var(--white) !important;
+    background-color: var(--bg-cream) !important;
     color: var(--brand-brown) !important;
     border-radius: 20px !important;
     padding: 6px 16px !important;

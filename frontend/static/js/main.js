@@ -304,3 +304,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    (function () {
+    'use strict'
+
+    // Récupère tous les formulaires auxquels on veut appliquer les styles de validation Bootstrap
+    var forms = document.querySelectorAll('.needs-validation')
+
+    // Boucle sur chaque formulaire et empêche la soumission si invalide
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()

@@ -5,6 +5,7 @@ from backend.database import get_connection
 
 def create_order(utilisateur_id, cart_items, prix_menu, prix_livraison, pret_materiel, adresse_livraison,
                  ville_livraison, code_postal_livraison, date_prestation, heure_livraison):
+
     conn = get_connection()
     if not conn:
         return False, "Erreur de connexion à la base de données."
@@ -41,7 +42,7 @@ def create_order(utilisateur_id, cart_items, prix_menu, prix_livraison, pret_mat
             ville_livraison,
             adresse_livraison,
             code_postal_livraison,
-            'Payée',
+            'En cours de traitement',
             pret_materiel_bool
         )
 

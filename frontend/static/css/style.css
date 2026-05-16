@@ -683,7 +683,7 @@ input:-webkit-autofill:active {
 /* Boutons filtres en forme de pilules interactives */
 .btn-outline-custom-pill {
     border: 2px solid var(--brand-brown) !important;
-    background-color: var(--white) !important;
+    background-color: var(--bg-cream) !important;
     color: var(--brand-brown) !important;
     border-radius: 20px !important;
     padding: 6px 16px !important;
@@ -1443,4 +1443,45 @@ input:-webkit-autofill:active {
     background-repeat: no-repeat;
     background-position: center 2px;
     background-size: 10px;
+}
+
+/* =======================================
+   PAGE MES COMMANDES
+   ======================================= */
+
+/* Version pour contrer l'héritage du parent */
+span.badge.badge-vg-status {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown);
+    font-weight: 600;
+    min-width: 100px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+/* Bouton Détails */
+.btn-details-vg {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 20px; /* Style pilule */
+    font-weight: 600;
+    transition: all 0.25s ease-in-out;
+}
+
+/* Hover */
+.btn-details-vg:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Style barre */
+
+.border-brand-brown {
+    border-color: var(--brand-brown) !important;
 }

@@ -596,5 +596,81 @@ def logout():
     return redirect(url_for('login_page'))
 
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        # Vérifier si l'email existe en base
+        if email_exists(email):
+            # Génère le lien cliquable absolu vers la route reset_password
+            reset_url = url_for('reset_password', email=email, _external=True)
+
+            # Envoi de l'e-mail
+            send_html_email(
+                subject="Réinitialisation de votre mot de passe - Vite & Gourmand",
+                recipient=email,
+                template_name="emails/email_reset_password.html",
+                reset_url=reset_url
+            )
+
+        # Message de sécurité global
+        flash("Si cette adresse existe, un e-mail de réinitialisation vous a été envoyé.", "success")
+        return redirect(url_for('login_page'))
+
+    return render_template('auth/forgot_password.html')
+
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    # 1. Récupération de l'email soit de l'URL (GET) soit du champ caché du formulaire (POST)
+    email = request.args.get('email') or request.form.get('email')
+
+    if not email:
+        flash("Lien de réinitialisation invalide ou expiré.", "error")
+        return redirect(url_for('login_page'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Vérification de la correspondance des mots de passe
+        if new_password != confirm_password:
+            flash("Les mots de passe ne correspondent pas.", "error")
+            return render_template('auth/reset_password.html', email=email)
+
+        # Validation des critères de sécurité du mot de passe
+        if not validate_password(new_password):
+            flash("Le mot de passe ne respecte pas les critères de sécurité.", "error")
+            return render_template('auth/reset_password.html', email=email)
+
+        # Mise à jour sécurisée en Base de Données
+        db = get_connection()
+        if db:
+            try:
+                import bcrypt  # <-- On s'assure d'importer bcrypt
+
+                # Hachage avec bcrypt ()
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(new_password.strip().encode('utf-8'), salt)
+
+                cursor = db.cursor()
+                # Décodage en utf-8 pour insérer proprement dans le VARCHAR de la table MySQL
+                cursor.execute("UPDATE utilisateur SET password = %s WHERE email = %s",
+                               (hashed_password.decode('utf-8'), email))
+                db.commit()
+
+                flash("Votre mot de passe a bien été réinitialisé. Vous pouvez vous connecter.", "success")
+                return redirect(url_for('login_page'))
+            except Exception as e:
+                print(f"Erreur SQL lors du reset password : {e}")
+                flash("Une erreur technique est survenue.", "error")
+            finally:
+                db.close()
+        else:
+            flash("Connexion à la base de données impossible.", "error")
+
+    return render_template('auth/reset_password.html', email=email)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

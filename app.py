@@ -107,6 +107,17 @@ def contact():
             email_contact=email
         )
         if success:
+             # E-mail de notification
+            send_html_email(
+                subject=f"🧠 [Contact] {motif} - {prenom} {nom}",
+                recipient="admin@viteetgourmand.fr",
+                template_name="emails/email_contact.html",
+                motif=motif,
+                prenom=prenom,
+                nom=nom,
+                email=email,
+                description=description
+            )
             flash("Votre message a bien été envoyé ! Nous vous répondrons très rapidement.", "success")
         else:
             flash("Une erreur technique est survenue lors de l'envoi.", "error")

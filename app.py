@@ -3,6 +3,7 @@ import stripe
 
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
 from backend.user import create_user, login_user, validate_password, email_exists, get_user_by_id, update_user_profile
@@ -34,6 +35,27 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.secret_key = os.getenv("SECRET_KEY")
 
+# Configuration de Flask-Mail
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 2525))
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
+app.config['MAIL_DEFAULT_SENDER'] = ('Vite & Gourmand', 'noreply@viteetgourmand.fr')
+
+mail = Mail(app)
+
+def send_html_email(subject, recipient, template_name, **kwargs):
+    """Fonction globale pour envoyer des e-mails au format HTML."""
+    try:
+        msg = Message(subject, recipients=[recipient])
+        msg.html = render_template(template_name, **kwargs)
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'e-mail [{subject}] : {e}")
+        return False
 
 
 # Injecteurs de données globales, exemple les horaires sur toute les pages
@@ -85,6 +107,17 @@ def contact():
             email_contact=email
         )
         if success:
+             # E-mail de notification
+            send_html_email(
+                subject=f"🧠 [Contact] {motif} - {prenom} {nom}",
+                recipient="admin@viteetgourmand.fr",
+                template_name="emails/email_contact.html",
+                motif=motif,
+                prenom=prenom,
+                nom=nom,
+                email=email,
+                description=description
+            )
             flash("Votre message a bien été envoyé ! Nous vous répondrons très rapidement.", "success")
         else:
             flash("Une erreur technique est survenue lors de l'envoi.", "error")
@@ -166,6 +199,13 @@ def register_page():
         if not validate_password(password):
             return render_template('auth/register.html', password_error=True)
 
+        confirm_password = request.form.get('confirm_password')
+
+        # 1. Vérification de la correspondance des mots de passe
+        if password != confirm_password:
+            # On renvoie la page avec la variable d'erreur à True
+            return render_template('auth/register.html', confirm_password_error=True)
+
         # Validation du format Téléphone (10 chiffres)
         if telephone and not (telephone.strip().isdigit() and len(telephone.strip()) == 10):
             flash("Le numéro de téléphone doit contenir exactement 10 chiffres.", "error")
@@ -194,6 +234,14 @@ def register_page():
         )
 
         if success:
+            # Envoi de l'e-mail de bienvenue
+            send_html_email(
+                subject="Bienvenue chez Vite & Gourmand !",
+                recipient=email,
+                template_name="emails/welcome.html",
+                prenom=prenom
+            )
+
             flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
             return redirect(url_for('login_page'))
         else:
@@ -456,6 +504,33 @@ def payment_success():
     )
 
     if success:
+        user = get_user_by_id(session['user_id'])
+        if user and user.get('email'):
+            montant_total_paye = total_menus + total_delivery
+
+            total_remise = sum(item.get('remise', 0) for item in cart_items)
+            sous_total_brut = sum(item.get('prix_brut', item['total_price']) for item in cart_items)
+
+            valeur_pret = str(get_meta('pret_materiel')).lower()
+            pret_materiel_demande = valeur_pret in ['true', 'on', '1', 'yes']
+
+            adresse_complete = f"{get_meta('adresse_livraison')}, {get_meta('code_postal_livraison')} {get_meta('ville_livraison')}"
+
+            send_html_email(
+                subject=f"Confirmation de commande - {result}",
+                recipient=user['email'],
+                template_name="emails/order_confirmation.html",
+                prenom=user.get('prenom', 'Gourmet'),
+                reference=result,
+                cart_items=cart_items,
+                sous_total=sous_total_brut,
+                remise=total_remise,
+                frais_livraison=total_delivery,
+                total_paye=montant_total_paye,
+                pret_materiel=pret_materiel_demande,
+                adresse=adresse_complete
+            )
+
         session.pop('panier', None)
         session.pop('checkout_options', None)
         return render_template('success.html', reference=result)
@@ -531,6 +606,82 @@ def logout():
     flash("Vous avez été déconnecté avec succès.", "success")
     return redirect(url_for('login_page'))
 
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        # Vérifier si l'email existe en base
+        if email_exists(email):
+            # Génère le lien cliquable absolu vers la route reset_password
+            reset_url = url_for('reset_password', email=email, _external=True)
+
+            # Envoi de l'e-mail
+            send_html_email(
+                subject="Réinitialisation de votre mot de passe - Vite & Gourmand",
+                recipient=email,
+                template_name="emails/email_reset_password.html",
+                reset_url=reset_url
+            )
+
+        # Message de sécurité global
+        flash("Si cette adresse existe, un e-mail de réinitialisation vous a été envoyé.", "success")
+        return redirect(url_for('login_page'))
+
+    return render_template('auth/forgot_password.html')
+
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    # 1. Récupération de l'email soit de l'URL (GET) soit du champ caché du formulaire (POST)
+    email = request.args.get('email') or request.form.get('email')
+
+    if not email:
+        flash("Lien de réinitialisation invalide ou expiré.", "error")
+        return redirect(url_for('login_page'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Vérification de la correspondance des mots de passe
+        if new_password != confirm_password:
+            flash("Les mots de passe ne correspondent pas.", "error")
+            return render_template('auth/reset_password.html', email=email)
+
+        # Validation des critères de sécurité du mot de passe
+        if not validate_password(new_password):
+            flash("Le mot de passe ne respecte pas les critères de sécurité.", "error")
+            return render_template('auth/reset_password.html', email=email)
+
+        # Mise à jour sécurisée en Base de Données
+        db = get_connection()
+        if db:
+            try:
+                import bcrypt  # <-- On s'assure d'importer bcrypt
+
+                # Hachage avec bcrypt ()
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(new_password.strip().encode('utf-8'), salt)
+
+                cursor = db.cursor()
+                # Décodage en utf-8 pour insérer proprement dans le VARCHAR de la table MySQL
+                cursor.execute("UPDATE utilisateur SET password = %s WHERE email = %s",
+                               (hashed_password.decode('utf-8'), email))
+                db.commit()
+
+                flash("Votre mot de passe a bien été réinitialisé. Vous pouvez vous connecter.", "success")
+                return redirect(url_for('login_page'))
+            except Exception as e:
+                print(f"Erreur SQL lors du reset password : {e}")
+                flash("Une erreur technique est survenue.", "error")
+            finally:
+                db.close()
+        else:
+            flash("Connexion à la base de données impossible.", "error")
+
+    return render_template('auth/reset_password.html', email=email)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

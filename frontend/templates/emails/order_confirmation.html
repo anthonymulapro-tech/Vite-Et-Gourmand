@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap');
+    </style>
+</head>
+<body style="font-family: 'Montserrat', Arial, sans-serif; background-color: #FFEDC5; padding: 40px 20px; margin: 0; color: #885420;">
+
+    <div style="max-width: 600px; margin: 0 auto; background-color: #FFDE96; border-radius: 16px; padding: 40px 30px; box-shadow: 0 4px 15px rgba(136, 84, 32, 0.15);">
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-family: 'Pacifico', cursive; color: #885420; font-size: 36px; margin: 0; font-weight: normal;">Vite & Gourmand</h1>
+        </div>
+
+        <h2 style="font-size: 24px; font-weight: 700; margin-top: 0; margin-bottom: 25px; color: #885420; text-align: center;">
+            Merci pour votre commande !
+        </h2>
+
+        <p style="font-size: 16px; line-height: 1.6; color: #885420;">
+            Bonjour <strong>{{ prenom }}</strong>,
+        </p>
+
+        <p style="font-size: 16px; line-height: 1.6; color: #885420; margin-bottom: 20px;">
+            Votre paiement a été validé avec succès. Julie et José s'activent déjà en cuisine pour préparer votre commande. Voici votre récapitulatif :
+        </p>
+
+        <div style="background-color: #FFEDC5; padding: 20px; border-radius: 8px; margin: 20px 0; color: #885420; font-size: 15px; border: 1px solid #FFDE96;">
+            <p style="margin: 0 0 10px 0;"><strong>📦 Référence :</strong> {{ reference }}</p>
+            <p style="margin: 0 0 10px 0;"><strong>📍 Livraison :</strong> {{ adresse }}</p>
+            <p style="margin: 0;">
+                <strong>🍽️ Prêt de matériel :</strong>
+                {% if pret_materiel %}
+                    <span style="color: #885420;">Inclus</span>
+                {% else %}
+                    Non demandé
+                {% endif %}
+            </p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; color: #885420; font-size: 15px;">
+            {% for item in cart_items %}
+            <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #FFEDC5;">{{ item.name }} (x{{ item.quantity }})</td>
+                <td style="text-align: right; padding: 10px 0; border-bottom: 1px solid #FFEDC5;">{{ "%.2f"|format(item.prix_brut if item.prix_brut else item.total_price) }} €</td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+                <td style="padding: 10px 0;">Sous-total Menus</td>
+                <td style="text-align: right; padding: 10px 0;">{{ "%.2f"|format(sous_total) }} €</td>
+            </tr>
+
+            {% if remise > 0 %}
+            <tr>
+                <td style="padding: 10px 0; color: #885420; font-weight: bold;">Réduction appliquée</td>
+                <td style="text-align: right; padding: 10px 0; color: #885420; font-weight: bold;">- {{ "%.2f"|format(remise) }} €</td>
+            </tr>
+            {% endif %}
+
+            <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #FFEDC5;">Frais de livraison</td>
+                <td style="text-align: right; padding: 10px 0; border-bottom: 1px solid #FFEDC5;">{{ "%.2f"|format(frais_livraison) }} €</td>
+            </tr>
+
+            <tr style="font-size: 18px; color: #885420;">
+                <td style="padding: 15px 0; font-weight: bold;">Montant total payé (TTC)</td>
+                <td style="text-align: right; padding: 15px 0; font-weight: bold;">{{ "%.2f"|format(total_paye) }} €</td>
+            </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <p style="font-size: 13px; color: #885420; margin: 0;">
+                Julie & José — Vite & Gourmand<br>
+                <a href="http://127.0.0.1:5000" style="color: #885420; text-decoration: underline;">Retourner sur le site</a>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

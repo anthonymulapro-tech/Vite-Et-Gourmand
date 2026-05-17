@@ -106,7 +106,9 @@
                                 </div>
                             </div>
 
-                           <div class="mb-4">
+                           <div class="row g-3 mb-4">
+
+                            <div class="col-md-6">
                                 <label for="password" class="form-label">Mot de passe</label>
                                 <div class="input-group password-group">
                                     <input type="password"
@@ -116,29 +118,54 @@
                                            required
                                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}"
                                            placeholder="••••••••"
+                                           style="background-image: none;"
                                            oninput="this.classList.remove('is-invalid')">
 
                                     <button class="btn btn-toggle-password toggle-password" type="button">
                                         <i class="bi bi-eye"></i>
                                     </button>
+                                </div>
 
-                                    </div> <div class="invalid-feedback text-start">
-                                         {% if password_error %}
-                                             Le mot de passe ne respecte pas les critères de sécurité.
-                                         {% else %}
-                                             Mot de passe invalide, voir les conditions ci-dessous.
-                                         {% endif %}
-                                    </div>
-                                <div class="form-text text-muted small mt-2">
+                                {% if password_error %}
+                                <div class="invalid-feedback d-block text-start mt-1">
+                                     Mot de passe invalide, voir les conditions ci-dessous.
+                                </div>
+                                {% endif %}
+
+                                <div class="form-text text-muted small mt-1">
                                     Minimum 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
                                 </div>
                             </div>
 
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                                <div class="input-group password-group">
+                                    <input type="password"
+                                           class="form-control py-2 {% if confirm_password_error %}is-invalid{% endif %}"
+                                           id="confirm_password"
+                                           name="confirm_password"
+                                           required
+                                           placeholder="••••••••"
+                                           style="background-image: none;"
+                                           oninput="this.classList.remove('is-invalid')">
 
-                            <button type="submit" class="btn btn-vg w-100 py-2.5 rounded-pill fs-5">Créer mon compte</button>
-                        </form>
+                                    <button class="btn btn-toggle-password toggle-password" type="button">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
 
-                    </div>
+                                {% if confirm_password_error %}
+                                <div class="invalid-feedback d-block text-start mt-1">
+                                    Les mots de passe ne correspondent pas.
+                                </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-vg w-100 py-2.5 rounded-pill fs-5">Créer mon compte</button>
+                    </form>
+                </div>
                 </div>
 
                 <div class="text-center mt-3">

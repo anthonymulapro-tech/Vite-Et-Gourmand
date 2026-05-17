@@ -23,18 +23,46 @@ Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce pr
 - [x] **Base de données** : _MySQL_ (Structure initiale déployée)
 - [X] **Backend** : _Python & Flask_ (Routage dynamique, gestion des sessions et logique métier)
 - [X] **Frontend** : _HTML / CSS / Bootstrap / JS_ (Intégration fluide et responsive)
+- [X] **E-mails & Test** : _Flask-Mail & Mailtrap_ (Gestion et interception des e-mails transactionnels)
 - [ ] **NoSQL** : _MongoDB_ (À venir)
 
 ### Architecture du Projet
 ```text
 Vite-Et-Gourmand/
-├── backend/          # Logique métier, modèles SQL et requêtes
-├── frontend/         # Vues et assets (CSS, JS, Images, templates HTML)
-├── docs/             # Documentation technique (MCD, UML, Maquettes)
-├── sql/              # Scripts de création et d'insertion BDD
-├── tests/            # Scripts d'assurance qualité et sécurité
-├── app.py            # Point d'entrée de l'application Flask et routes
-└── requirements.txt  # Dépendances du projet 
+├── backend/                  # Logique métier et requêtes SQL (architecture segmentée)
+│   ├── cart.py               # Algorithmes de calcul des prix et règles des remises du panier
+│   ├── database.py           # Configuration de la passerelle de connexion MySQL
+│   ├── menu.py               # Requêtes d'extraction du catalogue général des menus
+│   ├── menu_model.py         # Logique d'affichage dynamique des fiches détails d'un menu
+│   ├── order.py              # Enregistrement des commandes en BDD post-paiement Stripe
+│   ├── order_history.py      # Traitement et récupération de l'historique d'achats client
+│   ├── schedule.py           # Gestion et affichage dynamique des horaires d'ouverture
+│   └── user.py               # Gestion de la sécurité des profils (Bcrypt, sessions et validations)
+├── docs/                     # Documentation de conception (MCD, Wireframes, Maquettes)
+│   ├── conception_technique/ # Schémas MCD (Draw.io) et documents techniques
+│   ├── design_maquettes/     # Exports graphiques des maquettes haute fidélité (Figma)
+│   └── wireframes/           # Maquettes fonctionnelles basse fidélité (Balsamiq)
+├── frontend/                 # Interface utilisateur et assets graphiques
+│   ├── static/               # Assets statiques (Fichiers CSS personnalisés, JS natif et images)
+│   └── templates/            # Vues dynamiques gérées par le moteur de rendu Jinja2
+│       ├── auth/             # Formulaires d'authentification (Connexion, Inscription, Reset Password)
+│       ├── emails/           # Gabarits HTML des e-mails transactionnels (Bienvenue, Commande, Contact)
+│       ├── cart.html         # Interface de visualisation du panier et choix des options logistiques
+│       ├── detail_menu.html  # Fiche détaillée d'un menu avec options et convives dynamiques
+│       ├── home.html         # Page d'accueil avec formulaire de contact et avis clients
+│       ├── menus.html        # Catalogue général des menus et système de filtres
+│       ├── my_orders.html    # Tableau de bord client / Historique des commandes
+│       ├── profile.html      # Espace personnel et gestion des coordonnées de livraison
+│       └── success.html      # Page de confirmation après validation du paiement Stripe
+├── sql/                      # Scripts d'initialisation de la base de données
+│   ├── 01_create_tables.sql  # Script de définition de la structure (tables, contraintes, clés)
+│   └── 02_insert_data.sql    # Jeu de données initial (menus, rôles, utilisateurs de test)
+├── tests/                    # Scripts d'assurance qualité et tests de contournement sécurité
+│   └── test_security.py      # Script de test automatisé face aux contournements de formulaires (inscription)
+├── .env                      # Variables d'environnement locales (BDD, clés Stripe, Mailtrap) - [Ignoré par Git]
+├── app.py                    # Point d'entrée de l'application Flask, configuration et routage principal
+├── README.md                 # Documentation globale du projet
+└── requirements.txt          # Liste des dépendances et packages Python requis (Flask, Stripe, Bcrypt...)
 ```
 
 ## Fonctionnalités
@@ -45,7 +73,17 @@ Vite-Et-Gourmand/
 * **Tunnel de Commande (Panier) :** * Calcul dynamique des prix selon le nombre de convives.
   * Application automatique de règles métier (ex: seuil de réduction pour commandes volumineuses).
   * Persistance du panier via les sessions Flask.
-
+* **Historique d'Achats Centralisé (Dashboard Client) :**
+  * Restitution complète de toutes les commandes passées par l'utilisateur connecté sous forme de cartes d'historique interactives (style accordéon/collapse).
+  * Affichage transparent des références de transaction, dates de prestation, adresses associées, détails exacts du contenu commandé (quantités et menus), remises appliquées, frais de livraison et montant total TTC payé.
+  * Suivi visuel du statut de traitement de la commande ("En attente de validation", "En cours de préparation", "Livré", "Annulé").
+* **Espace Client & Gestion du Profil :** * Formulaire sécurisé permettant à l'utilisateur de modifier ses informations personnelles (nom, prénom, téléphone, adresse de livraison par défaut).
+  * Persistance et mise à jour en temps réel des données en base de données avec répercussion immédiate sur la session de navigation.
+* **Intégration de Stripe** : Paiement sécurisé par carte bancaire avec transmission des données logistiques (adresse, prêt de matériel) via métadonnées.
+* **Notifications E-mails Transactionnels (HTML Custom) :** 
+  * **Confirmation de commande** : Envoi automatique d'un récapitulatif détaillé (menus, remises, frais de livraison, adresse et option de prêt de matériel) après validation du paiement Stripe.
+  * **E-mail de Bienvenue** : Envoi d'un mot d'accueil personnalisé dès la validation de l'inscription.
+  * **Notification Admin** : Alerte par e-mail envoyée automatiquement aux administrateurs (Julie & José) lors de la soumission du formulaire de contact.
 
 ## Sécurité Implémentées
 
@@ -56,6 +94,7 @@ Le système d'authentification a été conçu en respectant les standards de sé
   * **Côté Client** : Validation immédiate en HTML5/JS (Regex pour mot de passe fort, format de téléphone à 10 chiffres, emails valides) pour un retour utilisateur instantané sans rechargement de page.
   * **Côté Serveur** : Double vérification de sécurité en Python (`app.py`) pour bloquer les requêtes malveillantes qui contourneraient le navigateur.
 * **Gestion intelligente des doublons** : Avant l'inscription, le backend vérifie l'unicité de l'adresse email. En cas de doublon, un message d'erreur ciblé est affiché directement sur le champ concerné sans recharger ni vider les autres saisies de l'utilisateur (grâce à Jinja2).
+* **Réinitialisation sécurisée du mot de passe** : Génération d'un lien de récupération unique envoyé par e-mail. La mise à jour en base de données réutilise le hachage dynamique `Bcrypt`, garantissant l'intégrité du système d'authentification global.
 
 ## Installation et Déploiement Local
 
@@ -84,6 +123,14 @@ DB_USER=root
 DB_PASSWORD=
 DB_NAME=vite_et_gourmand
 SECRET_KEY=une_cle_secrete_aleatoire_et_ultra_securisee
+STRIPE_PUBLIC_KEY=pk_test_clé_via_stripe
+STRIPE_SECRET_KEY=sk_test_clé_via_stripe
+MAIL_SERVER=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=identifiant_mailtrap
+MAIL_PASSWORD=mot_de_passe_mailtrap
+MAIL_USE_TLS=True
+MAIL_USE_SSL=False
 ```
 
 #### 3. Configuration du Backend (Python)
@@ -116,18 +163,25 @@ python app.py
 Le serveur sera disponible en local sur : http://127.0.0.1:5000
 
 ### 5. Liens d'accès aux pages
-* a. Page d'accueil : http://127.0.0.1:5000
-* b. Inscription : http://127.0.0.1:5000/register
-* c. Connexion : http://127.0.0.1:5000/login
+* Page d'accueil : http://127.0.0.1:5000/
+* Inscription : http://127.0.0.1:5000/register
+* Connexion : http://127.0.0.1:5000/login
+* Mot de passe oublié : http://127.0.0.1:5000/forgot-password
+* Page des menus : http://127.0.0.1:5000/menus
+* Détail des menus : http://127.0.0.1:5000/menu/1 (ou /2 ou /3)
+* Page panier : http://127.0.0.1:5000/cart
+* Page de finalisation de commande : http://127.0.0.1:5000/order-details
+* Page de l'historique des commandes : http://127.0.0.1:5000/my-orders
+* Gestion du profil : http://127.0.0.1:5000/profile
 
 ## 6. Comptes de Test (Jeu de données)
 Pour faciliter l'évaluation, la base de données est fournie avec plusieurs profils de test :
 
-| Rôle | Email | Mot de passe                             |
-| :--- | :--- |:-----------------------------------------|
-| **Administrateur** | `jose.pascoli@viteetgourmand.fr` | *`25!Fru1tS&Or@nge!Mar0c!Av3nture!`*     |
-| **Employé** | `nassim.amir@viteetgourmand.fr` | *`Nassim33_V&G_2026!`*                   |
-| **Client** | `bernard.lebrun@orange.fr` | *`Bern@rd!33`*                           |
+| Rôle               | Email                            | Mot de passe                         |
+|:-------------------|:---------------------------------|:-------------------------------------|
+| **Administrateur** | `jose.pascoli@viteetgourmand.fr` | *`25!Fru1tS&Or@nge!Mar0c!Av3nture!`* |
+| **Employé**        | `nassim.amir@viteetgourmand.fr`  | *`Nassim33_V&G_2026!`*               |
+| **Client**         | `bernard.lebrun@orange.fr`       | *`Bern@rd!33`*                       |
 
 ### 7. Tests de sécurité automatisés (Assurance Qualité)
 Le projet intègre un script de test automatique permettant de vérifier la robustesse du backend face aux contournements des validations du navigateur (ex: scripts malveillants contournant les Regex HTML5).

@@ -493,6 +493,33 @@ def payment_success():
     )
 
     if success:
+        user = get_user_by_id(session['user_id'])
+        if user and user.get('email'):
+            montant_total_paye = total_menus + total_delivery
+
+            total_remise = sum(item.get('remise', 0) for item in cart_items)
+            sous_total_brut = sum(item.get('prix_brut', item['total_price']) for item in cart_items)
+
+            valeur_pret = str(get_meta('pret_materiel')).lower()
+            pret_materiel_demande = valeur_pret in ['true', 'on', '1', 'yes']
+
+            adresse_complete = f"{get_meta('adresse_livraison')}, {get_meta('code_postal_livraison')} {get_meta('ville_livraison')}"
+
+            send_html_email(
+                subject=f"Confirmation de commande - {result}",
+                recipient=user['email'],
+                template_name="emails/order_confirmation.html",
+                prenom=user.get('prenom', 'Gourmet'),
+                reference=result,
+                cart_items=cart_items,
+                sous_total=sous_total_brut,
+                remise=total_remise,
+                frais_livraison=total_delivery,
+                total_paye=montant_total_paye,
+                pret_materiel=pret_materiel_demande,
+                adresse=adresse_complete
+            )
+
         session.pop('panier', None)
         session.pop('checkout_options', None)
         return render_template('success.html', reference=result)

@@ -3,6 +3,7 @@ import stripe
 
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
 from backend.user import create_user, login_user, validate_password, email_exists, get_user_by_id, update_user_profile
@@ -34,6 +35,27 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.secret_key = os.getenv("SECRET_KEY")
 
+# Configuration de Flask-Mail
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 2525))
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
+app.config['MAIL_DEFAULT_SENDER'] = ('Vite & Gourmand', 'noreply@viteetgourmand.fr')
+
+mail = Mail(app)
+
+def send_html_email(subject, recipient, template_name, **kwargs):
+    """Fonction globale pour envoyer des e-mails au format HTML."""
+    try:
+        msg = Message(subject, recipients=[recipient])
+        msg.html = render_template(template_name, **kwargs)
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'e-mail [{subject}] : {e}")
+        return False
 
 
 # Injecteurs de données globales, exemple les horaires sur toute les pages
@@ -201,6 +223,14 @@ def register_page():
         )
 
         if success:
+            # Envoi de l'e-mail de bienvenue
+            send_html_email(
+                subject="Bienvenue chez Vite & Gourmand !",
+                recipient=email,
+                template_name="emails/welcome.html",
+                prenom=prenom
+            )
+
             flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
             return redirect(url_for('login_page'))
         else:

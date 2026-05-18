@@ -18,7 +18,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
-from backend.order_history import get_user_orders, get_order_details
+from backend.order_history import get_user_orders, get_order_details, cancel_client_order
 
 load_dotenv()
 
@@ -559,6 +559,24 @@ def my_orders():
         commandes_completes.append(cmd)
 
     return render_template('my_orders.html', commandes=commandes_completes)
+
+# ROUTE ANNULATION COMMANDE
+
+@app.route('/cancel-order', methods=['POST'])
+def client_cancel_order():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+
+    commande_id = request.form.get('commande_id')
+    user_id = session['user_id']
+
+    success = cancel_client_order(commande_id, user_id)
+    if success:
+        flash("Votre commande a bien été annulée.", "success")
+    else:
+        flash("Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge.", "error")
+
+    return redirect(url_for('my_orders'))
 
 
 @app.route('/profile', methods=['GET', 'POST'])

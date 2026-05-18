@@ -83,6 +83,21 @@
         {% endif %}
         <!-- Pied de page global : masqué sur les pages d'authentification et placé hors du conteneur pour occuper 100% de largeur -->
         <main class="flex-grow-1 w-100">
+            <!-- Affiche les messages Flash sur toute les pages -->
+            <div class="container mt-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% set bs_class = 'success' if category == 'success' else 'danger' %}
+                            <div class="alert alert-{{ bs_class }} alert-dismissible fade show text-center shadow-sm" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
             {% block content %}
             {% endblock %}
         </main>

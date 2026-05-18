@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord Personnel - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 75vh;">
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-4">Espace Personnel</h1>
+        <p class="fs-5 text-brand-brown">
+            Ravi de vous revoir, <strong>{{ session['user_prenom'] }}</strong>. Que voulez-vous gérer aujourd'hui ?
+        </p>
+        <span class="badge vg-box rounded-pill px-4 py-2 shadow-sm small">
+            Statut : {% if session['user_role'] == 1 %}Administrateur{% else %}Employé{% endif %}
+        </span>
+    </div>
+
+    <div class="row g-4 justify-content-center mx-auto" style="max-width: 900px;">
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm vg-box border-top-brand text-center p-3 transition-hover">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="rounded-circle bg-cream border border-brand-brown border-opacity-25 shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-receipt text-brand-brown" style="font-size: 2.3rem;"></i>
+                        </div>
+                        <h4 class="card-title fw-bold text-brand-brown mb-2">Suivi des commandes</h4>
+                        <p class="card-text text-brand-brown small">
+                            Valider, modifier les statuts de préparation, gérer les livraisons et le retour du matériel de cuisine prêté.
+                        </p>
+                    </div>
+                    <a href="#" class="btn btn-vg rounded-pill px-4 w-100 mt-3 shadow-sm fw-bold ">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Gérer les commandes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm vg-box border-top-brand text-center p-3 transition-hover">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="rounded-circle bg-cream border border-brand-brown border-opacity-25 shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-star-fill text-brand-brown" style="font-size: 2.3rem;"></i>
+                        </div>
+                        <h4 class="card-title fw-bold text-brand-brown mb-2">Modération des avis</h4>
+                        <p class="card-text text-brand-brown  small">
+                            Consulter, approuver ou refuser les commentaires laissés par les clients avant publication sur la page d'accueil.
+                        </p>
+                    </div>
+                    <a href="#" class="btn btn-vg rounded-pill px-4 w-100 mt-3 shadow-sm fw-bold ">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Modérer les avis
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm vg-box border-top-brand text-center p-3 transition-hover">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="rounded-circle bg-cream border border-brand-brown border-opacity-25 shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-book text-brand-brown" style="font-size: 2.3rem;"></i>
+                        </div>
+                        <h4 class="card-title fw-bold text-brand-brown mb-2">Menus & Plats</h4>
+                        <p class="card-text text-brand-brown small">
+                            Mettre à jour le catalogue, modifier les prix, gérer les stocks restants et éditer les compositions des menus.
+                        </p>
+                    </div>
+                    <a href="#" class="btn btn-vg rounded-pill px-4 w-100 mt-3 shadow-sm fw-bold ">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Modifier la carte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm vg-box border-top-brand text-center p-3 transition-hover">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="rounded-circle bg-cream border border-brand-brown border-opacity-25 shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-clock text-brand-brown" style="font-size: 2.3rem;"></i>
+                        </div>
+                        <h4 class="card-title fw-bold text-brand-brown mb-2">Horaires du restaurant</h4>
+                        <p class="card-text text-brand-brown small">
+                            Modifier les plages d'ouverture et de fermeture du service traiteur ou déclarer des fermetures exceptionnelles.
+                        </p>
+                    </div>
+                    <a href="#" class="btn btn-vg rounded-pill px-4 w-100 mt-3 shadow-sm fw-bold ">
+                        <i class="bi bi-clock me-1"></i> Ajuster les horaires
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

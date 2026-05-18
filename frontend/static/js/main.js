@@ -322,3 +322,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, false)
     })
 })()
+
+// --- GESTION DE LA MODALE DE L'AVIS CLIENT ---
+document.addEventListener('DOMContentLoaded', function () {
+    var reviewModal = document.getElementById('reviewModal');
+
+    if (reviewModal) {
+        reviewModal.addEventListener('show.bs.modal', function (event) {
+            // Bouton qui a déclenché la modale
+            var button = event.relatedTarget;
+
+            // Extraction des infos des attributs data
+            var menuId = button.getAttribute('data-menu-id');
+            var menuTitre = button.getAttribute('data-menu-titre');
+
+            // Mise à jour des champs de la modale
+            var inputMenuId = reviewModal.querySelector('#modal_menu_id');
+            var inputMenuTitre = reviewModal.querySelector('#modal_menu_titre');
+
+            if (inputMenuId && inputMenuTitre) {
+                inputMenuId.value = menuId;
+                inputMenuTitre.value = menuTitre;
+            }
+
+            // On vide le champ commentaire à chaque ouverture pour éviter de garder l'ancien texte
+            var commentInput = reviewModal.querySelector('#review_comment');
+            if (commentInput) {
+                commentInput.value = '';
+            }
+
+            // On remet la note sur 5 étoiles par défaut
+            var noteSelect = reviewModal.querySelector('#review_note');
+            if (noteSelect) {
+                noteSelect.value = '5';
+            }
+        });
+    }
+});

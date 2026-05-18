@@ -18,7 +18,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
-from backend.order_history import get_user_orders, get_order_details, cancel_client_order
+from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 
 load_dotenv()
 
@@ -561,7 +561,6 @@ def my_orders():
     return render_template('my_orders.html', commandes=commandes_completes)
 
 # ROUTE ANNULATION COMMANDE
-
 @app.route('/cancel-order', methods=['POST'])
 def client_cancel_order():
     if 'user_id' not in session:
@@ -578,6 +577,34 @@ def client_cancel_order():
 
     return redirect(url_for('my_orders'))
 
+# ROUTE AVIS CLIENT
+@app.route('/submit-review', methods=['POST'])
+def client_submit_review():
+    # Sécurité : vérifier que l'utilisateur est bien connecté
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+
+    # Récupération des données envoyées par la modale HTML
+    menu_id = request.form.get('menu_id')
+    note = request.form.get('note')
+    commentaire = request.form.get('commentaire')
+    user_id = session['user_id']
+
+    # Validation rapide des données côté serveur
+    if not menu_id or not note or not commentaire:
+        flash("Tous les champs sont obligatoires.", "error")
+        return redirect(url_for('my_orders'))
+
+    # Appel de la fonction pour insérer l'avis en BDD
+    success = add_client_review(user_id, menu_id, int(note), commentaire)
+
+    if success:
+        flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
+    else:
+        flash("Impossible d'enregistrer votre avis pour le moment.", "error")
+
+    # Redirection vers l'historique des commandes
+    return redirect(url_for('my_orders'))
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():

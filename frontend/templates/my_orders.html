@@ -83,12 +83,25 @@
                                 <ul class="list-group list-group-flush rounded-3 overflow-hidden">
                                     {% for detail in cmd.details %}
                                     {% set calcul.total_brut = calcul.total_brut + (detail.prix_par_personne * detail.quantite) %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-cream border-brand-brown">
-                                        <div>
-                                            <span class="badge bg-brand-brown rounded-pill me-2">{{ detail.quantite }}x</span>
-                                            <strong class="text-brand-brown">{{ detail.titre_menu }}</strong>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-cream border-brand-brown py-3">
+                                        <div class="d-flex align-items-center flex-grow-1">
+                                            <span class="badge bg-brand-brown rounded-pill me-3">{{ detail.quantite }}x</span>
+                                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between w-100 gap-2">
+                                                <strong class="text-brand-brown">{{ detail.titre_menu }}</strong>
+
+                                                {% if cmd.statut_commande == 'Terminée' %}
+                                                <button type="button"
+                                                        class="btn btn-vg btn-sm rounded-pill px-3 shadow-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#reviewModal"
+                                                        data-menu-id="{{ detail.menu_id }}"
+                                                        data-menu-titre="{{ detail.titre_menu }}">
+                                                    <i class="bi bi-star-fill me-1 text-warning"></i> Laisser un avis
+                                                </button>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                        <span class="fw-bold text-brand-brown">{{ "%.2f"|format(detail.prix_par_personne * detail.quantite) }} €</span>
+                                        <span class="fw-bold text-brand-brown ms-3">{{ "%.2f"|format(detail.prix_par_personne * detail.quantite) }} €</span>
                                     </li>
                                     {% endfor %}
                                 </ul>
@@ -154,4 +167,46 @@
         </div>
     {% endif %}
 </div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content vg-box rounded-4 border-0 shadow-lg bg-cream text-brand-brown">
+            <div class="modal-header border-bottom border-brand-brown border-opacity-25">
+                <h5 class="modal-title fw-bold" id="reviewModalLabel"><i class="bi bi-pencil-square me-2"></i>Votre avis sur le menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('client_submit_review') }}" method="POST">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="menu_id" id="modal_menu_id">
+
+                    <div class="mb-3">
+                        <label class="small text-uppercase fw-bold opacity-75 d-block mb-2">Menu concerné</label>
+                        <input type="text" id="modal_menu_titre" class="form-control rounded-3 bg-white text-brand-brown border-brand-brown fw-bold" readonly style="pointer-events: none;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="review_note" class="small text-uppercase fw-bold opacity-75 d-block mb-2">Votre note</label>
+                        <select name="note" id="review_note" class="form-select rounded-3 border-brand-brown text-brand-brown" required>
+                            <option value="5">⭐⭐⭐⭐⭐ — Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ — Très bon</option>
+                            <option value="3">⭐⭐⭐ — Moyen</option>
+                            <option value="2">⭐⭐ — Décevant</option>
+                            <option value="1">⭐ — Médiocre</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="review_comment" class="small text-uppercase fw-bold opacity-75 d-block mb-2">Votre commentaire</label>
+                        <textarea name="commentaire" id="review_comment" rows="4" class="form-control rounded-3 border-brand-brown text-brand-brown" placeholder="Partagez votre expérience culinaire avec nous..." required max-length="1000"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-brand-brown border-opacity-25 d-flex justify-content-between">
+                    <button type="button" class="btn btn-vg rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-vg rounded-pill px-4 shadow-sm fw-bold">Envoyer l'avis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

@@ -332,26 +332,31 @@ document.addEventListener('DOMContentLoaded', function () {
             // Bouton qui a déclenché la modale
             var button = event.relatedTarget;
 
-            // Extraction des infos des attributs data
+            // 1. Extraction des infos cachées dans le bouton
             var menuId = button.getAttribute('data-menu-id');
+            var commandeId = button.getAttribute('data-commande-id');
             var menuTitre = button.getAttribute('data-menu-titre');
 
-            // Mise à jour des champs de la modale
+            // 2. Ciblage des champs de la modale HTML
             var inputMenuId = reviewModal.querySelector('#modal_menu_id');
+            var inputCommandeId = reviewModal.querySelector('#modal_commande_id');
             var inputMenuTitre = reviewModal.querySelector('#modal_menu_titre');
 
+            // 3. Injection des valeurs dans la modale
             if (inputMenuId && inputMenuTitre) {
                 inputMenuId.value = menuId;
-                inputMenuTitre.value = menuTitre;
+                inputMenuTitre.value = menuTitre; // C'est cette ligne qui fait apparaître le texte !
+            }
+            if (inputCommandeId) {
+                inputCommandeId.value = commandeId;
             }
 
-            // On vide le champ commentaire à chaque ouverture pour éviter de garder l'ancien texte
+            // 4. Nettoyage (Reset) pour ne pas garder l'ancien commentaire
             var commentInput = reviewModal.querySelector('#review_comment');
             if (commentInput) {
                 commentInput.value = '';
             }
 
-            // On remet la note sur 5 étoiles par défaut
             var noteSelect = reviewModal.querySelector('#review_note');
             if (noteSelect) {
                 noteSelect.value = '5';

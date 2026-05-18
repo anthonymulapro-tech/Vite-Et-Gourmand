@@ -19,6 +19,7 @@ from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
+from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
 
 load_dotenv()
 
@@ -783,11 +784,40 @@ def update_menu_stock_price(menu_id):
 
     return redirect(url_for('employee_menu'))
 
+
+@app.route('/employee/orders')
+def employee_orders():
+    # 🔒 Sécurité : Réservé aux rôles 1 (Admin) et 2 (Employé)
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        flash("Accès refusé.", "error")
+        return redirect(url_for('home'))
+
+    orders = get_all_orders_for_employee()
+    return render_template('employee/manage_orders.html', orders=orders)
+
+
+@app.route('/employee/orders/update/<int:commande_id>', methods=['POST'])
+def employee_update_order(commande_id):
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        return "Accès interdit", 403
+
+    # Récupération des données du formulaire
+    nouveau_statut = request.form.get('statut_commande')
+
+    # Si la case "restitution" est cochée, request.form.get renvoie 'on', sinon None
+    restitution_val = 1 if request.form.get('restitution_materiel') == '1' else 0
+
+    success = update_order_status_and_material(commande_id, nouveau_statut, restitution_val)
+
+    if success:
+        flash(f"La commande #{commande_id} a bien été mise à jour.", "success")
+    else:
+        flash("Une erreur est survenue lors de la mise à jour.", "error")
+
+    return redirect(url_for('employee_orders'))
 # ==========================================================================
 #                       MOT DE PASSE
 # ==========================================================================
-
-
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():

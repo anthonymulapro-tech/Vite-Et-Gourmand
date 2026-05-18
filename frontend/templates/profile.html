@@ -13,19 +13,6 @@
             Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
         </p>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="px-md-4">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
         <form method="POST" action="{{ url_for('profile') }}" class="needs-validation px-md-4 mt-4" novalidate>
 
             <div class="row g-5">

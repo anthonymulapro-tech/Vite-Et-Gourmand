@@ -33,3 +33,23 @@ def get_order_details(commande_id):
             return cursor.fetchall()
     finally:
         connection.close()
+
+def cancel_client_order(commande_id, user_id):
+    """Permet au client d'annuler sa commande UNIQUEMENT si elle est 'En attente'."""
+    db = get_connection()
+    if not db:
+        return False
+    try:
+        cursor = db.cursor()
+        # On utilise statut_commande comme dans ta BDD
+        sql = """UPDATE commande 
+                 SET statut_commande = 'Annulé' 
+                 WHERE commande_id = %s AND utilisateur_id = %s AND statut_commande = 'En attente'"""
+        cursor.execute(sql, (commande_id, user_id))
+        db.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erreur lors de l'annulation client : {e}")
+        return False
+    finally:
+        db.close()

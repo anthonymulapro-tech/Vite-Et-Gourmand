@@ -807,12 +807,12 @@ def employee_update_order(commande_id):
     # Si la case "restitution" est cochée, request.form.get renvoie 'on', sinon None
     restitution_val = 1 if request.form.get('restitution_materiel') == '1' else 0
 
-    success = update_order_status_and_material(commande_id, nouveau_statut, restitution_val)
+    success, message = update_order_status_and_material(commande_id, nouveau_statut, restitution_val)
 
     if success:
-        flash(f"La commande #{commande_id} a bien été mise à jour.", "success")
+        flash(message, "success")
     else:
-        flash("Une erreur est survenue lors de la mise à jour.", "error")
+        flash(message, "error")
 
     return redirect(url_for('employee_orders'))
 # ==========================================================================

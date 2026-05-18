@@ -26,23 +26,42 @@ def get_all_orders_for_employee():
     finally:
         connection.close()
 
+
 def update_order_status_and_material(commande_id, nouveau_statut, restitution_materiel_val):
-    """Met à jour le statut de la commande et le suivi de la restitution du matériel."""
-    db = get_connection()
-    if not db:
-        return False
+    """Met à jour le statut après vérification des règles de restitution du matériel."""
+    connection = get_connection()
+    if not connection:
+        return False, "Erreur de connexion à la base de données."
+
     try:
-        cursor = db.cursor()
-        sql = """
-            UPDATE commande 
-            SET statut_commande = %s, restitution_materiel = %s 
-            WHERE commande_id = %s
-        """
-        cursor.execute(sql, (nouveau_statut, restitution_materiel_val, commande_id))
-        db.commit()
-        return cursor.rowcount > 0
+        with connection.cursor(dictionary=True) as cursor:
+            # 1. On récupère d'abord l'état réel du prêt pour cette commande
+            cursor.execute("SELECT pret_materiel FROM commande WHERE commande_id = %s", (commande_id,))
+            order = cursor.fetchone()
+
+            if not order:
+                return False, "Commande introuvable."
+
+            # 2. CONDITION DE SÉCURITÉ UX/BACKEND
+            if nouveau_statut == 'Terminée':
+                # Si un matériel a été prêté ET que la case n'est pas cochée (restitution_materiel_val == 0)
+                if order['pret_materiel'] == 1 and restitution_materiel_val == 0:
+                    return False, "Validation impossible : Le matériel prêté doit être marqué comme 'Rendu' pour pouvoir clôturer la commande."
+
+            # 3. Si la condition est respectée (ou s'il n'y avait pas de prêt), on fait l'UPDATE
+            sql = """
+                  UPDATE commande
+                  SET statut_commande      = %s, \
+                      restitution_materiel = %s
+                  WHERE commande_id = %s \
+                  """
+            cursor.execute(sql, (nouveau_statut, restitution_materiel_val, commande_id))
+
+        connection.commit()
+        return True, "La commande a été mise à jour avec succès !"
+
     except Exception as e:
         print(f"Erreur lors de la mise à jour de la commande #{commande_id} : {e}")
-        return False
+        return False, "Une erreur technique est survenue lors de la modification."
     finally:
-        db.close()
+        connection.close()

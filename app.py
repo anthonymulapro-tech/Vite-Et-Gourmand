@@ -669,6 +669,70 @@ def employee_dashboard():
     # 3. Si c'est bon, on affiche le tableau de bord
     return render_template('employee/dashboard.html')
 
+
+@app.route('/employee/reviews')
+def employee_reviews():
+    # Sécurité : réservé au personnel
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        flash("Accès refusé.", "error")
+        return redirect(url_for('home'))
+
+    connection = get_connection()
+    try:
+        with connection.cursor(dictionary=True) as cursor:
+            # On récupère les avis en attente avec le nom du client et le titre du menu
+            sql = """
+                  SELECT a.avis_id, \
+                         a.note, \
+                         a.commentaire, \
+                         a.date_avis,
+                         u.prenom, \
+                         u.nom, \
+                         m.titre_menu
+                  FROM avis a
+                           JOIN utilisateur u ON a.utilisateur_id = u.utilisateur_id
+                           JOIN menu m ON a.menu_id = m.menu_id
+                  WHERE a.statut_avis = 'En attente'
+                  ORDER BY a.date_avis DESC \
+                  """
+            cursor.execute(sql)
+            avis_en_attente = cursor.fetchall()
+    finally:
+        connection.close()
+
+    return render_template('employee/reviews.html', avis_list=avis_en_attente)
+
+
+@app.route('/employee/reviews/<int:avis_id>/<string:action>', methods=['POST'])
+def handle_review_action(avis_id, action):
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        return "Accès interdit", 403
+
+    # Détermination du nouveau statut
+    nouveau_statut = 'Validé' if action == 'approve' else 'Refusé'
+
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql = "UPDATE avis SET statut_avis = %s WHERE avis_id = %s"
+            cursor.execute(sql, (nouveau_statut, avis_id))
+        connection.commit()
+
+        if nouveau_statut == 'Validé':
+            flash("L'avis a été approuvé et est maintenant visible sur la page d'accueil !", "success")
+        else:
+            flash("L'avis a été refusé et masqué.", "success")
+
+    finally:
+        connection.close()
+
+    return redirect(url_for('employee_reviews'))
+
+# ==========================================================================
+#                       MOT DE PASSE
+# ==========================================================================
+
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':

@@ -239,6 +239,21 @@ input:-webkit-autofill:active {
     color: var(--brand-brown);
     margin: 0;
     line-height: 1.5;
+    max-height: 50px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+/* Personnalisation de la scrollbar pour qu'elle reste discrète */
+.testimonial-text::-webkit-scrollbar {
+    width: 5px;
+}
+.testimonial-text::-webkit-scrollbar-track {
+    background: transparent;
+}
+.testimonial-text::-webkit-scrollbar-thumb {
+    background-color: var(--brand-peach);
+    border-radius: 10px;
 }
 
 .custom-checkbox {
@@ -1264,7 +1279,7 @@ span.badge.badge-vg-status {
     display: block !important;
 }
 
-/* ===== REVIEW ====== */
+/* ===== REVIEW CLIENT ====== */
 /* Bordures des champs  */
 #reviewModal .form-control,
 #reviewModal .form-select {
@@ -1284,4 +1299,49 @@ span.badge.badge-vg-status {
 #reviewModal .form-control::placeholder {
     color: var(--text-muted-custom) !important;
     opacity: 1;
+}
+
+/* ===== REVIEW EMPLOYE/ADMIN ====== */
+
+/* 🔴 Bouton Refuser : Fond rouge solide et hover rouge foncé */
+    .btn-review-reject {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fcf9f5 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-review-reject:hover {
+        background-color: #bd2130 !important;
+        border-color: #b21f2d !important;
+        color: #fcf9f5 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* 🟢 Bouton Approuver : Hover vert foncé prononcé */
+    .btn-review-approve {
+        background-color: #198754 !important;
+        border-color: #198754 !important;
+        color: #fcf9f5 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-review-approve:hover {
+        background-color: #146c43 !important;
+        border-color: #13653f !important;
+        color: #fcf9f5 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .review-comment-box {
+        border-color: var(--brand-peach) !important;
+        border-width: 2px !important;
+    }
+
+
+    /* Avis page d'accueil */
+    .home-comment-text {
+    max-height: 110px;
+    overflow-y: auto;
+    padding-right: 5px;
 }

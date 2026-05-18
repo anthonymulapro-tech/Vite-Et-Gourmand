@@ -6,11 +6,14 @@ def get_validated_reviews():
     cursor = connection.cursor(dictionary=True)
 
     try:
+        # Ajout de ORDER BY pour la nouveauté et LIMIT 6 pour restreindre l'affichage
         query = """
                 SELECT a.commentaire, a.note, u.prenom, u.nom
                 FROM avis a
                          INNER JOIN utilisateur u ON a.utilisateur_id = u.utilisateur_id
-                WHERE a.statut_avis = 'Validé' \
+                WHERE a.statut_avis = 'Validé'
+                ORDER BY a.date_avis DESC
+                LIMIT 6
                 """
         cursor.execute(query)
         reviews_raw = cursor.fetchall()

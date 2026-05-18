@@ -18,18 +18,21 @@ def get_user_orders(user_id):
     finally:
         connection.close()
 
-def get_order_details(commande_id):
-    """Récupère la liste des menus d'une commande précise avec quantités et prix."""
-    connection = get_connection() # Utilise ta fonction de database.py
+def get_order_details(commande_id, user_id):
+    """Récupère les menus d'une commande et vérifie si un avis existe pour CETTE commande."""
+    connection = get_connection()
     try:
         with connection.cursor(dictionary=True) as cursor:
+            # On vérifie avec a.commande_id = %s
             sql = """
-                SELECT m.titre_menu, cm.quantite, m.prix_par_personne
+                SELECT m.menu_id, m.titre_menu, cm.quantite, m.prix_par_personne,
+                       (SELECT COUNT(*) FROM avis a WHERE a.menu_id = m.menu_id AND a.commande_id = %s) AS a_deja_note
                 FROM commande_menu cm
                 JOIN menu m ON cm.menu_id = m.menu_id
                 WHERE cm.commande_id = %s
             """
-            cursor.execute(sql, (commande_id,))
+            # On passe commande_id deux fois (une pour la sous-requête, une pour le WHERE principal)
+            cursor.execute(sql, (commande_id, commande_id))
             return cursor.fetchall()
     finally:
         connection.close()
@@ -41,7 +44,7 @@ def cancel_client_order(commande_id, user_id):
         return False
     try:
         cursor = db.cursor()
-        # On utilise statut_commande comme dans ta BDD
+        # On utilise statut_commande comme dans la BDD
         sql = """UPDATE commande 
                  SET statut_commande = 'Annulé' 
                  WHERE commande_id = %s AND utilisateur_id = %s AND statut_commande = 'En attente'"""
@@ -50,6 +53,33 @@ def cancel_client_order(commande_id, user_id):
         return cursor.rowcount > 0
     except Exception as e:
         print(f"Erreur lors de l'annulation client : {e}")
+        return False
+    finally:
+        db.close()
+
+
+def add_client_review(user_id, menu_id, commande_id, note, commentaire):
+    """Ajoute un avis client lié à une commande précise."""
+    db = get_connection()
+    if not db:
+        return False
+    try:
+        cursor = db.cursor()
+
+        # On vérifie le doublon sur la commande précise
+        check_sql = "SELECT COUNT(*) FROM avis WHERE commande_id = %s AND menu_id = %s"
+        cursor.execute(check_sql, (commande_id, menu_id))
+        if cursor.fetchone()[0] > 0:
+            return False
+
+            # On insère avec le commande_id
+        insert_sql = """INSERT INTO avis (utilisateur_id, menu_id, commande_id, note, commentaire)
+                        VALUES (%s, %s, %s, %s, %s)"""
+        cursor.execute(insert_sql, (user_id, menu_id, commande_id, note, commentaire))
+        db.commit()
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'ajout de l'avis : {e}")
         return False
     finally:
         db.close()

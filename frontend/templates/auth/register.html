@@ -17,17 +17,6 @@
                     <div class="card-body">
 
                         <h2 class="card-title-custom">Inscription</h2>
-                        <!-- Récupération et affichage dynamique des messages flash de Flask (ex : mot de passe incorrect) -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
 
                         <form action="{{ url_for('register_page') }}" method="POST" class="needs-validation" novalidate>
                             <!-- Tout les Champs à remplir -->

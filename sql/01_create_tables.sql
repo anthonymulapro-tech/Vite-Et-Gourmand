@@ -135,8 +135,10 @@ CREATE TABLE avis (
     statut_avis VARCHAR(50) DEFAULT 'En attente',
     utilisateur_id INT NOT NULL,
     menu_id INT NOT NULL,
+    commande_id INT NOT NULL, -- NOUVELLE COLONNE
     CONSTRAINT fk_avis_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(utilisateur_id),
-    CONSTRAINT fk_avis_menu FOREIGN KEY (menu_id) REFERENCES menu(menu_id)
+    CONSTRAINT fk_avis_menu FOREIGN KEY (menu_id) REFERENCES menu(menu_id),
+    CONSTRAINT fk_avis_commande FOREIGN KEY (commande_id) REFERENCES commande(commande_id) -- NOUVELLE CONTRAINTE
 ) ENGINE=InnoDB;
 
 CREATE TABLE photo_menu (

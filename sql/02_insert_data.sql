@@ -148,16 +148,34 @@ INSERT INTO plat_allergene (plat_id, allergene_id) VALUES
 (14, 5), -- Saint-Jacques : Poisson/Crustacés
 (16, 1), (16, 2); -- Bœuf en croûte : Gluten (croûte), Lactose (purée)
 
--- 8. AVIS CLIENTS
+-- 8. COMMANDES FICTIVES (Nécessaires pour lier les avis)
 
-INSERT INTO avis (commentaire, note, statut_avis, utilisateur_id, menu_id) VALUES
-('Livraison à l''heure, très bon et personnel très sympathique, je recommande sans hésitation.', 5, 'Validé', 5,3),
-('Je commanderai à nouveau !', 5, 'Validé', 6,3),
-('Rien à dire, tout était parfait !', 5, 'Validé', 7,2),
-('Nous avons pris le menu fraîcheur pour 30 convives et nous n’avons pas été déçus !', 5, 'Validé', 8,1),
-('Tout était délicieux, un moyen pratique de faire des grands repas de famille.', 5, 'Validé', 9,1);
+INSERT INTO commande (reference_commande, date_prestation, heure_livraison, nombre_personne, prix_menu, statut_commande, utilisateur_id) VALUES
+('CMD-TEST-01', '2026-05-10 12:00:00', '12h00 - 12h30', 5, 325.00, 'Terminée', 5),
+('CMD-TEST-02', '2026-05-12 19:30:00', '19h30 - 20h00', 10, 650.00, 'Terminée', 6),
+('CMD-TEST-03', '2026-05-15 20:00:00', '20h00 - 20h30', 10, 350.00, 'Terminée', 7),
+('CMD-TEST-04', '2026-05-18 12:30:00', '12h30 - 13h00', 30, 750.00, 'Terminée', 8),
+('CMD-TEST-05', '2026-05-20 19:00:00', '19h00 - 19h30', 15, 375.00, 'Terminée', 9);
 
--- 9. MESSAGES DE CONTACT
+-- 9. LIAISONS COMMANDES ET MENUS (commande_menu)
+
+INSERT INTO commande_menu (commande_id, menu_id, quantite) VALUES
+(1, 3, 5),  -- Commande 1 : 5x Menu Étoilé
+(2, 3, 10), -- Commande 2 : 10x Menu Étoilé
+(3, 2, 10), -- Commande 3 : 10x Menu Gourmand
+(4, 1, 30), -- Commande 4 : 30x Menu Fraîcheur
+(5, 1, 15); -- Commande 5 : 15x Menu Fraîcheur
+
+-- 10. AVIS CLIENTS (Maintenant liés à une commande spécifique)
+
+INSERT INTO avis (commentaire, note, statut_avis, utilisateur_id, menu_id, commande_id) VALUES
+('Livraison à l''heure, très bon et personnel très sympathique, je recommande sans hésitation.', 5, 'Validé', 5, 3, 1),
+('Je commanderai à nouveau !', 5, 'Validé', 6, 3, 2),
+('Rien à dire, tout était parfait !', 5, 'Validé', 7, 2, 3),
+('Nous avons pris le menu fraîcheur pour 30 convives et nous n’avons pas été déçus !', 5, 'Validé', 8, 1, 4),
+('Tout était délicieux, un moyen pratique de faire des grands repas de famille.', 5, 'Validé', 9, 1, 5);
+
+-- 11. MESSAGES DE CONTACT
 INSERT INTO message_contact (nom_contact, prenom_contact, motif, description_contact, email_contact, est_lu) VALUES
 ('Mercier', 'Léonie', 'Demande de devis', 'Bonjour, je souhaiterais un devis pour un mariage de 100 personnes en septembre. Merci.', 'leonie.mercier@gmail.com', FALSE),
 ('Brook', 'Alex','Question allergènes', 'Le menu Gourmand peut-il être adapté sans aucune trace de fruits à coque ?', 'alex.brook@hotmail.fr', TRUE);

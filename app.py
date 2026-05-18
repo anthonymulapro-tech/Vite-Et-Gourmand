@@ -18,7 +18,7 @@ from backend.contact import save_contact_message
 from backend.schedule import get_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
-from backend.order_history import get_user_orders, get_order_details, cancel_client_order
+from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 
 load_dotenv()
 
@@ -555,13 +555,13 @@ def my_orders():
     # Pour chaque commande, on va chercher ses menus
     commandes_completes = []
     for cmd in commandes_raw:
-        cmd['details'] = get_order_details(cmd['commande_id'])
+        # C'EST ICI QU'IL FAUT AJOUTER session['user_id']
+        cmd['details'] = get_order_details(cmd['commande_id'], session['user_id'])
         commandes_completes.append(cmd)
 
     return render_template('my_orders.html', commandes=commandes_completes)
 
 # ROUTE ANNULATION COMMANDE
-
 @app.route('/cancel-order', methods=['POST'])
 def client_cancel_order():
     if 'user_id' not in session:
@@ -578,6 +578,31 @@ def client_cancel_order():
 
     return redirect(url_for('my_orders'))
 
+# ROUTE AVIS CLIENT
+@app.route('/submit-review', methods=['POST'])
+def client_submit_review():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+
+    menu_id = request.form.get('menu_id')
+    commande_id = request.form.get('commande_id') # NOUVEAU
+    note = request.form.get('note')
+    commentaire = request.form.get('commentaire')
+    user_id = session['user_id']
+
+    if not menu_id or not commande_id or not note or not commentaire:
+        flash("Tous les champs sont obligatoires.", "error")
+        return redirect(url_for('my_orders'))
+
+    # On passe le commande_id à la fonction !
+    success = add_client_review(user_id, menu_id, commande_id, int(note), commentaire)
+
+    if success:
+        flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
+    else:
+        flash("Vous avez déjà laissé un avis pour ce menu dans cette commande.", "error")
+
+    return redirect(url_for('my_orders'))
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():

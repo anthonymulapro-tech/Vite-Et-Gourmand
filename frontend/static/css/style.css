@@ -1263,3 +1263,25 @@ span.badge.badge-vg-status {
 .was-validated .password-group:has(:invalid) ~ .invalid-feedback {
     display: block !important;
 }
+
+/* ===== REVIEW ====== */
+/* Bordures des champs  */
+#reviewModal .form-control,
+#reviewModal .form-select {
+    border-color: var(--brand-peach);
+    border-width: 1px !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+}
+/* Effet quand on clique à l'intérieur du champ (Focus) */
+#reviewModal .form-control:focus,
+#reviewModal .form-select:focus {
+    border-color: var(--brand-peach) !important;
+    box-shadow: 0 0 0 0.25rem rgba(244, 162, 97, 0.25) !important;
+    color: var(--brand-brown) !important;
+}
+
+#reviewModal .form-control::placeholder {
+    color: var(--text-muted-custom) !important;
+    opacity: 1;
+}

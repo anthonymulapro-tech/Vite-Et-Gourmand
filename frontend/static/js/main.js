@@ -400,3 +400,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+/* ==========================================================================
+   7. GESTION DYNAMIQUE DU DROPDOWN ÉTAT (GESTION DES HORAIRES EMPLOYÉ)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleLinks = document.querySelectorAll('.schedule-link');
+
+    if (scheduleLinks.length === 0) return;
+
+    scheduleLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetValue = this.getAttribute('data-value');
+            const targetLabel = this.getAttribute('data-label');
+            const horaireId = this.getAttribute('data-horaire-id');
+
+            // 1. Met à jour la valeur de l'input caché pour le serveur Python
+            document.getElementById(`input_schedule_${horaireId}`).value = targetValue;
+
+            // 2. Met à jour le texte du bouton visible (Ouvert ou Fermé)
+            const dropdownBtn = document.getElementById(`dropdownScheduleButton_${horaireId}`);
+            dropdownBtn.textContent = targetLabel;
+        });
+    });
+});

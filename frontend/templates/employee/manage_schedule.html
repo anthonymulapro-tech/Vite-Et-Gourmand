@@ -57,22 +57,50 @@
                                 
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-1">
-                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold" 
-                                               name="heure_soir_ouverture" 
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold"
+                                               name="heure_soir_ouverture"
                                                value="{{ h.heure_soir_ouverture or '' }}" style="max-width: 90px;">
                                         <span class="text-muted small">à</span>
-                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold" 
-                                               name="heure_soir_fermeture" 
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold"
+                                               name="heure_soir_fermeture"
                                                value="{{ h.heure_soir_fermeture or '' }}" style="max-width: 90px;">
                                     </div>
                                 </td>
                                 
                                 <td>
-                                    <select class="form-select form-select-sm vg-box fw-bold text-brand-brown text-center" 
-                                            name="est_ouvert" style="background-color: #fcd573 !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem;" required>
-                                        <option value="1" {% if h.est_ouvert %}selected{% endif %}>Ouvert</option>
-                                        <option value="0" {% if not h.est_ouvert %}selected{% endif %}>Fermé</option>
-                                    </select>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm vg-box text-brand-brown dropdown-toggle fw-bold schedule-dropdown-btn"
+                                                type="button"
+                                                id="dropdownScheduleButton_{{ h.horaire_id }}"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem; min-width: 110px;">
+                                            {{ 'Ouvert' if h.est_ouvert else 'Fermé' }}
+                                        </button>
+
+                                        <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1" aria-labelledby="dropdownScheduleButton_{{ h.horaire_id }}" style="background-color: #fcf9f5;">
+                                            <li>
+                                                <a class="dropdown-item text-brand-brown fw-semibold rounded-2 schedule-link"
+                                                   href="#"
+                                                   data-value="1"
+                                                   data-label="Ouvert"
+                                                   data-horaire-id="{{ h.horaire_id }}">
+                                                    Ouvert
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-brand-brown fw-semibold rounded-2 schedule-link"
+                                                   href="#"
+                                                   data-value="0"
+                                                   data-label="Fermé"
+                                                   data-horaire-id="{{ h.horaire_id }}">
+                                                    Fermé
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <input type="hidden" name="est_ouvert" id="input_schedule_{{ h.horaire_id }}" value="{{ 1 if h.est_ouvert else 0 }}">
+                                    </div>
                                 </td>
                                 
                                 <td>

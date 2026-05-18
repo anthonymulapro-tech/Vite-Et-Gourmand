@@ -1385,3 +1385,33 @@ span.badge.badge-vg-status {
     background-color: var(--brand-brown) !important;
     color: #fcf9f5 !important;
 }
+
+/* Halo de focus Pêche sur les inputs d'horaires */
+input[type="time"].vg-box:focus {
+    border-color: var(--brand-peach) !important;
+    box-shadow: 0 0 0 0.25rem rgba(242, 163, 101, 0.25) !important; /* Code RGB de ta couleur pêche avec opacité */
+    color: var(--brand-brown) !important;
+    outline: none !important;
+}
+
+/* Donne un style au logo d'horloge natif dans l'input */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    background-color: var(--brand-peach) !important;
+}
+
+/* Couleur Brand Peach au survol des options (Commandes ET Horaires) */
+.dropdown-menu .status-link:hover,
+.dropdown-menu .schedule-link:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+/* Ligne de séparation marron dans tout les tableaux */
+.table tbody tr.border-bottom {
+    border-bottom: 1px solid var(--brand-brown) !important;
+}

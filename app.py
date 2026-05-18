@@ -15,7 +15,7 @@ from backend.order import create_order
 from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
 from backend.contact import save_contact_message
-from backend.schedule import get_schedule
+from backend.schedule import get_schedule, update_day_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
@@ -815,6 +815,39 @@ def employee_update_order(commande_id):
         flash(message, "error")
 
     return redirect(url_for('employee_orders'))
+
+
+@app.route('/employee/schedule')
+def employee_schedule():
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        flash("Accès refusé.", "error")
+        return redirect(url_for('home'))
+
+    # Utilisation directe de la fonction existante
+    jours_horaires = get_schedule()
+    return render_template('employee/manage_schedule.html', horaires=jours_horaires)
+
+
+@app.route('/employee/schedule/update/<int:horaire_id>', methods=['POST'])
+def employee_update_schedule(horaire_id):
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        return "Accès interdit", 403
+
+    midi_ouvrir = request.form.get('heure_midi_ouverture')
+    midi_fermer = request.form.get('heure_midi_fermeture')
+    soir_ouvrir = request.form.get('heure_soir_ouverture')
+    soir_fermer = request.form.get('heure_soir_fermeture')
+    est_ouvert_val = int(request.form.get('est_ouvert', 1))
+
+    success = update_day_schedule(horaire_id, midi_ouvrir, midi_fermer, soir_ouvrir, soir_fermer, est_ouvert_val)
+
+    if success:
+        flash("Les plages horaires ont été mises à jour avec succès !", "success")
+    else:
+        flash("Aucune modification détectée ou erreur technique.", "error")
+
+    return redirect(url_for('employee_schedule'))
+
 # ==========================================================================
 #                       MOT DE PASSE
 # ==========================================================================

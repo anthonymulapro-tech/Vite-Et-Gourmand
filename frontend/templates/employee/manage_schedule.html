@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Horaires - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 75vh;">
+
+    <div class="mb-4 text-center">
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-3 text-brand-brown">
+            <i class="bi bi-arrow-left me-1"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-2">Horaires d'Ouverture</h1>
+        <p class="fs-5 text-brand-brown">
+            Modifiez les horaires des services du midi et du soir ou passez un jour en "Fermé".
+        </p>
+    </div>
+
+    <div class="card vg-box p-4 shadow-sm border-0 mx-auto" style="max-width: 1000px;">
+        <div class="table-responsive">
+            <table class="table align-middle table-borderless m-0">
+                <thead class="table-light border-bottom">
+                    <tr class="text-brand-brown fw-bold text-center">
+                        <th scope="col" class="text-start" style="width: 15%;">Jour</th>
+                        <th scope="col" style="width: 30%;">Service du Midi</th>
+                        <th scope="col" style="width: 30%;">Service du Soir</th>
+                        <th scope="col" style="width: 15%;">État</th>
+                        <th scope="col" style="width: 10%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if horaires %}
+                        {% for h in horaires %}
+                        <tr class="border-bottom border-light text-center">
+                            
+                            <td class="text-start fw-bold text-brand-brown fs-6">
+                                {{ h.jour }}
+                            </td>
+                            
+                            <form action="{{ url_for('employee_update_schedule', horaire_id=h.horaire_id) }}" method="POST">
+                                
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold" 
+                                               name="heure_midi_ouverture" 
+                                               value="{{ h.heure_midi_ouverture or '' }}" style="max-width: 90px;">
+                                        <span class="text-muted small">à</span>
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold" 
+                                               name="heure_midi_fermeture" 
+                                               value="{{ h.heure_midi_fermeture or '' }}" style="max-width: 90px;">
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold"
+                                               name="heure_soir_ouverture"
+                                               value="{{ h.heure_soir_ouverture or '' }}" style="max-width: 90px;">
+                                        <span class="text-muted small">à</span>
+                                        <input type="time" class="form-control form-control-sm vg-box text-center text-brand-brown fw-semibold"
+                                               name="heure_soir_fermeture"
+                                               value="{{ h.heure_soir_fermeture or '' }}" style="max-width: 90px;">
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm vg-box text-brand-brown dropdown-toggle fw-bold schedule-dropdown-btn"
+                                                type="button"
+                                                id="dropdownScheduleButton_{{ h.horaire_id }}"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem; min-width: 110px;">
+                                            {{ 'Ouvert' if h.est_ouvert else 'Fermé' }}
+                                        </button>
+
+                                        <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1" aria-labelledby="dropdownScheduleButton_{{ h.horaire_id }}" style="background-color: #fcf9f5;">
+                                            <li>
+                                                <a class="dropdown-item text-brand-brown fw-semibold rounded-2 schedule-link"
+                                                   href="#"
+                                                   data-value="1"
+                                                   data-label="Ouvert"
+                                                   data-horaire-id="{{ h.horaire_id }}">
+                                                    Ouvert
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-brand-brown fw-semibold rounded-2 schedule-link"
+                                                   href="#"
+                                                   data-value="0"
+                                                   data-label="Fermé"
+                                                   data-horaire-id="{{ h.horaire_id }}">
+                                                    Fermé
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <input type="hidden" name="est_ouvert" id="input_schedule_{{ h.horaire_id }}" value="{{ 1 if h.est_ouvert else 0 }}">
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <button type="submit" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold" title="Enregistrer les horaires du {{ h.jour }}">
+                                        <i class="bi bi-floppy"></i>
+                                    </button>
+                                </td>
+                            </form>
+
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-brand-brown opacity-75">
+                                Aucun horaire trouvé en base de données.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

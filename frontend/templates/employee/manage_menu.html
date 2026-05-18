@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion de la Carte - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 75vh;">
+
+    <div class="mb-4 text-center">
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-3 text-brand-brown">
+            <i class="bi bi-arrow-left me-1"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-2">Gestion de la Carte</h1>
+        <p class="fs-5 text-brand-brown">
+            Modifiez en temps réel les prix par personne et suivez l'état des stocks du catalogue.
+        </p>
+    </div>
+
+    <div class="card vg-box p-4 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle table-borderless m-0">
+                <thead class="table-light border-bottom">
+                    <tr class="text-brand-brown fw-bold">
+                        <th scope="col" style="width: 8%;">ID</th>
+                        <th scope="col" style="width: 32%;">Nom du Menu</th>
+                        <th scope="col" style="width: 20%;">Statut Stock</th>
+                        <th scope="col" style="width: 18%;">Prix par pers. (€)</th>
+                        <th scope="col" style="width: 12%;">Quantité</th>
+                        <th scope="col" style="width: 10%;" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if menus %}
+                        {% for menu in menus %}
+                        <tr class="border-bottom border-light">
+                            <td class="fw-bold text-muted">#{{ menu.menu_id }}</td>
+                            
+                            <td>
+                                <span class="fw-bold text-brand-brown fs-6">{{ menu.titre_menu }}</span>
+                            </td>
+                            
+                            <td>
+                                {% if menu.quantite_restante is none %}
+                                    <span class="badge bg-secondary rounded-pill">Illimité</span>
+                                {% elif menu.quantite_restante <= 0 %}
+                                    <span class="badge rounded-pill" style="background-color: #dc3545 !important; color: var(--bg-cream) !important;">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> Rupture
+                                    </span>
+                                {% elif menu.quantite_restante <= 5 %}
+                                    <span class="badge rounded-pill" style="background-color: #ffc107 !important; color: var(--bg-cream)  !important;">
+                                        <i class="bi bi-dash-circle me-1"></i> Stock Faible
+                                    </span>
+                                {% else %}
+                                    <span class="badge rounded-pill" style="background-color: #198754 !important; color: var(--bg-cream)  !important;">
+                                        <i class="bi bi-check-circle me-1"></i> Disponible
+                                    </span>
+                                {% endif %}
+                            </td>
+                            
+                            <form action="{{ url_for('update_menu_stock_price', menu_id=menu.menu_id) }}" method="POST">
+                                <td>
+                                    <div class="input-group input-group-sm" style="max-width: 120px;">
+                                        <input type="number" step="0.01" min="0" class="form-control custom-input text-center fw-semibold text-brand-brown" name="prix_par_personne" value="{{ menu.prix_par_personne }}" required>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="input-group input-group-sm" style="max-width: 100px;">
+                                        <input type="number" min="0" class="form-control custom-input text-center fw-semibold text-brand-brown" name="quantite_restante" value="{{ menu.quantite_restante or 0 }}" required>
+                                    </div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <button type="submit" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold" title="Sauvegarder les modifications">
+                                        <i class="bi bi-floppy"></i>
+                                    </button>
+                                </td>
+                            </form>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-brand-brown opacity-75">
+                                Aucun menu trouvé dans le catalogue.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -728,9 +728,65 @@ def handle_review_action(avis_id, action):
 
     return redirect(url_for('employee_reviews'))
 
+
+@app.route('/employee/menu')
+def employee_menu():
+    # Réservé aux rôles 1 (Admin) et 2 (Employé)
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        flash("Accès refusé.", "error")
+        return redirect(url_for('home'))
+
+    try:
+        # Réutilisation de la fonction pour charger la carte
+        catalogue_menus = get_all_menus()
+    except Exception as e:
+        print(f"Erreur de chargement du catalogue employé : {e}")
+        catalogue_menus = []
+
+    return render_template('employee/manage_menu.html', menus=catalogue_menus)
+
+
+@app.route('/employee/menu/update/<int:menu_id>', methods=['POST'])
+def update_menu_stock_price(menu_id):
+    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
+        return "Accès interdit", 403
+
+    # Récupération et conversion des données du formulaire
+    nouvel_unitaire = request.form.get('prix_par_personne')
+    nouveau_stock = request.form.get('quantite_restante')
+
+    try:
+        prix = float(nouvel_unitaire)
+        stock = int(nouveau_stock)
+    except (ValueError, TypeError):
+        flash("Données invalides. Le prix doit être un nombre et le stock un entier.", "error")
+        return redirect(url_for('employee_menu'))
+
+    # Mise à jour directe en Base de Données
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+                  UPDATE menu
+                  SET prix_par_personne = %s, \
+                      quantite_restante = %s
+                  WHERE menu_id = %s \
+                  """
+            cursor.execute(sql, (prix, stock, menu_id))
+        connection.commit()
+        flash("Le menu a été mis à jour avec succès !", "success")
+    except Exception as e:
+        print(f"Erreur SQL lors de la mise à jour du menu : {e}")
+        flash("Une erreur technique est survenue.", "error")
+    finally:
+        connection.close()
+
+    return redirect(url_for('employee_menu'))
+
 # ==========================================================================
 #                       MOT DE PASSE
 # ==========================================================================
+
 
 
 @app.route('/forgot-password', methods=['GET', 'POST'])

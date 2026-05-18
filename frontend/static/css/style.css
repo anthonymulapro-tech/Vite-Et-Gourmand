@@ -1303,7 +1303,7 @@ span.badge.badge-vg-status {
 
 /* ===== REVIEW EMPLOYE/ADMIN ====== */
 
-/* 🔴 Bouton Refuser : Fond rouge solide et hover rouge foncé */
+/* Bouton Refuser : Fond rouge solide et hover rouge foncé */
     .btn-review-reject {
         background-color: #dc3545 !important;
         border-color: #dc3545 !important;
@@ -1318,7 +1318,7 @@ span.badge.badge-vg-status {
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* 🟢 Bouton Approuver : Hover vert foncé prononcé */
+    /*  Bouton Approuver : Hover vert foncé prononcé */
     .btn-review-approve {
         background-color: #198754 !important;
         border-color: #198754 !important;
@@ -1344,4 +1344,32 @@ span.badge.badge-vg-status {
     max-height: 110px;
     overflow-y: auto;
     padding-right: 5px;
+
+}
+/* ===== MENUS EMPLOYEE====== */
+
+/* Personnalisation des cases Prix et Quantité dans le tableau */
+.table .custom-input {
+    background-color: var(--brand-gold) !important;
+    border: 2px solid var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Effet de focus quand l'employé clique dans la case pour modifier */
+.table .custom-input:focus {
+    background-color: var(--brand-gold) !important;
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Suppression définitive des flèches d'origine pour un design épuré */
+.table .custom-input::-webkit-outer-spin-button,
+.table .custom-input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+.table .custom-input {
+    -moz-appearance: textfield !important;
 }

@@ -1373,3 +1373,15 @@ span.badge.badge-vg-status {
 .table .custom-input {
     -moz-appearance: textfield !important;
 }
+
+/* Couleur Brand Peach au survol des options du statut */
+.dropdown-menu .status-link:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Optionnel : couleur de fond si l'élément est actif/cliqué */
+.dropdown-menu .status-link:active {
+    background-color: var(--brand-brown) !important;
+    color: #fcf9f5 !important;
+}

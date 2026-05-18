@@ -364,3 +364,39 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+/* ==========================================================================
+   6. GESTION DYNAMIQUE DU DROPDOWN STATUT ET CHECKBOX (SUIVI DES COMMANDES)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+    const statusLinks = document.querySelectorAll('.status-link');
+
+    if (statusLinks.length === 0) return; // Sécurité
+
+    statusLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetValue = this.getAttribute('data-value');
+            const orderId = this.getAttribute('data-order-id');
+
+            // 1. Met à jour la valeur de l'input caché pour le serveur Python
+            document.getElementById(`input_status_${orderId}`).value = targetValue;
+
+            // 2. Met à jour le texte du bouton visible
+            const dropdownBtn = document.getElementById(`dropdownMenuButton_${orderId}`);
+            dropdownBtn.textContent = targetValue;
+
+            // 3. Logique dynamique de la checkbox matériel
+            const checkbox = document.getElementById(`rest_Check_${orderId}`);
+            if (!checkbox) return;
+
+            if (targetValue === 'Terminée') {
+                checkbox.disabled = false;
+            } else {
+                checkbox.disabled = true;
+                checkbox.checked = false;
+            }
+        });
+    });
+});

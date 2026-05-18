@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Suivi des Commandes - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 75vh;">
+
+    <div class="mb-4 text-center">
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-3 text-brand-brown">
+            <i class="bi bi-arrow-left me-1"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-2">Suivi des Commande</h1>
+        <p class="fs-5 text-brand-brown">
+            Gérez les étapes de préparation, planifiez les livraisons et suivez la restitution du matériel prêté.
+        </p>
+    </div>
+
+    <div class="card vg-box p-4 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle table-borderless m-0">
+                <thead class="table-light border-bottom">
+                    <tr class="text-brand-brown fw-bold">
+                        <th scope="col" style="width: 20%;">Référence & Client</th>
+                        <th scope="col" style="width: 20%;">Date & Lieu Prestation</th>
+                        <th scope="col" style="width: 10%;">Total payé</th>
+                        <th scope="col" style="width: 15%;">Suivi Matériel</th>
+                        <th scope="col" style="width: 15%;">Statut Actuel</th>
+                        <th scope="col" style="width: 20%;" class="text-center">Mettre à jour</th>
+                    </tr>
+                </thead>
+                <tbody>
+    {% if orders %}
+        {% for order in orders %}
+        <tr class="border-bottom border-light">
+
+            <td>
+                <span class="d-block fw-bold text-brand-brown small">{{ order.reference_commande }}</span>
+                <small class="text-muted d-block mt-1">
+                    <i class="bi bi-person-fill"></i> {{ order.prenom }} {{ order.nom }}<br>
+                    <i class="bi bi-telephone-fill" style="font-size: 0.8rem;"></i> {{ order.telephone }}
+                </small>
+            </td>
+
+            <td>
+                <span class="fw-bold text-brand-brown small d-block">
+                    <i class="bi bi-calendar-event me-1"></i> {{ order.date_prestation.strftime('%d/%m/%Y') }} à {{ order.heure_livraison }}
+                </span>
+                <small class="text-muted d-block mt-1">
+                    <i class="bi bi-geo-alt-fill"></i> {{ order.adresse_livraison }}, {{ order.code_postal_livraison }} {{ order.ville_livraison }}
+                </small>
+            </td>
+
+            <td>
+                <span class="fw-bold text-brand-brown">{{ "%.2f"|format(order.total_ttc) }} €</span>
+            </td>
+
+            <td>
+                {% if order.pret_materiel %}
+                    <div class="d-flex align-items-center gap-2">
+                        {% if order.restitution_materiel %}
+                            <span class="badge rounded-pill px-2 py-1" style="background-color: #198754 !important; color: var(--bg-cream) !important; font-size: 0.75rem;">
+                                <i class="bi bi-box-seam-fill me-1"></i> Matériel Rendu
+                            </span>
+                        {% else %}
+                            <span class="badge vg-box rounded-pill px-2 py-1">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i> À Récupérer
+                            </span>
+                        {% endif %}
+
+                        <div class="form-check m-0" title="Cocher si le matériel est bien revenu en cuisine">
+                            <input class="form-check-input custom-checkbox" type="checkbox" name="restitution_materiel" value="1"
+                                   form="form_order_{{ order.commande_id }}" id="rest_Check_{{ order.commande_id }}"
+                                   {% if order.restitution_materiel %}checked{% endif %}
+                                   {% if order.statut_commande != 'Terminée' %}disabled{% endif %}
+                                   style="border: 2px solid var(--brand-brown) !important; width: 1.1rem; height: 1.1rem; cursor: pointer;">
+                        </div>
+                    </div>
+                {% else %}
+                    <span class="text-muted small">Aucun prêt</span>
+                {% endif %}
+            </td>
+
+            <td>
+                {% if order.statut_commande == 'En attente' %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #6c757d !important; color: var(--bg-cream) !important;">En attente</span>
+                {% elif order.statut_commande == 'En préparation' %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #ff8800 !important; color: var(--bg-cream) !important;">Préparation</span>
+                {% elif order.statut_commande == 'En livraison' %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #ffc300 !important; color: var(--bg-cream) !important;">En livraison</span>
+                {% elif order.statut_commande == 'Livrée' %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #65CA00 !important; color: var(--bg-cream) !important;">Livrée</span>
+                {% elif order.statut_commande == 'Terminée' %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #198754 !important; color: var(--bg-cream) !important;">Terminée</span>
+                {% else %}
+                    <span class="badge rounded-pill w-100 py-2" style="background-color: #dc3545 !important; color: var(--bg-cream) !important;">{{ order.statut_commande }}</span>
+                {% endif %}
+            </td>
+
+            <td class="text-center">
+    <form action="{{ url_for('employee_update_order', commande_id=order.commande_id) }}" method="POST" id="form_order_{{ order.commande_id }}" class="d-flex align-items-center gap-2 justify-content-center">
+
+        <div class="dropdown">
+            <button class="btn btn-sm vg-box text-brand-brown dropdown-toggle fw-semibold status-dropdown-btn"
+                    type="button"
+                    id="dropdownMenuButton_{{ order.commande_id }}"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem; min-width: 140px;">
+                {{ order.statut_commande }}
+            </button>
+
+            <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1" aria-labelledby="dropdownMenuButton_{{ order.commande_id }}" style="background-color: #fcf9f5;">
+                {% set statuts = ['En attente', 'En préparation', 'En livraison', 'Livrée', 'Terminée', 'Annulé'] %}
+                {% for statut in statuts %}
+                    <li>
+                        <a class="dropdown-item text-brand-brown fw-semibold rounded-2 status-link"
+                           href="#"
+                           data-value="{{ statut }}"
+                           data-order-id="{{ order.commande_id }}">
+                            {{ statut }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <input type="hidden" name="statut_commande" id="input_status_{{ order.commande_id }}" value="{{ order.statut_commande }}">
+        </div>
+
+        <button type="submit" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold" title="Enregistrer l'état de la commande">
+            <i class="bi bi-floppy"></i>
+        </button>
+    </form>
+</td>
+
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="6" class="text-center py-4 text-brand-brown opacity-75">
+                Aucune commande enregistrée pour le moment.
+            </td>
+        </tr>
+    {% endif %}
+</tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

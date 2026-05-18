@@ -650,6 +650,25 @@ def logout():
     return redirect(url_for('login_page'))
 
 
+# ==========================================================================
+# ESPACE EMPLOYÉ & ADMINISTRATEUR
+# ==========================================================================
+
+@app.route('/employee/dashboard')
+def employee_dashboard():
+    # 1. Sécurité : Vérifier si l'utilisateur est bien connecté
+    if 'user_id' not in session:
+        flash("Veuillez vous connecter pour accéder à cet espace.", "error")
+        return redirect(url_for('login_page', next=request.path))
+
+    # 2. Sécurité : Vérifier si l'utilisateur est un employé (2) ou un admin (1)
+    if session.get('user_role') not in [1, 2]:
+        flash("Accès refusé. Cet espace est réservé au personnel de Vite & Gourmand.", "error")
+        return redirect(url_for('home'))
+
+    # 3. Si c'est bon, on affiche le tableau de bord
+    return render_template('employee/dashboard.html')
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':

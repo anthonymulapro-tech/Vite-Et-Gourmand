@@ -239,6 +239,21 @@ input:-webkit-autofill:active {
     color: var(--brand-brown);
     margin: 0;
     line-height: 1.5;
+    max-height: 50px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+/* Personnalisation de la scrollbar pour qu'elle reste discrète */
+.testimonial-text::-webkit-scrollbar {
+    width: 5px;
+}
+.testimonial-text::-webkit-scrollbar-track {
+    background: transparent;
+}
+.testimonial-text::-webkit-scrollbar-thumb {
+    background-color: var(--brand-peach);
+    border-radius: 10px;
 }
 
 .custom-checkbox {
@@ -1322,3 +1337,11 @@ span.badge.badge-vg-status {
         border-color: var(--brand-peach) !important;
         border-width: 2px !important;
     }
+
+
+    /* Avis page d'accueil */
+    .home-comment-text {
+    max-height: 110px;
+    overflow-y: auto;
+    padding-right: 5px;
+}

@@ -151,11 +151,11 @@ INSERT INTO plat_allergene (plat_id, allergene_id) VALUES
 -- 8. COMMANDES FICTIVES (Nécessaires pour lier les avis)
 
 INSERT INTO commande (reference_commande, date_prestation, heure_livraison, nombre_personne, prix_menu, statut_commande, utilisateur_id) VALUES
-('CMD-TEST-01', '2026-05-10 12:00:00', '12h00 - 12h30', 5, 325.00, 'Terminée', 5),
-('CMD-TEST-02', '2026-05-12 19:30:00', '19h30 - 20h00', 10, 650.00, 'Terminée', 6),
-('CMD-TEST-03', '2026-05-15 20:00:00', '20h00 - 20h30', 10, 350.00, 'Terminée', 7),
-('CMD-TEST-04', '2026-05-18 12:30:00', '12h30 - 13h00', 30, 750.00, 'Terminée', 8),
-('CMD-TEST-05', '2026-05-20 19:00:00', '19h00 - 19h30', 15, 375.00, 'Terminée', 9);
+('D726-19052026-1441-001', '2026-05-10 12:00:00', '12h00', 5, 325.00, 'Terminée', 5),
+('A643-15032026-1921-002', '2026-05-12 19:30:00', '19h30', 10, 650.00, 'Terminée', 6),
+('A4C6-2012026-1157-003', '2026-05-15 20:00:00', '20h00', 10, 350.00, 'Terminée', 7),
+('B67E-0202026-1230-004', '2026-05-18 12:30:00', '12h30', 30, 750.00, 'Terminée', 8),
+('GJ4E-30042026-2035-005', '2026-05-20 19:00:00', '19h00', 15, 375.00, 'Terminée', 9);
 
 -- 9. LIAISONS COMMANDES ET MENUS (commande_menu)
 

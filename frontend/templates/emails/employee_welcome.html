@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Importation des polices */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap');
+        body { font-family: 'Montserrat', Arial, sans-serif; background-color: #FFEDC5; color: #885420; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFDE96; padding: 30px; border-radius: 8px; border: 3px solid #885420; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .footer { text-align: center; font-size: 0.85em; color: #757575; margin-top: 30px; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #885420; color: #FFEDC5; text-decoration: none; border-radius: 50px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="font-family: 'Pacifico', cursive; color: #885420; margin: 0;">Bienvenue dans l'équipe Vite & Gourmand !</h2>
+        </div>
+        <p>Bonjour {{ prenom }},</p>
+        <p>Nous avons le plaisir de t'annoncer que ton compte <strong>Employé</strong> a été créé avec succès par l'administration.</p>
+
+        <div style="background-color: #FFEDC5; padding: 15px; border-left: 4px solid #885420; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Identifiant de connexion :</strong> {{ email }}</p>
+        </div>
+
+        <p>🔒 <strong>Sécurité et RGPD :</strong> Pour des raisons strictes de sécurité et de confidentialité, ton mot de passe provisoire ne figure pas dans cet e-mail. Nous t'invitons à te rapprocher de l'administrateur pour le récupérer de vive voix lors de ta prise de poste.</p>
+
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('login_page', _external=True) }}" class="btn">Accéder à l'espace personnel</a>
+        </p>
+
+        <div class="footer">
+            <p>Cet e-mail est généré automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>

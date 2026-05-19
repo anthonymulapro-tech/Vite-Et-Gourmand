@@ -21,6 +21,7 @@ from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
 from backend.admin import get_all_employees, create_employee_account, toggle_employee_status
+from backend.admin_data import sync_mysql_to_mongo, get_nosql_data
 
 load_dotenv()
 
@@ -920,6 +921,36 @@ def admin_toggle_employee(employe_id):
         flash("Erreur lors de la modification du compte.", "error")
 
     return redirect(url_for('admin_employees'))
+
+
+@app.route('/admin/data')
+def admin_data_dashboard():
+    if 'user_id' not in session or session.get('user_role') != 1:
+        flash("Accès strictement interdit.", "error")
+        return redirect(url_for('home'))
+
+    # Récupération du paramètre dans l'URL (par défaut 'all')
+    periode = request.args.get('periode', 'all')
+
+    # Envoie du filtre à MongoDB
+    nosql_data = get_nosql_data(periode)
+
+    return render_template('admin/data.html', nosql_data=nosql_data, periode_actuelle=periode)
+
+
+@app.route('/admin/data/sync', methods=['POST'])
+def admin_sync_data():
+    """Route pour déclencher manuellement la synchronisation MySQL -> MongoDB"""
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return "Accès interdit", 403
+
+    success, message = sync_mysql_to_mongo()
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
+
+    return redirect(url_for('admin_data_dashboard'))
 
 # ==========================================================================
 #                       MOT DE PASSE

@@ -27,13 +27,14 @@ Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce pr
 - [X] **Backend** : _Python & Flask_ (Routage dynamique, gestion des sessions et logique métier)
 - [X] **Frontend** : _HTML / CSS / Bootstrap / JS_ (Intégration fluide et responsive)
 - [X] **E-mails & Test** : _Flask-Mail & Mailtrap_ (Gestion et interception des e-mails transactionnels)
-- [ ] **NoSQL** : _MongoDB_ (À venir)
+- [X] **NoSQL** : _MongoDB_ (Agrégations et statistiques NoSQL)
 
 ### Architecture du Projet
 ```text
 Vite-Et-Gourmand/
 ├── backend/                  # Logique métier et requêtes SQL (architecture segmentée)
 │   ├── admin.py              # CRUD du personnel (création/désactivation) sécurisé
+│   ├── admin_data.py         # Moteur ETL (Sync MySQL vers MongoDB) et agrégations NoSQL
 │   ├── cart.py               # Algorithmes de calcul des prix et règles des remises du panier
 │   ├── database.py           # Configuration de la passerelle de connexion MySQL
 │   ├── contact.py            # Traitement et persistance sécurisée en base de données des requêtes du formulaire de contact
@@ -54,7 +55,7 @@ Vite-Et-Gourmand/
 │   ├── static/               # Assets statiques (Fichiers CSS personnalisés, JS natif et images)
 │   └── templates/            # Vues dynamiques gérées par le moteur de rendu Jinja2
 │       ├── auth/             # Formulaires d'authentification (Connexion, Inscription, Reset Password)
-│       ├── admin/            # Vues exclusives Administrateur (Gestion équipe, etc.
+│       ├── admin/            # Vues exclusives Administrateur (Gestion équipe, dashboard Business Intelligence (chart.js)
 │       ├── employee/         # Tableau de bord et vues de gestion pour le personnel
 │       ├── emails/           # Gabarits HTML des e-mails transactionnels (Bienvenue, Commande, Contact)
 │       ├── cart.html         # Interface de visualisation du panier et choix des options logistiques
@@ -76,11 +77,16 @@ Vite-Et-Gourmand/
 ```
 
 ## Fonctionnalités
-* **Fidélité de la Charte Graphique** : Surcharge CSS des comportements natifs de Google Chrome (`-webkit-autofill`) et de Bootstrap (`:focus`) pour conserver les tons et le style visuel du site en toutes circonstances.
-* **Affichage / Masquage dynamique du mot de passe** : Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
-* **Catalogue Dynamique :** Affichage des menus depuis la base de données avec gestion des stocks en temps réel.
-* **Filtres Avancés :** Recherche multicritères (budget, nombre de convives, thèmes, régimes et allergènes).
-* **Tunnel de Commande (Panier) :** * Calcul dynamique des prix selon le nombre de convives.
+* **Fidélité de la Charte Graphique :** 
+  * Surcharge CSS des comportements natifs de Google Chrome (`-webkit-autofill`) et de Bootstrap (`:focus`) pour conserver les tons et le style visuel du site en toutes circonstances.
+* **Affichage / Masquage dynamique du mot de passe :** 
+  * Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
+* **Catalogue Dynamique :** 
+  * Affichage des menus depuis la base de données avec gestion des stocks en temps réel.
+* **Filtres Avancés :** 
+  * Recherche multicritères (budget, nombre de convives, thèmes, régimes et allergènes).
+* **Tunnel de Commande (Panier) :** 
+  * Calcul dynamique des prix selon le nombre de convives.
   * Application automatique de règles métier (ex: seuil de réduction pour commandes volumineuses).
   * Persistance du panier via les sessions Flask.
 * **Historique d'Achats Centralisé (Dashboard Client) :**
@@ -98,6 +104,14 @@ Vite-Et-Gourmand/
   * **Interface "Split-Screen" qui s'adapte automatiquement (grille et accès) selon que l'utilisateur est un Employé (rôle 2) ou un Administrateur (rôle 1). Masquage complet des fonctionnalités non autorisées.**
 * **Gestion du Personnel (Admin) :**
   * CRUD complet permettant de créer de nouveaux comptes employés (hachage à la volée) et d'activer/désactiver les accès.
+* **Business Intelligence (NoSQL) :**
+  * Intégration de MongoDB pour séparer les données transactionnelles de l'analytique. 
+  * Utilisation de pipelines d'agrégation ($group, $sum, $sort) pour générer des graphiques de performance.
+* **Moteur ETL :** 
+  * Synchronisation automatisée entre MySQL et MongoDB pour garantir la fraîcheur des statistiques de vente.
+
+* **Visualisation Dynamique :** 
+  * Intégration de Chart.js avec une palette de couleurs native (charte V&G) pour l'analyse du volume de ventes et du Chiffre d'Affaires.
 ## Sécurité Implémentées
 
 Le système d'authentification a été conçu en respectant les standards de sécurité actuels et en optimisant l'expérience utilisateur (UX) :
@@ -112,11 +126,13 @@ Le système d'authentification a été conçu en respectant les standards de sé
   * Chaque route sensible (panier, back-office, édition) interroge la session de l'utilisateur et son role_id pour autoriser ou rejeter l'accès (HTTP 403 / Redirections).
 ## Installation et Déploiement Local
 
-* **Prérequis Serveur local** : _Laragon_ (recommandé) ou WAMP/XAMPP.
+* **Prérequis Serveur local :** _Laragon_ (recommandé) ou WAMP/XAMPP.
 
-* **Environnement** :  `Python 3.13`
+* **Base de données :** MongoDB (local ou Atlas) et MySQL (Laragon/WAMP).
 
-* **Git** : Clonage du dépôt 
+* **Environnement :**  `Python 3.13`
+
+* **Git :** Clonage du dépôt 
 
 ```bash
 git clone https://github.com/anthonymulapro-tech/Vite-Et-Gourmand.git
@@ -197,7 +213,7 @@ Le serveur sera disponible en local sur : http://127.0.0.1:5000
   * Gestion des horaires : http://127.0.0.1:5000/employee/schedule
 * **Accès uniquement admin**
   * Gestion des employées : http://127.0.0.1:5000/admin/employees
-  * Statistiques : En cours 
+  * Statistiques : http://127.0.0.1:5000/admin/data
 
 ## 6. Comptes de Test (Jeu de données)
 Pour faciliter l'évaluation, la base de données est fournie avec plusieurs profils de test :

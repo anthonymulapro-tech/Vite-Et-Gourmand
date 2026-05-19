@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse des Données - Admin - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 75vh;">
+
+    <div class="mb-4 text-center">
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-3 text-brand-brown">
+            <i class="bi bi-arrow-left me-1"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-4">Statistiques des ventes</h1>
+        <p class="fs-5 text-brand-brown">
+            Analyse des performances de vente.
+        </p>
+
+    <div class="mt-4 mb-5 d-flex justify-content-center w-100">
+    <div class="dropdown">
+        <button class="btn vg-box text-brand-brown dropdown-toggle fw-bold shadow-sm px-4 py-2"
+                type="button" id="dropdownFiltrePeriode" data-bs-toggle="dropdown" aria-expanded="false"
+                style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; min-width: 220px;">
+            <i class="bi bi-calendar-range me-2"></i>
+            {% if periode_actuelle == '30j' %}30 derniers jours
+            {% elif periode_actuelle == '7j' %}7 derniers jours
+            {% else %}Depuis toujours{% endif %}
+        </button>
+
+        <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1"
+            aria-labelledby="dropdownFiltrePeriode"
+            style="background-color: #fcf9f5;">
+
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='all') }}">Depuis toujours</a></li>
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='30j') }}">30 derniers jours</a></li>
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='7j') }}">7 derniers jours</a></li>
+        </ul>
+    </div>
+</div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card vg-box p-4 shadow-sm border-0 h-100">
+                <h4 class="text-brand-brown fw-bold mb-4 border-bottom border-brand-brown pb-2 text-center">
+                    <i class="bi bi-bar-chart-fill me-2"></i>Volume des Ventes (Quantité)
+                </h4>
+                <div style="position: relative; height:400px; width:100%">
+                    <canvas id="chartQuantite"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card vg-box p-4 shadow-sm border-0 h-100">
+                <h4 class="text-brand-brown fw-bold mb-4 border-bottom border-brand-brown pb-2 text-center">
+                    <i class="bi bi-pie-chart-fill me-2"></i>Répartition du Chiffre d'Affaires (€)
+                </h4>
+                <div style="position: relative; height:400px; width:100%">
+                    <canvas id="chartCA"></canvas>
+                </div>
+            </div>
+        </div>
+        <form action="{{ url_for('admin_sync_data') }}" method="POST" class="d-inline-block mt-2">
+            <button type="submit" class="btn btn-vg rounded-pill fw-bold shadow-sm px-4">
+                <i class="bi bi-arrow-repeat me-2"></i> Synchroniser les données
+            </button>
+        </form>
+        <p class="small text-muted mt-2">Cliquez pour mettre à jour l'entrepôt NoSQL avec les dernières commandes validées.</p>
+    </div>
+    </div>
+</div>
+
+<div id="chart-data" data-nosql='{{ nosql_data | tojson }}' style="display: none;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 1. Récupération propre via le dataset HTML
+    const dataElement = document.getElementById('chart-data');
+    const rawData = JSON.parse(dataElement.dataset.nosql);
+
+    // Palette de couleurs
+    const bgColors = [
+        '#885420', // --brand-brown
+        '#FFCB97', // --brand-peach
+        '#FFEDC5', // --bg-cream
+        '#757575'  // --text-muted-custom
+    ];
+
+
+    // 2. Configuration du Graphique des Quantités (Bar Chart)
+    const ctxQuantite = document.getElementById('chartQuantite').getContext('2d');
+    new Chart(ctxQuantite, {
+        type: 'bar',
+        data: {
+            labels: rawData.quantite.labels,
+            datasets: [{
+                label: 'Menus vendus',
+                data: rawData.quantite.data,
+                backgroundColor: bgColors,
+                borderColor: bgColors,
+                hoverBackgroundColor: bgColors,
+                hoverBorderColor: '#372D24',
+                hoverBorderWidth: 3,
+                borderWidth: 2,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 3. Configuration du Graphique du Chiffre d'Affaires (Doughnut Chart)
+    const ctxCA = document.getElementById('chartCA').getContext('2d');
+    new Chart(ctxCA, {
+        type: 'doughnut',
+        data: {
+            labels: rawData.ca.labels,
+            datasets: [{
+                data: rawData.ca.data,
+                backgroundColor: bgColors,
+                borderColor: '#FFFFFF',
+                hoverBackgroundColor: bgColors,
+                hoverBorderColor: '#372D24',
+                hoverBorderWidth: 2,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) { label += ': '; }
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

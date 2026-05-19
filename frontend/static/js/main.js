@@ -1,332 +1,241 @@
-/* FICHIER JS PRINCIPAL - VITE & GOURMAND */
+/* ==========================================================================
+   FICHIER JS PRINCIPAL - VITE & GOURMAND
+   ========================================================================== */
 
-/* 1. INITIALISATION DE LA PAGE */
 document.addEventListener("DOMContentLoaded", function () {
 
     /* ==========================================================================
-       1. FILTRES DYNAMIQUES (PAGE MENUS)
+       1. FILTRES DYNAMIQUES ET SLIDERS (PAGE MENUS)
        ========================================================================== */
-    function applyFilters() {
-        const searchInput = document.querySelector('.custom-search-input');
-        if (!searchInput) return;
+    const searchInput = document.querySelector('.custom-search-input');
 
-        const searchVal = searchInput.value.toLowerCase();
-        const priceMin = parseFloat(document.getElementById('price-min').value);
-        const priceMax = parseFloat(document.getElementById('price-max').value);
-        const peopleLimit = parseInt(document.getElementById('people-filter').value);
+    if (document.querySelector('.menu-card-wrapper')) {
 
-        const selectedThemes = Array.from(document.querySelectorAll('input[id^="theme-"]:checked')).map(el => el.id.replace('theme-', ''));
-        const selectedDiets = Array.from(document.querySelectorAll('input[id^="diet-"]:checked')).map(el => el.id.replace('diet-', ''));
-        const selectedAllergies = Array.from(document.querySelectorAll('input[id^="allergy-"]:checked')).map(el => {
-            let val = el.id.replace('allergy-', '').toLowerCase();
-            // Force la correspondance entre ton ID HTML et le nom de l'allergène en BDD
-            if (val === 'noix') return 'fruits à coque';
-            return val;
-        });
+        function applyFilters() {
+            if (!searchInput) return;
 
-        const cards = document.querySelectorAll('.menu-card-wrapper');
+            const searchVal = searchInput.value.toLowerCase();
+            const priceMin = parseFloat(document.getElementById('price-min').value);
+            const priceMax = parseFloat(document.getElementById('price-max').value);
+            const peopleLimit = parseInt(document.getElementById('people-filter').value);
 
-        cards.forEach(card => {
-            // C'est ici que 'title' doit être défini
-            const titleElement = card.querySelector('.menu-card-title');
-            const title = titleElement ? titleElement.innerText.toLowerCase() : "";
+            const selectedThemes = Array.from(document.querySelectorAll('input[id^="theme-"]:checked')).map(el => el.id.replace('theme-', ''));
+            const selectedDiets = Array.from(document.querySelectorAll('input[id^="diet-"]:checked')).map(el => el.id.replace('diet-', ''));
+            const selectedAllergies = Array.from(document.querySelectorAll('input[id^="allergy-"]:checked')).map(el => {
+                let val = el.id.replace('allergy-', '').toLowerCase();
+                if (val === 'noix') return 'fruits à coque';
+                return val;
+            });
 
-            const price = parseFloat(card.getAttribute('data-price'));
-            const people = parseInt(card.getAttribute('data-people'));
-            const theme = (card.getAttribute('data-theme') || "").toLowerCase();
-            const diet = (card.getAttribute('data-diet') || "").toLowerCase();
-            const cardAllergies = (card.getAttribute('data-allergies') || "").split(',').map(a => a.trim().toLowerCase());
+            const cards = document.querySelectorAll('.menu-card-wrapper');
 
-            const matchesSearch = title.includes(searchVal);
-            const matchesPrice = price >= priceMin && price <= priceMax;
-            const matchesPeople = people <= peopleLimit;
-            const matchesTheme = selectedThemes.length === 0 || selectedThemes.includes(theme);
-            const matchesDiet = selectedDiets.length === 0 || selectedDiets.includes(diet);
+            cards.forEach(card => {
+                const titleElement = card.querySelector('.menu-card-title');
+                const title = titleElement ? titleElement.innerText.toLowerCase() : "";
 
-            const hasForbiddenAllergy = selectedAllergies.some(allergy => cardAllergies.includes(allergy.toLowerCase()));
+                const price = parseFloat(card.getAttribute('data-price'));
+                const people = parseInt(card.getAttribute('data-people'));
+                const theme = (card.getAttribute('data-theme') || "").toLowerCase();
+                const diet = (card.getAttribute('data-diet') || "").toLowerCase();
+                const cardAllergies = (card.getAttribute('data-allergies') || "").split(',').map(a => a.trim().toLowerCase());
 
-            if (matchesSearch && matchesPrice && matchesPeople && matchesTheme && matchesDiet && !hasForbiddenAllergy) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
+                const matchesSearch = title.includes(searchVal);
+                const matchesPrice = price >= priceMin && price <= priceMax;
+                const matchesPeople = people <= peopleLimit;
+                const matchesTheme = selectedThemes.length === 0 || selectedThemes.includes(theme);
+                const matchesDiet = selectedDiets.length === 0 || selectedDiets.includes(diet);
+
+                const hasForbiddenAllergy = selectedAllergies.some(allergy => cardAllergies.includes(allergy.toLowerCase()));
+
+                if (matchesSearch && matchesPrice && matchesPeople && matchesTheme && matchesDiet && !hasForbiddenAllergy) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Écouteurs d'événements pour les filtres
+        if (searchInput) searchInput.addEventListener('input', applyFilters);
+        document.querySelectorAll('.btn-check').forEach(cb => cb.addEventListener('change', applyFilters));
+
+        // Slider Prix (Double)
+        function initDoubleSlider(minId, maxId, trackId, valueId) {
+            const minInput = document.getElementById(minId);
+            const maxInput = document.getElementById(maxId);
+            const track = document.getElementById(trackId);
+            const valDisplay = document.getElementById(valueId);
+            if (!minInput || !maxInput || !track || !valDisplay) return;
+
+            function updateSlider() {
+                let valMin = parseInt(minInput.value);
+                let valMax = parseInt(maxInput.value);
+                if (valMin >= valMax) { minInput.value = valMax - 5; valMin = parseInt(minInput.value); }
+                const minP = ((valMin - minInput.min) / (minInput.max - minInput.min)) * 100;
+                const maxP = ((valMax - minInput.min) / (minInput.max - minInput.min)) * 100;
+                track.style.background = `linear-gradient(to right, var(--brand-peach) ${minP}%, var(--brand-brown) ${minP}%, var(--brand-brown) ${maxP}%, var(--brand-peach) ${maxP}%)`;
+                valDisplay.innerText = `${valMin}€ - ${valMax}€`;
+                applyFilters();
             }
-        });
+            minInput.addEventListener('input', updateSlider);
+            maxInput.addEventListener('input', updateSlider);
+            updateSlider();
+        }
+        if (document.getElementById('price-min')) initDoubleSlider('price-min', 'price-max', 'price-track', 'price-val');
+
+        // Slider Convives (Simple)
+        const peopleFilter = document.getElementById('people-filter');
+        const peopleVal = document.getElementById('people-val');
+        const peopleTrack = document.getElementById('people-track');
+        if (peopleFilter && peopleTrack) {
+            peopleFilter.addEventListener('input', function() {
+                peopleVal.innerText = `${this.value} pers.`;
+                const p = ((this.value - this.min) / (this.max - this.min)) * 100;
+                peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) ${p}%, var(--brand-peach) ${p}%)`;
+                applyFilters();
+            });
+            peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) 100%, var(--brand-peach) 100%)`;
+        }
     }
 
-    // Écouteurs d'événements pour les filtres
-    const searchInput = document.querySelector('.custom-search-input');
-    if (searchInput) searchInput.addEventListener('input', applyFilters);
-    document.querySelectorAll('.btn-check').forEach(cb => cb.addEventListener('change', applyFilters));
 
     /* ==========================================================================
-       2. SLIDERS (DOUBLE ET SIMPLE)
+       2. CALCUL DU PRIX ET QUANTITÉ (PAGE DÉTAIL MENU)
        ========================================================================== */
-    // Slider Prix (Double)
-    function initDoubleSlider(minId, maxId, trackId, valueId) {
-        const minInput = document.getElementById(minId);
-        const maxInput = document.getElementById(maxId);
-        const track = document.getElementById(trackId);
-        const valDisplay = document.getElementById(valueId);
-        if (!minInput || !maxInput || !track || !valDisplay) return;
+    const priceDisplay = document.getElementById("total-price-display");
 
-        function updateSlider() {
-            let valMin = parseInt(minInput.value);
-            let valMax = parseInt(maxInput.value);
-            if (valMin >= valMax) { minInput.value = valMax - 5; valMin = parseInt(minInput.value); }
-            const minP = ((valMin - minInput.min) / (minInput.max - minInput.min)) * 100;
-            const maxP = ((valMax - minInput.min) / (minInput.max - minInput.min)) * 100;
-            track.style.background = `linear-gradient(to right, var(--brand-peach) ${minP}%, var(--brand-brown) ${minP}%, var(--brand-brown) ${maxP}%, var(--brand-peach) ${maxP}%)`;
-            valDisplay.innerText = `${valMin}€ - ${valMax}€`;
-            applyFilters();
-        }
-        minInput.addEventListener('input', updateSlider);
-        maxInput.addEventListener('input', updateSlider);
-        updateSlider();
-    }
-    if (document.getElementById('price-min')) initDoubleSlider('price-min', 'price-max', 'price-track', 'price-val');
+    if (priceDisplay) {
+        const selector = document.querySelector(".custom-quantity-selector");
+        const qtyInput = document.getElementById("quantity-input");
 
-    // Slider Convives (Simple)
-    const peopleFilter = document.getElementById('people-filter');
-    const peopleVal = document.getElementById('people-val');
-    const peopleTrack = document.getElementById('people-track');
-    if (peopleFilter && peopleTrack) {
-        peopleFilter.addEventListener('input', function() {
-            peopleVal.innerText = `${this.value} pers.`;
-            const p = ((this.value - this.min) / (this.max - this.min)) * 100;
-            peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) ${p}%, var(--brand-peach) ${p}%)`;
-            applyFilters();
-        });
-        peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) 100%, var(--brand-peach) 100%)`;
-    }
-});
-    /* 2. COMPARAISON DES MOTS DE PASSE (FORMULAIRE D'INSCRIPTION) */
-    const registerForm = document.getElementById('registerForm');
+        const unitPrice = parseFloat(priceDisplay.getAttribute("data-unit-price"));
+        const minVal = parseInt(priceDisplay.getAttribute("data-min-convives"));
+        const seuilRemise = parseInt(priceDisplay.getAttribute("data-seuil-remise"));
+        const pctRemise = parseInt(priceDisplay.getAttribute("data-pct-remise")) / 100;
 
-    if (registerForm) {
-        registerForm.addEventListener('submit', function (event) {
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirm_password');
+        function updatePrice() {
+            const qty = parseInt(qtyInput.value) || minVal;
+            const badge = document.getElementById("discount-badge");
+            let total = qty * unitPrice;
 
-            /* Si les deux mots de passe saisis ne sont pas identiques */
-            if (password.value !== confirmPassword.value) {
-                /* Bloque l'envoi du formulaire au serveur Python */
-                event.preventDefault();
-
-                /* Ajout de la classe d'erreur visuelle de Bootstrap sur le champ */
-                confirmPassword.classList.add('is-invalid');
-
-                /* Alerte d'avertissement temporaire pour l'utilisateur */
-                alert("Les mots de passe ne correspondent pas !");
+            if (qty >= (minVal + seuilRemise)) {
+                total = total * (1 - pctRemise);
+                badge.innerHTML = `<span style="color: var(--brand-brown);">Remise de ${Math.round(pctRemise * 100)}% appliquée !</span>`;
             } else {
-                /* Enlève la classe d'erreur si l'utilisateur a corrigé sa saisie */
-                confirmPassword.classList.remove('is-invalid');
+                badge.innerHTML = "";
             }
+
+            const formattedPrice = total.toFixed(2).replace('.', ',');
+            priceDisplay.innerHTML = `${formattedPrice}€ <span class="fs-6 fw-normal" style="color: var(--brand-brown) !important; opacity: 0.7;">TTC total</span>`;
+        }
+
+        let timer;
+        function startRepeat(delta) {
+            let val = parseInt(qtyInput.value) || minVal;
+            val += delta;
+            if (val < minVal) val = minVal;
+            qtyInput.value = val;
+            updatePrice();
+
+            timer = setTimeout(() => {
+                timer = setInterval(() => {
+                    let v = parseInt(qtyInput.value) + delta;
+                    if (v >= minVal) {
+                        qtyInput.value = v;
+                        updatePrice();
+                    }
+                }, 100);
+            }, 500);
+        }
+
+        function stopRepeat() { clearInterval(timer); clearTimeout(timer); }
+
+        document.querySelector(".btn-plus")?.addEventListener("mousedown", () => startRepeat(1));
+        document.querySelector(".btn-minus")?.addEventListener("mousedown", () => startRepeat(-1));
+        window.addEventListener("mouseup", stopRepeat);
+
+        qtyInput.addEventListener("input", updatePrice);
+        qtyInput.addEventListener("change", function() {
+            if (this.value < minVal) this.value = minVal;
+            updatePrice();
         });
-    }
 
-    /* 3. VALIDATION GÉNÉRALE DES FORMULAIRES (VISUELS BOOTSTRAP) */
-    const forms = document.querySelectorAll('.needs-validation');
-
-    /* Associe un écouteur d'événement à la soumission de chaque formulaire trouvé */
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            /* Si un ou plusieurs champs obligatoires sont vides ou mal remplis */
-            if (!form.checkValidity()) {
-                /* Empêche l'envoi des données au serveur */
-                event.preventDefault();
-                /* Bloque la propagation de l'événement dans le DOM */
-                event.stopPropagation();
-            }
-
-            /* Ajout de la classe qui active les contours verts (valides) et rouges (invalides) */
-            form.classList.add('was-validated');
-        }, false);
-    });
-
-    /* 4. AFFICHAGE / MASQUAGE DES MOTS DE PASSE (BOUTON ŒIL) */
-    const toggleButtons = document.querySelectorAll('.toggle-password');
-
-    toggleButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            /* On cible l'input text/password situé juste avant le bouton dans l'input-group */
-            const input = this.previousElementSibling;
-            const icon = this.querySelector('i');
-
-            if (input) {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    /* Remplace l'icône de l'œil ouvert par l'œil barré */
-                    icon.classList.replace('bi-eye', 'bi-eye-slash');
-                } else {
-                    input.type = 'password';
-                    /* Remplace l'icône de l'œil barré par l'œil ouvert */
-                    icon.classList.replace('bi-eye-slash', 'bi-eye');
-                }
-            }
-        });
-    });
-
-document.addEventListener("DOMContentLoaded", function() {
-    const display = document.getElementById("total-price-display");
-    // SI l'élément n'existe pas sur cette page, on arrête tout de suite !
-    if (!display) return;
-    const selector = document.querySelector(".custom-quantity-selector");
-    const input = document.getElementById("quantity-input");
-
-
-    // Récupération des règles depuis les data-attributes
-    const unitPrice = parseFloat(display.getAttribute("data-unit-price"));
-    const minVal = parseInt(display.getAttribute("data-min-convives"));
-    const seuilRemise = parseInt(display.getAttribute("data-seuil-remise")); // ex: 5
-    const pctRemise = parseInt(display.getAttribute("data-pct-remise")) / 100; // ex: 0.10
-
-    function updatePrice() {
-    const qty = parseInt(input.value) || minVal;
-    const badge = document.getElementById("discount-badge");
-    let total = qty * unitPrice;
-
-    // 1. Logique de remise
-    if (qty >= (minVal + seuilRemise)) {
-        total = total * (1 - pctRemise);
-        badge.innerHTML = `<span style="color: var(--brand-brown);">Remise de ${Math.round(pctRemise * 100)}% appliquée !</span>`;
-    } else {
-        badge.innerHTML = "";
-    }
-
-    // 2. Préparation du prix formaté
-    const formattedPrice = total.toFixed(2).replace('.', ',');
-
-    // 3. Mise à jour de l'affichage
-    display.innerHTML = `${formattedPrice}€ <span class="fs-6 fw-normal" style="color: var(--brand-brown) !important; opacity: 0.7;">TTC total</span>`;
-}
-
-    // --- Gestion du compteur (récupération de ton code précédent) ---
-    let timer;
-    function startRepeat(delta) {
-        let val = parseInt(input.value) || minVal;
-        val += delta;
-        if (val < minVal) val = minVal;
-        input.value = val;
         updatePrice();
-
-        timer = setTimeout(() => {
-            timer = setInterval(() => {
-                let v = parseInt(input.value) + delta;
-                if (v >= minVal) {
-                    input.value = v;
-                    updatePrice();
-                }
-            }, 100);
-        }, 500);
     }
 
-    function stopRepeat() { clearInterval(timer); clearTimeout(timer); }
 
-    // Événements boutons
-    document.querySelector(".btn-plus").addEventListener("mousedown", () => startRepeat(1));
-    document.querySelector(".btn-minus").addEventListener("mousedown", () => startRepeat(-1));
-    window.addEventListener("mouseup", stopRepeat);
-
-    // Événement saisie manuelle
-    input.addEventListener("input", updatePrice);
-    input.addEventListener("change", function() {
-        if (this.value < minVal) this.value = minVal;
-        updatePrice();
-    });
-    // Initialisation au chargement
-    updatePrice();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
+    /* ==========================================================================
+       3. GESTION DE LA LIVRAISON ET PANIER (PAGE COMMANDE)
+       ========================================================================== */
     const subtotalElement = document.getElementById('display_subtotal');
-    const discountElement = document.getElementById('display_discount');
 
-    if (!subtotalElement) return;
+    if (subtotalElement) {
+        const discountElement = document.getElementById('display_discount');
+        const baseSubtotal = parseFloat(subtotalElement.textContent) || 0;
+        const baseDiscount = discountElement ? parseFloat(discountElement.textContent) : 0;
 
-    // Récupération des valeurs calculées par Python depuis l'HTML
-    const baseSubtotal = parseFloat(subtotalElement.textContent) || 0;
-    const baseDiscount = discountElement ? parseFloat(discountElement.textContent) : 0;
+        const deliveryZone = document.getElementById('delivery_zone');
+        const distanceContainer = document.getElementById('distance_container');
+        const distanceKm = document.getElementById('distance_km');
+        const displayDelivery = document.getElementById('display_delivery');
+        const displayGrandTotal = document.getElementById('display_grand_total');
 
-    const deliveryZone = document.getElementById('delivery_zone');
-    const distanceContainer = document.getElementById('distance_container');
-    const distanceKm = document.getElementById('distance_km');
-    const displayDelivery = document.getElementById('display_delivery');
-    const displayGrandTotal = document.getElementById('display_grand_total');
+        function calculateTotal() {
+            let deliveryCost = 0;
+            let finalTotal = baseSubtotal - baseDiscount;
 
-    function calculateTotal() {
-        let deliveryCost = 0;
-        // Le total TTC est le Sous-total - Remise
-        let finalTotal = baseSubtotal - baseDiscount;
-
-        // 2. Gestion de la livraison
-        if (deliveryZone.value === 'outside') {
-            distanceContainer.classList.remove('d-none');
-            let km = parseFloat(distanceKm.value) || 0;
-            if (km > 0) {
-                deliveryCost = 5 + (km * 0.59);
+            if (deliveryZone.value === 'outside') {
+                distanceContainer.classList.remove('d-none');
+                let km = parseFloat(distanceKm.value) || 0;
+                deliveryCost = km > 0 ? 5 + (km * 0.59) : 5;
             } else {
-                deliveryCost = 5;
+                distanceContainer.classList.add('d-none');
+                distanceKm.value = 0;
             }
-        } else {
-            distanceContainer.classList.add('d-none');
-            distanceKm.value = 0;
+
+            displayDelivery.textContent = deliveryCost.toFixed(2);
+            finalTotal += deliveryCost;
+            displayGrandTotal.textContent = finalTotal.toFixed(2);
         }
 
-        displayDelivery.textContent = deliveryCost.toFixed(2);
-        finalTotal += deliveryCost;
+        const btnDistMinus = document.getElementById('btn_dist_minus');
+        const btnDistPlus = document.getElementById('btn_dist_plus');
 
-        // 3. Mise à jour du Total TTC
-        displayGrandTotal.textContent = finalTotal.toFixed(2);
-    }
+        if (btnDistMinus && btnDistPlus) {
+            btnDistMinus.addEventListener('click', function() {
+                let currentVal = parseInt(distanceKm.value) || 0;
+                if (currentVal > 0) {
+                    distanceKm.value = currentVal - 1;
+                    calculateTotal();
+                }
+            });
 
-    const btnDistMinus = document.getElementById('btn_dist_minus');
-    const btnDistPlus = document.getElementById('btn_dist_plus');
+            btnDistPlus.addEventListener('click', function() {
+                distanceKm.value = (parseInt(distanceKm.value) || 0) + 1;
+                calculateTotal();
+            });
+        }
 
-    if (btnDistMinus && btnDistPlus) {
-        btnDistMinus.addEventListener('click', function() {
-            let currentVal = parseInt(distanceKm.value) || 0;
-            if (currentVal > 0) {
-                distanceKm.value = currentVal - 1;
-                calculateTotal(); // Met à jour le prix immédiatement
-            }
-        });
+        deliveryZone.addEventListener('change', calculateTotal);
+        distanceKm.addEventListener('input', calculateTotal);
 
-        btnDistPlus.addEventListener('click', function() {
-            let currentVal = parseInt(distanceKm.value) || 0;
-            distanceKm.value = currentVal + 1;
-            calculateTotal(); // Met à jour le prix immédiatement
-        });
-    }
+        // Menu déroulant custom (Zone de livraison)
+        const dropdownZoneItems = document.querySelectorAll('.custom-delivery-dropdown .dropdown-item');
+        const selectedZoneText = document.getElementById('selected-zone-text');
 
-    deliveryZone.addEventListener('change', calculateTotal);
-    distanceKm.addEventListener('input', calculateTotal);
-
-    // --- GESTION DU MENU DÉROULANT CUSTOM (Zone de livraison) ---
-    const dropdownItems = document.querySelectorAll('.custom-delivery-dropdown .dropdown-item');
-    const selectedZoneText = document.getElementById('selected-zone-text');
-
-    if (dropdownItems.length > 0) {
-        dropdownItems.forEach(item => {
+        dropdownZoneItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // 1. Change le texte affiché sur le bouton
                 selectedZoneText.textContent = this.textContent;
-
-                // 2. Change la valeur de l'input caché
                 deliveryZone.value = this.getAttribute('data-value');
-
-                // 3. Déclenche manuellement l'événement 'change' pour forcer le recalcul des frais
                 deliveryZone.dispatchEvent(new Event('change'));
             });
         });
+
+        calculateTotal();
     }
 
-
-    calculateTotal();
-});
-
-// --- GESTION DU MENU DÉROULANT CUSTOM (Heure de livraison) ---
+    // Menu déroulant custom (Heure de livraison)
     const timeItems = document.querySelectorAll('.time-item');
     const selectedTimeText = document.getElementById('selected-time-text');
     const inputHeureLivraison = document.getElementById('heure_livraison');
@@ -335,134 +244,127 @@ document.addEventListener('DOMContentLoaded', function() {
         timeItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // 1. Change le texte affiché sur le bouton
                 selectedTimeText.textContent = this.textContent;
-
-                // 2. Change la valeur de l'input caché pour le formulaire
                 inputHeureLivraison.value = this.getAttribute('data-value');
             });
         });
     }
 
-    (function () {
-    'use strict'
 
-    // Récupère tous les formulaires auxquels on veut appliquer les styles de validation Bootstrap
-    var forms = document.querySelectorAll('.needs-validation')
+    /* ==========================================================================
+       4. SÉCURITÉ ET FORMULAIRES (INSCRIPTION, CONNEXION)
+       ========================================================================== */
 
-    // Boucle sur chaque formulaire et empêche la soumission si invalide
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-        }, false)
-    })
-})()
+    // Comparaison des mots de passe (Inscription)
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function (event) {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
 
-// --- GESTION DE LA MODALE DE L'AVIS CLIENT ---
-document.addEventListener('DOMContentLoaded', function () {
-    var reviewModal = document.getElementById('reviewModal');
-
-    if (reviewModal) {
-        reviewModal.addEventListener('show.bs.modal', function (event) {
-            // Bouton qui a déclenché la modale
-            var button = event.relatedTarget;
-
-            // 1. Extraction des infos cachées dans le bouton
-            var menuId = button.getAttribute('data-menu-id');
-            var commandeId = button.getAttribute('data-commande-id');
-            var menuTitre = button.getAttribute('data-menu-titre');
-
-            // 2. Ciblage des champs de la modale HTML
-            var inputMenuId = reviewModal.querySelector('#modal_menu_id');
-            var inputCommandeId = reviewModal.querySelector('#modal_commande_id');
-            var inputMenuTitre = reviewModal.querySelector('#modal_menu_titre');
-
-            // 3. Injection des valeurs dans la modale
-            if (inputMenuId && inputMenuTitre) {
-                inputMenuId.value = menuId;
-                inputMenuTitre.value = menuTitre; // C'est cette ligne qui fait apparaître le texte !
-            }
-            if (inputCommandeId) {
-                inputCommandeId.value = commandeId;
-            }
-
-            // 4. Nettoyage (Reset) pour ne pas garder l'ancien commentaire
-            var commentInput = reviewModal.querySelector('#review_comment');
-            if (commentInput) {
-                commentInput.value = '';
-            }
-
-            var noteSelect = reviewModal.querySelector('#review_note');
-            if (noteSelect) {
-                noteSelect.value = '5';
+            if (password.value !== confirmPassword.value) {
+                event.preventDefault();
+                confirmPassword.classList.add('is-invalid');
+                alert("Les mots de passe ne correspondent pas !");
+            } else {
+                confirmPassword.classList.remove('is-invalid');
             }
         });
     }
-});
 
-/* ==========================================================================
-   6. GESTION DYNAMIQUE DU DROPDOWN STATUT ET CHECKBOX (SUIVI DES COMMANDES)
-   ========================================================================== */
-document.addEventListener('DOMContentLoaded', function() {
-    const statusLinks = document.querySelectorAll('.status-link');
+    // Affichage / Masquage des mots de passe (Bouton Œil)
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function () {
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
 
-    if (statusLinks.length === 0) return; // Sécurité
-
-    statusLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const targetValue = this.getAttribute('data-value');
-            const orderId = this.getAttribute('data-order-id');
-
-            // 1. Met à jour la valeur de l'input caché pour le serveur Python
-            document.getElementById(`input_status_${orderId}`).value = targetValue;
-
-            // 2. Met à jour le texte du bouton visible
-            const dropdownBtn = document.getElementById(`dropdownMenuButton_${orderId}`);
-            dropdownBtn.textContent = targetValue;
-
-            // 3. Logique dynamique de la checkbox matériel
-            const checkbox = document.getElementById(`rest_Check_${orderId}`);
-            if (!checkbox) return;
-
-            if (targetValue === 'Terminée') {
-                checkbox.disabled = false;
-            } else {
-                checkbox.disabled = true;
-                checkbox.checked = false;
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('bi-eye', 'bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('bi-eye-slash', 'bi-eye');
+                }
             }
         });
     });
-});
 
-/* ==========================================================================
-   7. GESTION DYNAMIQUE DU DROPDOWN ÉTAT (GESTION DES HORAIRES EMPLOYÉ)
-   ========================================================================== */
-document.addEventListener('DOMContentLoaded', function() {
-    const scheduleLinks = document.querySelectorAll('.schedule-link');
+    // Validation globale des formulaires (Visuels Bootstrap)
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
 
-    if (scheduleLinks.length === 0) return;
 
-    scheduleLinks.forEach(link => {
+    /* ==========================================================================
+       5. MODALES ET TABLEAUX DE BORD (AVIS, STATUTS, HORAIRES)
+       ========================================================================== */
+
+    // Gestion de la modale des avis clients
+    const reviewModal = document.getElementById('reviewModal');
+    if (reviewModal) {
+        reviewModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const menuId = button.getAttribute('data-menu-id');
+            const commandeId = button.getAttribute('data-commande-id');
+            const menuTitre = button.getAttribute('data-menu-titre');
+
+            const inputMenuId = reviewModal.querySelector('#modal_menu_id');
+            const inputCommandeId = reviewModal.querySelector('#modal_commande_id');
+            const inputMenuTitre = reviewModal.querySelector('#modal_menu_titre');
+            const commentInput = reviewModal.querySelector('#review_comment');
+            const noteSelect = reviewModal.querySelector('#review_note');
+
+            if (inputMenuId && inputMenuTitre) {
+                inputMenuId.value = menuId;
+                inputMenuTitre.value = menuTitre;
+            }
+            if (inputCommandeId) inputCommandeId.value = commandeId;
+            if (commentInput) commentInput.value = '';
+            if (noteSelect) noteSelect.value = '5';
+        });
+    }
+
+    // Gestion du statut des commandes (Dropdown Employé/Admin)
+    document.querySelectorAll('.status-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
+            const targetValue = this.getAttribute('data-value');
+            const orderId = this.getAttribute('data-order-id');
 
+            document.getElementById(`input_status_${orderId}`).value = targetValue;
+            document.getElementById(`dropdownMenuButton_${orderId}`).textContent = targetValue;
+
+            const checkbox = document.getElementById(`rest_Check_${orderId}`);
+            if (checkbox) {
+                if (targetValue === 'Terminée') {
+                    checkbox.disabled = false;
+                } else {
+                    checkbox.disabled = true;
+                    checkbox.checked = false;
+                }
+            }
+        });
+    });
+
+    // Gestion des horaires (Dropdown Employé)
+    document.querySelectorAll('.schedule-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
             const targetValue = this.getAttribute('data-value');
             const targetLabel = this.getAttribute('data-label');
             const horaireId = this.getAttribute('data-horaire-id');
 
-            // 1. Met à jour la valeur de l'input caché pour le serveur Python
             document.getElementById(`input_schedule_${horaireId}`).value = targetValue;
-
-            // 2. Met à jour le texte du bouton visible (Ouvert ou Fermé)
-            const dropdownBtn = document.getElementById(`dropdownScheduleButton_${horaireId}`);
-            dropdownBtn.textContent = targetLabel;
+            document.getElementById(`dropdownScheduleButton_${horaireId}`).textContent = targetLabel;
         });
     });
+
 });

@@ -20,6 +20,7 @@ from backend.menu_model import get_menu_details
 from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
+from backend.admin import get_all_employees, create_employee_account, toggle_employee_status
 
 load_dotenv()
 
@@ -847,6 +848,78 @@ def employee_update_schedule(horaire_id):
         flash("Aucune modification détectée ou erreur technique.", "error")
 
     return redirect(url_for('employee_schedule'))
+
+
+# ==========================================================================
+# ESPACE ADMINISTRATEUR (Rôle 1)
+# ==========================================================================
+
+@app.route('/admin/employees')
+def admin_employees():
+    # 🔒 Sécurité absolue : SEUL le rôle 1 (Admin) peut accéder ici
+    if 'user_id' not in session or session.get('user_role') != 1:
+        flash("Accès strictement interdit. Zone réservée à l'administration.", "error")
+        return redirect(url_for('home'))
+
+    employes = get_all_employees()
+    return render_template('admin/manage_employees.html', employes=employes)
+
+
+@app.route('/admin/employees/add', methods=['POST'])
+def admin_add_employee():
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return "Accès interdit", 403
+
+    prenom = request.form.get('prenom')
+    nom = request.form.get('nom')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    # Double validation Python
+    if not prenom or not nom or not email or not password:
+        flash("Veuillez remplir tous les champs.", "error")
+        return redirect(url_for('admin_employees'))
+
+    if not validate_password(password):
+        flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.",
+              "error")
+        return redirect(url_for('admin_employees'))
+
+    success, message = create_employee_account(prenom, nom, email, password)
+
+    if success:
+        # Envoi de l'e-mail RGPD SANS le mot de passe
+        send_html_email(
+            subject="Ton compte Employé Vite & Gourmand est prêt !",
+            recipient=email,
+            template_name="emails/employee_welcome.html",
+            prenom=prenom,
+            email=email
+        )
+        flash(message, "success")
+    else:
+        flash(message, "error")
+
+    return redirect(url_for('admin_employees'))
+
+
+@app.route('/admin/employees/toggle/<int:employe_id>', methods=['POST'])
+def admin_toggle_employee(employe_id):
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return "Accès interdit", 403
+
+    # On récupère le nouvel état depuis un input caché
+    est_actif_val = int(request.form.get('est_actif', 0))
+
+    success = toggle_employee_status(employe_id, est_actif_val)
+
+    if success:
+        etat = "réactivé" if est_actif_val == 1 else "désactivé"
+        flash(f"Le compte employé a été {etat} avec succès.", "success")
+    else:
+        flash("Erreur lors de la modification du compte.", "error")
+
+    return redirect(url_for('admin_employees'))
 
 # ==========================================================================
 #                       MOT DE PASSE

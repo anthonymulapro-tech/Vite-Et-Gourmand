@@ -58,11 +58,29 @@
                 {% endfor %}
             </div>
             <div class="col-md-5">
-                <img src="{{ url_for('static', filename='images/dishes/' + (menu.entrees[0].url_photo if menu.entrees else 'default.jpg')) }}"
-                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Entrée">
+                {% if menu.entrees|length > 1 %}
+                    <div id="carouselEntrees" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for p in menu.entrees %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <img src="{{ url_for('static', filename='images/dishes/' + (p.url_photo if p.url_photo else 'default.jpg')) }}" class="vg-img-bordered d-block w-100" alt="{{ p.titre_plat }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselEntrees" data-bs-slide="prev">
+                            <i class="bi bi-chevron-left vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Précédent</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselEntrees" data-bs-slide="next">
+                            <i class="bi bi-chevron-right vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Suivant</span>
+                        </button>
+                    </div>
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/dishes/' + (menu.entrees[0].url_photo if menu.entrees else 'default.jpg')) }}" class="vg-img-bordered w-100" alt="Entrée">
+                {% endif %}
             </div>
         </div>
-
         <hr class="my-5 mx-auto divider-80">
 
         <div class="row align-items-center flex-md-row-reverse justify-content-center">
@@ -81,8 +99,27 @@
                 {% endfor %}
             </div>
             <div class="col-md-5">
-                <img src="{{ url_for('static', filename='images/dishes/' + (menu.plats_principaux[0].url_photo if menu.plats_principaux else 'default.jpg')) }}"
-                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Plat">
+                {% if menu.plats_principaux|length > 1 %}
+                    <div id="carouselPlats" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for p in menu.plats_principaux %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <img src="{{ url_for('static', filename='images/dishes/' + (p.url_photo if p.url_photo else 'default.jpg')) }}" class="vg-img-bordered d-block w-100" alt="{{ p.titre_plat }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselPlats" data-bs-slide="prev">
+                            <i class="bi bi-chevron-left vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Précédent</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselPlats" data-bs-slide="next">
+                            <i class="bi bi-chevron-right vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Suivant</span>
+                        </button>
+                    </div>
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/dishes/' + (menu.plats_principaux[0].url_photo if menu.plats_principaux else 'default.jpg')) }}" class="vg-img-bordered w-100" alt="Plat">
+                {% endif %}
             </div>
         </div>
 
@@ -104,25 +141,28 @@
                 {% endfor %}
             </div>
             <div class="col-md-5">
-                <img src="{{ url_for('static', filename='images/dishes/' + (menu.desserts[0].url_photo if menu.desserts else 'default.jpg')) }}"
-                     class="img-fluid rounded-2 shadow-sm border border-2 border-brown" alt="Dessert">
+                {% if menu.desserts|length > 1 %}
+                    <div id="carouselDesserts" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for p in menu.desserts %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <img src="{{ url_for('static', filename='images/dishes/' + (p.url_photo if p.url_photo else 'default.jpg')) }}" class="vg-img-bordered d-block w-100" alt="{{ p.titre_plat }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesserts" data-bs-slide="prev">
+                            <i class="bi bi-chevron-left vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Précédent</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselDesserts" data-bs-slide="next">
+                            <i class="bi bi-chevron-right vg-carousel-icon" aria-hidden="true"></i>
+                            <span class="visually-hidden">Suivant</span>
+                        </button>
+                    </div>
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/dishes/' + (menu.desserts[0].url_photo if menu.desserts else 'default.jpg')) }}" class="vg-img-bordered w-100" alt="Dessert">
+                {% endif %}
             </div>
-        </div>
-
-        <hr class="mt-5 mb-4 mx-auto divider-80">
-
-        <p class="text-center fw-bold text-brand-brown fs-5 mb-4">
-            {{ menu.conditions if menu.conditions else "Livrable sous 48h ouvrées" }}
-        </p>
-
-        <hr class="mb-4 mx-auto divider-40">
-
-        <div class="text-center mt-3">
-            {% if menu.quantite_restante and menu.quantite_restante > 0 %}
-                <p class="fw-bold fs-5 text-brand-brown mb-0">{{ menu.quantite_restante }} menus restant, commandez vite !</p>
-            {% else %}
-                <p class="fw-bold fs-5 text-muted mb-0">INDISPONIBLE ACTUELLEMENT !</p>
-            {% endif %}
         </div>
     </div>
 </div>

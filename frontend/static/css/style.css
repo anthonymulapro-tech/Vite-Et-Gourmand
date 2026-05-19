@@ -1421,3 +1421,47 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     background-color: var(--brand-peach) !important;
     color: var(--brand-brown) !important;
 }
+
+/* Unifie le format des images des menus et de l'accueil */
+.vg-card-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.vg-img-bordered {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border: 3px solid #885420;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Personnalisation des flèches du carrousel des images */
+.vg-carousel-icon {
+    font-size: 3rem;
+    color: #FFF8E7;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.7));
+    transition: color 0.3s ease;
+}
+
+/* Changement de couleur au survol */
+.vg-carousel-icon:hover {
+    color: var(--brand-gold);
+}
+
+/* Conteneur de la bannière immage accueil*/
+.banner-wrapper {
+    width: 100%;
+    height: 500px;
+}
+
+/* L'image à l'intérieur */
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

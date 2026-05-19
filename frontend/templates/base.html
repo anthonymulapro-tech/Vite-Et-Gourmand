@@ -146,9 +146,9 @@
             </div>
         </div>
         <div class="footer-links pt-2 border-top border-secondary-subtle">
-            <a href="#" class="footer-link-item">Consulter nos mentions légales</a>
+            <a href="{{ url_for('legal_notice') }}" class="footer-link-item text-decoration-none">Consulter nos mentions légales</a>
             <span class="mx-2 text-muted">|</span>
-            <a href="#" class="footer-link-item">Consulter nos conditions générales de vente</a>
+            <a href="{{ url_for('gtc') }}" class="footer-link-item text-decoration-none">Consulter nos conditions générales de vente</a>
         </div>
     </footer>
     {% endif %}

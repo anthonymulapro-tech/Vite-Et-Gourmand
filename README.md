@@ -65,6 +65,8 @@ Vite-Et-Gourmand/
 │       ├── my_orders.html    # Tableau de bord client / Historique des commandes
 │       ├── profile.html      # Espace personnel et gestion des coordonnées de livraison
 │       └── success.html      # Page de confirmation après validation du paiement Stripe
+│       └── legal_notice.html # Page des mentions légales du site 
+│       └── gtc.html          # Page des conditions générales de vente (CVG)
 ├── sql/                      # Scripts d'initialisation de la base de données
 │   ├── 01_create_tables.sql  # Script de définition de la structure (tables, contraintes, clés)
 │   └── 02_insert_data.sql    # Jeu de données initial (menus, rôles, utilisateurs de test)
@@ -109,7 +111,6 @@ Vite-Et-Gourmand/
   * Utilisation de pipelines d'agrégation ($group, $sum, $sort) pour générer des graphiques de performance.
 * **Moteur ETL :** 
   * Synchronisation automatisée entre MySQL et MongoDB pour garantir la fraîcheur des statistiques de vente.
-
 * **Visualisation Dynamique :** 
   * Intégration de Chart.js avec une palette de couleurs native (charte V&G) pour l'analyse du volume de ventes et du Chiffre d'Affaires.
 ## Sécurité Implémentées
@@ -144,6 +145,7 @@ cd Vite-Et-Gourmand
 * b. Créer une nouvelle base de données nommée **vite_et_gourmand**.
 * c. Importer et exécuter le script de création des tables : `sql/01_create_tables.sql`
 * d. Exécuter le script d'insertion des données : `sql/02_insert_data.sql`.
+* e. Exécuter le haschage des mots de passes par sécurité : `backend/secure.py`.
 
 ### 2. Configuration des variables d'environnement
 Dupliquez le fichier `.env.example` à la racine du projet et renommez-le en `.env`, puis ajustez vos accès si nécessaire :
@@ -199,6 +201,8 @@ Le serveur sera disponible en local sur : http://127.0.0.1:5000
   * Connexion : http://127.0.0.1:5000/login
   * Page des menus : http://127.0.0.1:5000/menus
   * Détail des menus : http://127.0.0.1:5000/menu/1 (ou /2 ou /3)
+  * Page CVG : http://127.0.0.1:5000/gtc
+  * Page des mentions légales : http://127.0.0.1:5000/legal-notice
 * **Accès pour client / employé / admin**
   * Mot de passe oublié : http://127.0.0.1:5000/forgot-password
   * Page panier : http://127.0.0.1:5000/cart

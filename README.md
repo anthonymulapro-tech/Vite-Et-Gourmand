@@ -1,5 +1,8 @@
 # Vite-Et-Gourmand
 Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce projet couvre l'intégralité du cycle de développement : de la conception (UML/MCD), au design (UI/UX), jusqu'au développement complet du Backend et du Frontend.
+1. **Espace Client :** Consultation de la carte, gestion du panier conditionnel (remises automatiques), paiement Stripe, suivi des commandes et dépôt d'avis.
+2. **Espace Employé :** Tableau de bord pour la préparation des commandes, la gestion du retour matériel, la modification des stocks/prix, l'ajustement des horaires et la modération des avis.
+3. **Espace Administrateur :** Outils de Business Intelligence (statistiques NoSQL) et gestion complète de l'équipe (CRUD du personnel avec envoi d'e-mails RGPD).
 # Aperçu du Projet
 
 ## Design Desktop & Mobile
@@ -30,12 +33,17 @@ Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce pr
 ```text
 Vite-Et-Gourmand/
 ├── backend/                  # Logique métier et requêtes SQL (architecture segmentée)
+│   ├── admin.py              # CRUD du personnel (création/désactivation) sécurisé
 │   ├── cart.py               # Algorithmes de calcul des prix et règles des remises du panier
 │   ├── database.py           # Configuration de la passerelle de connexion MySQL
+│   ├── contact.py            # Traitement et persistance sécurisée en base de données des requêtes du formulaire de contact
+│   ├── secure.py             # Utilitaire de sécurité de pré-déploiement : détection, salage et hachage (Bcrypt) des mots de passe dans le script SQL
 │   ├── menu.py               # Requêtes d'extraction du catalogue général des menus
 │   ├── menu_model.py         # Logique d'affichage dynamique des fiches détails d'un menu
 │   ├── order.py              # Enregistrement des commandes en BDD post-paiement Stripe
 │   ├── order_history.py      # Traitement et récupération de l'historique d'achats client
+│   ├── review.py             # Extraction optimisée (limite et tri) des derniers avis clients validés pour affichage dynamique sur la vitrine
+│   ├── employee_order.py     # Gestion logistique : suivi des commandes, mise à jour des statuts et blocage de clôture si le matériel n'est pas restitué
 │   ├── schedule.py           # Gestion et affichage dynamique des horaires d'ouverture
 │   └── user.py               # Gestion de la sécurité des profils (Bcrypt, sessions et validations)
 ├── docs/                     # Documentation de conception (MCD, Wireframes, Maquettes)
@@ -46,6 +54,8 @@ Vite-Et-Gourmand/
 │   ├── static/               # Assets statiques (Fichiers CSS personnalisés, JS natif et images)
 │   └── templates/            # Vues dynamiques gérées par le moteur de rendu Jinja2
 │       ├── auth/             # Formulaires d'authentification (Connexion, Inscription, Reset Password)
+│       ├── admin/            # Vues exclusives Administrateur (Gestion équipe, etc.
+│       ├── employee/         # Tableau de bord et vues de gestion pour le personnel
 │       ├── emails/           # Gabarits HTML des e-mails transactionnels (Bienvenue, Commande, Contact)
 │       ├── cart.html         # Interface de visualisation du panier et choix des options logistiques
 │       ├── detail_menu.html  # Fiche détaillée d'un menu avec options et convives dynamiques
@@ -84,7 +94,10 @@ Vite-Et-Gourmand/
   * **Confirmation de commande** : Envoi automatique d'un récapitulatif détaillé (menus, remises, frais de livraison, adresse et option de prêt de matériel) après validation du paiement Stripe.
   * **E-mail de Bienvenue** : Envoi d'un mot d'accueil personnalisé dès la validation de l'inscription.
   * **Notification Admin** : Alerte par e-mail envoyée automatiquement aux administrateurs (Julie & José) lors de la soumission du formulaire de contact.
-
+* **Tableau de Bord Dynamique (Jinja2) :** 
+  * **Interface "Split-Screen" qui s'adapte automatiquement (grille et accès) selon que l'utilisateur est un Employé (rôle 2) ou un Administrateur (rôle 1). Masquage complet des fonctionnalités non autorisées.**
+* **Gestion du Personnel (Admin) :**
+  * CRUD complet permettant de créer de nouveaux comptes employés (hachage à la volée) et d'activer/désactiver les accès.
 ## Sécurité Implémentées
 
 Le système d'authentification a été conçu en respectant les standards de sécurité actuels et en optimisant l'expérience utilisateur (UX) :
@@ -95,7 +108,8 @@ Le système d'authentification a été conçu en respectant les standards de sé
   * **Côté Serveur** : Double vérification de sécurité en Python (`app.py`) pour bloquer les requêtes malveillantes qui contourneraient le navigateur.
 * **Gestion intelligente des doublons** : Avant l'inscription, le backend vérifie l'unicité de l'adresse email. En cas de doublon, un message d'erreur ciblé est affiché directement sur le champ concerné sans recharger ni vider les autres saisies de l'utilisateur (grâce à Jinja2).
 * **Réinitialisation sécurisée du mot de passe** : Génération d'un lien de récupération unique envoyé par e-mail. La mise à jour en base de données réutilise le hachage dynamique `Bcrypt`, garantissant l'intégrité du système d'authentification global.
-
+* **Protection des Routes :**
+  * Chaque route sensible (panier, back-office, édition) interroge la session de l'utilisateur et son role_id pour autoriser ou rejeter l'accès (HTTP 403 / Redirections).
 ## Installation et Déploiement Local
 
 * **Prérequis Serveur local** : _Laragon_ (recommandé) ou WAMP/XAMPP.
@@ -163,16 +177,27 @@ python app.py
 Le serveur sera disponible en local sur : http://127.0.0.1:5000
 
 ### 5. Liens d'accès aux pages
-* Page d'accueil : http://127.0.0.1:5000/
-* Inscription : http://127.0.0.1:5000/register
-* Connexion : http://127.0.0.1:5000/login
-* Mot de passe oublié : http://127.0.0.1:5000/forgot-password
-* Page des menus : http://127.0.0.1:5000/menus
-* Détail des menus : http://127.0.0.1:5000/menu/1 (ou /2 ou /3)
-* Page panier : http://127.0.0.1:5000/cart
-* Page de finalisation de commande : http://127.0.0.1:5000/order-details
-* Page de l'historique des commandes : http://127.0.0.1:5000/my-orders
-* Gestion du profil : http://127.0.0.1:5000/profile
+* **Accès pour tout type d'utilisateur**
+  * Page d'accueil : http://127.0.0.1:5000/
+  * Inscription : http://127.0.0.1:5000/register
+  * Connexion : http://127.0.0.1:5000/login
+  * Page des menus : http://127.0.0.1:5000/menus
+  * Détail des menus : http://127.0.0.1:5000/menu/1 (ou /2 ou /3)
+* **Accès pour client / employé / admin**
+  * Mot de passe oublié : http://127.0.0.1:5000/forgot-password
+  * Page panier : http://127.0.0.1:5000/cart
+  * Page de finalisation de commande : http://127.0.0.1:5000/order-details
+  * Page de l'historique des commandes : http://127.0.0.1:5000/my-orders
+  * Gestion du profil : http://127.0.0.1:5000/profile
+* **Accès employé/admin**
+  * Espace personnel avec version employé (#2) et verison admin (#1) : http://127.0.0.1:5000/employee/dashboard
+  * Suivis de commande : http://127.0.0.1:5000/employee/orders
+  * Modération des avis : http://127.0.0.1:5000/employee/reviews
+  * Gestion de la carte : http://127.0.0.1:5000/employee/menu
+  * Gestion des horaires : http://127.0.0.1:5000/employee/schedule
+* **Accès uniquement admin**
+  * Gestion des employées : http://127.0.0.1:5000/admin/employees
+  * Statistiques : En cours 
 
 ## 6. Comptes de Test (Jeu de données)
 Pour faciliter l'évaluation, la base de données est fournie avec plusieurs profils de test :

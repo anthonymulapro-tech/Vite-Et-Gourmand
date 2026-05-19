@@ -1,6 +1,7 @@
 import os
 from pymongo import MongoClient
 from backend.database import get_connection
+from datetime import datetime, timedelta
 
 
 def get_mongo_db():
@@ -84,6 +85,57 @@ def get_nosql_data():
     data_ca = list(collection.aggregate(pipeline_ca))
 
     # Formatage final sous forme de listes pour Chart.js (Front-End)
+    return {
+        "quantite": {
+            "labels": [item['_id'] for item in data_quantite],
+            "data": [item['total_vendus'] for item in data_quantite]
+        },
+        "ca": {
+            "labels": [item['_id'] for item in data_ca],
+            "data": [item['ca_total'] for item in data_ca]
+        }
+    }
+
+
+def get_nosql_data(periode='all'):
+    """
+    Récupère les stats avec un filtre temporel.
+    """
+    db = get_mongo_db()
+    collection = db.ventes_menus
+
+    # 1. Préparation du filtre de temps ($match)
+    match_stage = {}
+    if periode == '30j':
+        date_limite = datetime.now() - timedelta(days=30)
+        match_stage = {"$match": {"date_commande": {"$gte": date_limite}}}
+    elif periode == '7j':
+        date_limite = datetime.now() - timedelta(days=7)
+        match_stage = {"$match": {"date_commande": {"$gte": date_limite}}}
+
+    # 2. Construction dynamique des pipelines
+    pipeline_quantite = []
+    pipeline_ca = []
+
+    # Si on a un filtre de date, on l'ajoute en TOUT PREMIER dans le pipeline
+    if match_stage:
+        pipeline_quantite.append(match_stage)
+        pipeline_ca.append(match_stage)
+
+    # On ajoute la suite (group et sort)
+    pipeline_quantite.extend([
+        {"$group": {"_id": "$titre_menu", "total_vendus": {"$sum": "$quantite"}}},
+        {"$sort": {"total_vendus": -1}}
+    ])
+
+    pipeline_ca.extend([
+        {"$group": {"_id": "$titre_menu", "ca_total": {"$sum": "$chiffre_affaires_brut"}}},
+        {"$sort": {"ca_total": -1}}
+    ])
+
+    data_quantite = list(collection.aggregate(pipeline_quantite))
+    data_ca = list(collection.aggregate(pipeline_ca))
+
     return {
         "quantite": {
             "labels": [item['_id'] for item in data_quantite],

@@ -926,12 +926,16 @@ def admin_toggle_employee(employe_id):
 @app.route('/admin/data')
 def admin_data_dashboard():
     if 'user_id' not in session or session.get('user_role') != 1:
-        flash("Accès strictement interdit. Zone réservée à l'administration.", "error")
+        flash("Accès strictement interdit.", "error")
         return redirect(url_for('home'))
 
-    # Récupération des données formatées depuis MongoDB
-    nosql_data = get_nosql_data()
-    return render_template('admin/data.html', nosql_data=nosql_data)
+    # Récupération du paramètre dans l'URL (par défaut 'all')
+    periode = request.args.get('periode', 'all')
+
+    # Envoie du filtre à MongoDB
+    nosql_data = get_nosql_data(periode)
+
+    return render_template('admin/data.html', nosql_data=nosql_data, periode_actuelle=periode)
 
 
 @app.route('/admin/data/sync', methods=['POST'])

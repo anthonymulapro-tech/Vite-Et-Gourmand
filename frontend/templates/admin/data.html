@@ -18,14 +18,28 @@
         <p class="fs-5 text-brand-brown">
             Analyse des performances de vente.
         </p>
-        
-        <form action="{{ url_for('admin_sync_data') }}" method="POST" class="d-inline-block mt-2">
-            <button type="submit" class="btn btn-vg rounded-pill fw-bold shadow-sm px-4">
-                <i class="bi bi-arrow-repeat me-2"></i> Synchroniser les données
-            </button>
-        </form>
-        <p class="small text-muted mt-2">Cliquez pour mettre à jour l'entrepôt NoSQL avec les dernières commandes validées.</p>
+
+    <div class="mt-4 mb-5 d-flex justify-content-center w-100">
+    <div class="dropdown">
+        <button class="btn vg-box text-brand-brown dropdown-toggle fw-bold shadow-sm px-4 py-2"
+                type="button" id="dropdownFiltrePeriode" data-bs-toggle="dropdown" aria-expanded="false"
+                style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; min-width: 220px;">
+            <i class="bi bi-calendar-range me-2"></i>
+            {% if periode_actuelle == '30j' %}30 derniers jours
+            {% elif periode_actuelle == '7j' %}7 derniers jours
+            {% else %}Depuis toujours{% endif %}
+        </button>
+
+        <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1"
+            aria-labelledby="dropdownFiltrePeriode"
+            style="background-color: #fcf9f5;">
+
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='all') }}">Depuis toujours</a></li>
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='30j') }}">30 derniers jours</a></li>
+            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='7j') }}">7 derniers jours</a></li>
+        </ul>
     </div>
+</div>
 
     <div class="row g-4">
         <div class="col-lg-6">
@@ -49,6 +63,13 @@
                 </div>
             </div>
         </div>
+        <form action="{{ url_for('admin_sync_data') }}" method="POST" class="d-inline-block mt-2">
+            <button type="submit" class="btn btn-vg rounded-pill fw-bold shadow-sm px-4">
+                <i class="bi bi-arrow-repeat me-2"></i> Synchroniser les données
+            </button>
+        </form>
+        <p class="small text-muted mt-2">Cliquez pour mettre à jour l'entrepôt NoSQL avec les dernières commandes validées.</p>
+    </div>
     </div>
 </div>
 
@@ -108,7 +129,7 @@
             datasets: [{
                 data: rawData.ca.data,
                 backgroundColor: bgColors,
-                borderColor: '#ffffff',
+                borderColor: '#FFFFFF',
                 hoverBackgroundColor: bgColors,
                 hoverBorderColor: '#372D24',
                 hoverBorderWidth: 2,

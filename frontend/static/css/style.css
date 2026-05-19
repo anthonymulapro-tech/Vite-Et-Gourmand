@@ -434,6 +434,13 @@ input:-webkit-autofill:active {
     text-align: center;
 }
 
+/* Ajoute ce bloc pour gérer le clic */
+.custom-search-input:focus {
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem; color:var(--brand-peach) !important;
+    outline: none;
+}
+
 /* Section Filtre (Hérite déjà de .content-box, on ajuste l'intérieur) */
 .filter-label {
     color: var(--brand-brown);

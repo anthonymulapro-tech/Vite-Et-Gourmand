@@ -1452,3 +1452,16 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .vg-carousel-icon:hover {
     color: var(--brand-gold);
 }
+
+/* Conteneur de la bannière immage accueil*/
+.banner-wrapper {
+    width: 100%;
+    height: 500px;
+}
+
+/* L'image à l'intérieur */
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

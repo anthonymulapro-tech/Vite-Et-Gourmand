@@ -119,9 +119,9 @@
 
                             <div class="menu-image-container mb-3">
                                 {% if menu.photos %}
-                                    <img src="{{ url_for('static', filename='images/' + menu.photos[0].url_photo) }}" class="img-fluid rounded-3" alt="{{ menu.photos[0].alt_text }}">
+                                    <img src="{{ url_for('static', filename='images/dishes/' + menu.photos[0].url_photo) }}" class="card-img-top vg-card-img rounded-3" alt="{{ menu.photos[0].alt_text }}">
                                 {% else %}
-                                    <img src="{{ url_for('static', filename='images/default_menu.jpg') }}" class="img-fluid rounded-3" alt="Image de présentation">
+                                    <img src="{{ url_for('static', filename='images/default_menu.jpg') }}" class="card-img-top vg-card-img rounded-3" alt="Image de présentation">
                                 {% endif %}
                             </div>
 

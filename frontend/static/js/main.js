@@ -3,6 +3,102 @@
 /* 1. INITIALISATION DE LA PAGE */
 document.addEventListener("DOMContentLoaded", function () {
 
+    /* ==========================================================================
+       1. FILTRES DYNAMIQUES (PAGE MENUS)
+       ========================================================================== */
+    function applyFilters() {
+        const searchInput = document.querySelector('.custom-search-input');
+        if (!searchInput) return;
+
+        const searchVal = searchInput.value.toLowerCase();
+        const priceMin = parseFloat(document.getElementById('price-min').value);
+        const priceMax = parseFloat(document.getElementById('price-max').value);
+        const peopleLimit = parseInt(document.getElementById('people-filter').value);
+
+        const selectedThemes = Array.from(document.querySelectorAll('input[id^="theme-"]:checked')).map(el => el.id.replace('theme-', ''));
+        const selectedDiets = Array.from(document.querySelectorAll('input[id^="diet-"]:checked')).map(el => el.id.replace('diet-', ''));
+        const selectedAllergies = Array.from(document.querySelectorAll('input[id^="allergy-"]:checked')).map(el => {
+            let val = el.id.replace('allergy-', '').toLowerCase();
+            // Force la correspondance entre ton ID HTML et le nom de l'allergène en BDD
+            if (val === 'noix') return 'fruits à coque';
+            return val;
+        });
+
+        const cards = document.querySelectorAll('.menu-card-wrapper');
+
+        cards.forEach(card => {
+            // C'est ici que 'title' doit être défini
+            const titleElement = card.querySelector('.menu-card-title');
+            const title = titleElement ? titleElement.innerText.toLowerCase() : "";
+
+            const price = parseFloat(card.getAttribute('data-price'));
+            const people = parseInt(card.getAttribute('data-people'));
+            const theme = (card.getAttribute('data-theme') || "").toLowerCase();
+            const diet = (card.getAttribute('data-diet') || "").toLowerCase();
+            const cardAllergies = (card.getAttribute('data-allergies') || "").split(',').map(a => a.trim().toLowerCase());
+
+            const matchesSearch = title.includes(searchVal);
+            const matchesPrice = price >= priceMin && price <= priceMax;
+            const matchesPeople = people <= peopleLimit;
+            const matchesTheme = selectedThemes.length === 0 || selectedThemes.includes(theme);
+            const matchesDiet = selectedDiets.length === 0 || selectedDiets.includes(diet);
+
+            const hasForbiddenAllergy = selectedAllergies.some(allergy => cardAllergies.includes(allergy.toLowerCase()));
+
+            if (matchesSearch && matchesPrice && matchesPeople && matchesTheme && matchesDiet && !hasForbiddenAllergy) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Écouteurs d'événements pour les filtres
+    const searchInput = document.querySelector('.custom-search-input');
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    document.querySelectorAll('.btn-check').forEach(cb => cb.addEventListener('change', applyFilters));
+
+    /* ==========================================================================
+       2. SLIDERS (DOUBLE ET SIMPLE)
+       ========================================================================== */
+    // Slider Prix (Double)
+    function initDoubleSlider(minId, maxId, trackId, valueId) {
+        const minInput = document.getElementById(minId);
+        const maxInput = document.getElementById(maxId);
+        const track = document.getElementById(trackId);
+        const valDisplay = document.getElementById(valueId);
+        if (!minInput || !maxInput || !track || !valDisplay) return;
+
+        function updateSlider() {
+            let valMin = parseInt(minInput.value);
+            let valMax = parseInt(maxInput.value);
+            if (valMin >= valMax) { minInput.value = valMax - 5; valMin = parseInt(minInput.value); }
+            const minP = ((valMin - minInput.min) / (minInput.max - minInput.min)) * 100;
+            const maxP = ((valMax - minInput.min) / (minInput.max - minInput.min)) * 100;
+            track.style.background = `linear-gradient(to right, var(--brand-peach) ${minP}%, var(--brand-brown) ${minP}%, var(--brand-brown) ${maxP}%, var(--brand-peach) ${maxP}%)`;
+            valDisplay.innerText = `${valMin}€ - ${valMax}€`;
+            applyFilters();
+        }
+        minInput.addEventListener('input', updateSlider);
+        maxInput.addEventListener('input', updateSlider);
+        updateSlider();
+    }
+    if (document.getElementById('price-min')) initDoubleSlider('price-min', 'price-max', 'price-track', 'price-val');
+
+    // Slider Convives (Simple)
+    const peopleFilter = document.getElementById('people-filter');
+    const peopleVal = document.getElementById('people-val');
+    const peopleTrack = document.getElementById('people-track');
+    if (peopleFilter && peopleTrack) {
+        peopleFilter.addEventListener('input', function() {
+            peopleVal.innerText = `${this.value} pers.`;
+            const p = ((this.value - this.min) / (this.max - this.min)) * 100;
+            peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) ${p}%, var(--brand-peach) ${p}%)`;
+            applyFilters();
+        });
+        peopleTrack.style.background = `linear-gradient(to right, var(--brand-brown) 100%, var(--brand-peach) 100%)`;
+    }
+});
     /* 2. COMPARAISON DES MOTS DE PASSE (FORMULAIRE D'INSCRIPTION) */
     const registerForm = document.getElementById('registerForm');
 
@@ -69,62 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-
-    /* 5. GESTION DES DOUBLE SLIDERS (FOURCHETTES PRIX ET CONVIVES - PAGE MENUS) */
-
-    /* Fonction interne pour mettre à jour la piste colorée et les textes */
-    function initDoubleSlider(minId, maxId, trackId, valueId, unit) {
-        const minInput = document.getElementById(minId);
-        const maxInput = document.getElementById(maxId);
-        const track = document.getElementById(trackId);
-        const valDisplay = document.getElementById(valueId);
-
-        /* Si l'un des éléments manque sur la page active, arrêt du script pour éviter un crash */
-        if (!minInput || !maxInput || !track || !valDisplay) return;
-
-        function updateSlider() {
-            let valMin = parseInt(minInput.value);
-            let valMax = parseInt(maxInput.value);
-
-            /* Sécurité anti-croisement : empêche le curseur Min de dépasser le curseur Max */
-            if (valMin >= valMax) {
-                minInput.value = valMax - parseInt(minInput.step || 1);
-                valMin = parseInt(minInput.value);
-            }
-
-            /* Calcul des pourcentages pour colorer l'espace entre les deux poignées */
-            const minPercent = ((valMin - minInput.min) / (minInput.max - minInput.min)) * 100;
-            const maxPercent = ((valMax - maxInput.min) / (maxInput.max - maxInput.min)) * 100;
-
-            /* Injection du dégradé linéaire CSS dynamique */
-            track.style.background = `linear-gradient(to right, 
-                var(--brand-peach) ${minPercent}%, 
-                var(--brand-brown) ${minPercent}%, 
-                var(--brand-brown) ${maxPercent}%, 
-                var(--brand-peach) ${maxPercent}%)`;
-
-            /* Mise à jour du texte indicateur de la fourchette */
-            if (unit === '€') {
-                valDisplay.innerText = `${valMin}€ - ${valMax}€`;
-            } else {
-                valDisplay.innerText = `${valMin} - ${valMax} pers.`;
-            }
-        }
-
-        /* Mouvements de l'utilisateur sur les deux curseurs */
-        minInput.addEventListener('input', updateSlider);
-        maxInput.addEventListener('input', updateSlider);
-
-        /* Premier rendu obligatoire pour initialiser les couleurs au chargement */
-        updateSlider();
-    }
-
-    /* Sécurité : initialisation des curseurs uniquement si le composant est présent dans la page */
-    if (document.getElementById('price-min')) {
-        initDoubleSlider('price-min', 'price-max', 'price-track', 'price-val', '€');
-        initDoubleSlider('people-min', 'people-max', 'people-track', 'people-val', 'pers');
-    }
-});
 
 document.addEventListener("DOMContentLoaded", function() {
     const display = document.getElementById("total-price-display");

@@ -434,11 +434,18 @@ input:-webkit-autofill:active {
     text-align: center;
 }
 
-/* Ajoute ce bloc pour gérer le clic */
+/* Bloc focus corrigé */
 .custom-search-input:focus {
     border-color: var(--brand-brown) !important;
-    box-shadow: 0 0 0 0.25rem; color:var(--brand-peach) !important;
-    outline: none;
+    color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+    outline: none !important;
+}
+
+/* Force aussi la couleur du texte "placeholder" (le texte gris par défaut) */
+.custom-search-input::placeholder {
+    color: var(--brand-brown) !important;
+    opacity: 0.6;
 }
 
 /* Section Filtre (Hérite déjà de .content-box, on ajuste l'intérieur) */
@@ -552,10 +559,33 @@ input:-webkit-autofill:active {
 }
 
 /* ==========================================================================
-   DOUBLE RANGE SLIDERS (Système à double poignée)
+   DOUBLE RANGE et SIMPLE SLIDERS (Système à double poignée et une poignée)
    ========================================================================== */
 
-/* Boîte relative qui contient les deux barres d'input */
+/* Adaptation de ton design pour un slider unique */
+.range-single {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: none;
+    pointer-events: auto; /* Important : on réactive le clic */
+    margin: 0;
+}
+
+/* On réutilise tes styles de thumb (ronds) */
+.range-single::-webkit-slider-thumb {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: var(--bg-cream);
+    border: 2px solid var(--brand-brown);
+    cursor: pointer;
+    -webkit-appearance: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease-in-out;
+}
+
+/* 1. Le conteneur reste le même */
 .double-slider-box {
     position: relative;
     height: 24px;
@@ -564,19 +594,19 @@ input:-webkit-autofill:active {
     align-items: center;
 }
 
-/* Superposition au même endroit */
+/* 2. On cible l'input à l'intérieur du conteneur, qu'il soit simple ou double */
 .double-slider-box input[type="range"] {
     position: absolute;
     width: 100%;
     height: 8px;
     background: none;
-    pointer-events: none;
+    pointer-events: none; /* L'input est au-dessus mais ne bloque pas le clic */
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
 }
 
-/* Style des ronds (Handles) pour Chrome, Safari, Edge, Opera */
+/* 3. On réactive le clic sur le "thumb" (le rond) */
 .double-slider-box input[type="range"]::-webkit-slider-thumb {
     height: 22px;
     width: 22px;
@@ -584,34 +614,14 @@ input:-webkit-autofill:active {
     background: var(--bg-cream);
     border: 2px solid var(--brand-brown);
     cursor: pointer;
-    pointer-events: auto;
+    pointer-events: auto; /* IMPORTANT : permet de cliquer sur le rond */
     -webkit-appearance: none;
     appearance: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
     transition: transform 0.15s ease-in-out;
 }
 
-/* Style des ronds (Handles) pour Firefox */
-.double-slider-box input[type="range"]::-moz-range-thumb {
-    height: 18px;
-    width: 18px;
-    border-radius: 50%;
-    background: var(--bg-cream);
-    border: 2px solid var(--brand-brown);
-    cursor: pointer;
-    pointer-events: auto;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
-    transition: transform 0.15s ease-in-out;
-}
-
-/* --- FUSION DES HOVERS ---
-   Léger zoom au survol pour tous les navigateurs */
-.double-slider-box input[type="range"]::-webkit-slider-thumb:hover,
-.double-slider-box input[type="range"]::-moz-range-thumb:hover {
-    transform: scale(1.15);
-}
-
-/* La ligne de fond unique (la piste colorée) */
+/* Garde ton slider-track tel quel, il est parfait */
 .slider-track {
     position: absolute;
     height: 8px;

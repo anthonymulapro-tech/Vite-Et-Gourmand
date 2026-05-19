@@ -1032,5 +1032,18 @@ def reset_password():
 
     return render_template('auth/reset_password.html', email=email)
 
+# ==========================================================================
+#                       MENTIONS LEGALES ET CVG
+# ==========================================================================
+
+@app.route('/legal-notice')
+def legal_notice():
+    return render_template('legal_notice.html')
+
+@app.route('/gtc')
+def gtc():
+    return render_template('gtc.html')
+
+# RUN
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

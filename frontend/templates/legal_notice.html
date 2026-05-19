@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Mentions Légales - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <a href="{{ url_for('home') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-4 py-2 text-brand-brown">
+        <i class="bi bi-house-door-fill me-2"></i>Retour à l'accueil
+    </a>
+</div>
+    <div class=" text-center mt-5 mb-4">
+        <h1 class="title-brand mb-4 text-center">Mentions Légales</h1>
+    </div>
+        <div class="container mt-5 mb-5 vg-box p-4 rounded shadow-sm border-0 text-brand-brown">
+            <p class="text-muted small mb-4"><em>Dernière mise à jour : Mai 2026. Ce site est un projet de démonstration réalisé dans le cadre d'un examen (ECF - Titre RNCP Niveau 5).</em></p>
+
+            <h4 class="fw-bold mt-4">1. Éditeur du site</h4>
+            <p>Le site <strong>Vite & Gourmand</strong> est édité par Anthony.M, étudiant en formation Développeur Web et Web Mobile.<br>
+            <strong>Email de contact :</strong> admin@viteetgourmand.fr</p>
+
+            <h4 class="fw-bold mt-4">2. Hébergement</h4>
+            <p>Ce site est hébergé localement à des fins d'évaluation (ou sur un futur serveur dont le siège social sera mentionné ).</p>
+
+            <h4 class="fw-bold mt-4">3. Propriété intellectuelle</h4>
+            <p>L'ensemble de ce site relève de la législation française et internationale sur le droit d'auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.</p>
+
+            <h4 class="fw-bold mt-4">4. Données personnelles (RGPD)</h4>
+            <p>Les informations recueillies via les formulaires (inscription, contact, commande) sont enregistrées dans un fichier informatisé pour la gestion des commandes et du support client. Les mots de passe sont cryptés de manière irréversible. Conformément à la loi "Informatique et Libertés", vous pouvez exercer votre droit d'accès aux données vous concernant et les faire rectifier en nous contactant à l'adresse e-mail susmentionnée.</p>
+        </div>
+    </div>
+{% endblock %}

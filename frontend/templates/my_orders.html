@@ -141,7 +141,7 @@
                                             </div>
                                         {% endif %}
 
-                                        {% if cmd.prix_livraison > 0 %}
+                                        {% if cmd.prix_livraison and cmd.prix_livraison > 0 %}
                                         <div class="d-flex justify-content-between justify-content-md-end gap-3 mb-1">
                                             <span>Frais de livraison :</span>
                                             <strong>{{ "%.2f"|format(cmd.prix_livraison) }} €</strong>

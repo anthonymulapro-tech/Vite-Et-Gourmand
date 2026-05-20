@@ -3,7 +3,7 @@
 CREATE DATABASE IF NOT EXISTS vite_et_gourmand;
 USE vite_et_gourmand;
 
--- Désactiver les contraintes pour pouvoir supprimer les tables sans erreur
+-- Désactivation des contraintes pour pouvoir supprimer les tables sans erreur
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -177,3 +177,19 @@ CREATE TABLE plat_allergene (
     CONSTRAINT fk_pa_plat FOREIGN KEY (plat_id) REFERENCES plat(plat_id),
     CONSTRAINT fk_pa_allergene FOREIGN KEY (allergene_id) REFERENCES allergene(allergene_id)
 ) ENGINE=InnoDB;
+
+
+-- OPTIMISATIONS & INDEXATION
+
+
+-- 1. Index pour accélérer la connexion des utilisateurs (Recherche par email fréquente)
+CREATE INDEX idx_utilisateur_email ON utilisateur(email);
+
+-- 2. Index pour optimiser l'affichage de l'historique des commandes d'un client
+CREATE INDEX idx_commande_utilisateur ON commande(utilisateur_id);
+
+-- 3. Index pour optimiser le tri et l'affichage des avis modérés sur la page d'accueil
+CREATE INDEX idx_avis_statut_date ON avis(statut_avis, date_avis DESC);
+
+-- 4. Index sur les filtres de recherche du catalogue (Thèmes et Régimes)
+CREATE INDEX idx_menu_filtres ON menu(theme_id, regime_id);

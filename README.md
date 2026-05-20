@@ -51,8 +51,11 @@ Vite-Et-Gourmand/
 │   ├── conception_technique/ # Schémas MCD (Draw.io) et documents techniques
 │   ├── design_maquettes/     # Exports graphiques des maquettes haute fidélité (Figma)
 │   └── wireframes/           # Maquettes fonctionnelles basse fidélité (Balsamiq)
-├── frontend/                 # Interface utilisateur et assets graphiques
-│   ├── static/               # Assets statiques (Fichiers CSS personnalisés, JS natif et images)
+├── frontend/
+│   ├── static/               
+│   │   ├── css/style.css     # Feuilles de styles (charte graphique, surcharges Bootstrap)
+│   │   ├── js/main.js        # Script global : filtres dynamiques, sliders, calculs de prix etc..
+│   │   └── images/           # Assets graphiques
 │   └── templates/            # Vues dynamiques gérées par le moteur de rendu Jinja2
 │       ├── auth/             # Formulaires d'authentification (Connexion, Inscription, Reset Password)
 │       ├── admin/            # Vues exclusives Administrateur (Gestion équipe, dashboard Business Intelligence (chart.js)
@@ -85,8 +88,9 @@ Vite-Et-Gourmand/
   * Intégration d'un bouton œil interactif géré en JavaScript natif et stylisé en CSS pour s'intégrer harmonieusement à la charte graphique, facilitant la saisie des mots de passe complexes.
 * **Catalogue Dynamique :** 
   * Affichage des menus depuis la base de données avec gestion des stocks en temps réel.
-* **Filtres Avancés :** 
-  * Recherche multicritères (budget, nombre de convives, thèmes, régimes et allergènes).
+* **Filtrage Dynamique et Réactif (Architecture Front-end) :**
+  * Recherche multicritères instantanée (budget via double slider, nombre de convives, thèmes, régimes et allergènes). 
+  * Le filtrage est géré intégralement en JavaScript côté client, offrant une expérience fluide (sans rechargement de page), basée sur la lecture dynamique des attributs de données (data-attributes) générés par le moteur Jinja2 depuis la base de données.
 * **Tunnel de Commande (Panier) :** 
   * Calcul dynamique des prix selon le nombre de convives.
   * Application automatique de règles métier (ex: seuil de réduction pour commandes volumineuses).
@@ -227,6 +231,8 @@ Pour faciliter l'évaluation, la base de données est fournie avec plusieurs pro
 | **Administrateur** | `jose.pascoli@viteetgourmand.fr` | *`25!Fru1tS&Or@nge!Mar0c!Av3nture!`* |
 | **Employé**        | `nassim.amir@viteetgourmand.fr`  | *`Nassim33_V&G_2026!`*               |
 | **Client**         | `bernard.lebrun@orange.fr`       | *`Bern@rd!33`*                       |
+
+* Les mots de passe indiqués ci-dessus sont les versions "en clair" à utiliser lors de la connexion. Le script secure.py (étape 1.e) s'occupe de les hacher en base de données pour respecter les normes de sécurité.
 
 ### 7. Tests de sécurité automatisés (Assurance Qualité)
 Le projet intègre un script de test automatique permettant de vérifier la robustesse du backend face aux contournements des validations du navigateur (ex: scripts malveillants contournant les Regex HTML5).

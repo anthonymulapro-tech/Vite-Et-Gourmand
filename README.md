@@ -3,6 +3,10 @@ Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce pr
 1. **Espace Client :** Consultation de la carte, gestion du panier conditionnel (remises automatiques), paiement Stripe, suivi des commandes et dépôt d'avis.
 2. **Espace Employé :** Tableau de bord pour la préparation des commandes, la gestion du retour matériel, la modification des stocks/prix, l'ajustement des horaires et la modération des avis.
 3. **Espace Administrateur :** Outils de Business Intelligence (statistiques NoSQL) et gestion complète de l'équipe (CRUD du personnel avec envoi d'e-mails RGPD).
+# Application en ligne 
+L'application est déployée dans le Cloud et 100 % fonctionnelle. Vous pouvez tester l'ensemble des fonctionnalités (panier, compte, espace employé/admin) directement via ce lien :
+ **[Accéder à Vite & Gourmand sur Heroku](https://intense-bayou-64571-0aebed7ee93c.herokuapp.com/)**
+
 # Aperçu du Projet
 
 ## Design Desktop & Mobile
@@ -23,11 +27,12 @@ Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce pr
 - [x] **Conception** : _Draw.io_ (UML/MCD)
 - [x] **Design** : _Balsamiq_ (Wireframes)
 - [x] **Design** : _Figma_ (Maquettes et charte)
-- [x] **Base de données** : _MySQL_ (Structure initiale déployée)
+- [x] **Hébergement Cloud** : _Heroku_ (Serveur de production Web via Gunicorn)
+- [x] **Base de données (Relationnelle)** : _MySQL sur Aiven Cloud_ (Production) & MySQL local
+- [x] **Base de données (NoSQL)** : _MongoDB Atlas_ (Agrégations et statistiques NoSQL)
 - [X] **Backend** : _Python & Flask_ (Routage dynamique, gestion des sessions et logique métier)
 - [X] **Frontend** : _HTML / CSS / Bootstrap / JS_ (Intégration fluide et responsive)
 - [X] **E-mails & Test** : _Flask-Mail & Mailtrap_ (Gestion et interception des e-mails transactionnels)
-- [X] **NoSQL** : _MongoDB_ (Agrégations et statistiques NoSQL)
 
 ### Architecture du Projet
 ```text
@@ -130,7 +135,8 @@ Le système d'authentification a été conçu en respectant les standards de sé
 * **Protection des Routes :**
   * Chaque route sensible (panier, back-office, édition) interroge la session de l'utilisateur et son role_id pour autoriser ou rejeter l'accès (HTTP 403 / Redirections).
 ## Installation et Déploiement Local
-
+### Rappel: 
+Le projet est déjà déployé dans une architecture Cloud complète. Les étapes ci-dessous sont fournies uniquement si vous souhaitez tester le projet en environnement de développement local. Le code source intègre une détection automatique de l'environnement (le port bascule dynamiquement entre le port Cloud et le port local 3306).
 * **Prérequis Serveur local :** _Laragon_ (recommandé) ou WAMP/XAMPP.
 
 * **Base de données :** MongoDB (local ou Atlas) et MySQL (Laragon/WAMP).
@@ -167,6 +173,7 @@ MAIL_USERNAME=identifiant_mailtrap
 MAIL_PASSWORD=mot_de_passe_mailtrap
 MAIL_USE_TLS=True
 MAIL_USE_SSL=False
+# Note : Le DB_PORT n'est pas requis ici, le code basculera automatiquement sur 3306.
 ```
 
 #### 3. Configuration du Backend (Python)

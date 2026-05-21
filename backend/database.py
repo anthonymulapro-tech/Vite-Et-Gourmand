@@ -15,23 +15,38 @@ def get_connection(connect_to_db=True):
     try:
         db_port = int(os.getenv("DB_PORT", 3306))
 
+        # .strip() pour nettoyer les chaînes pour éviter les espaces invisibles
+        db_host = os.getenv("DB_HOST", "").strip()
+        db_user = os.getenv("DB_USER", "").strip()
+        db_password = os.getenv("DB_PASSWORD", "").strip()
+        db_name = os.getenv("DB_NAME", "").strip()
+
+        # Sécurité anti-crash : si DB_HOST est vide après nettoyage
+        if not db_host:
+            print("Erreur critique : DB_HOST est introuvable ou vide.")
+            return None
+
         # Paramètres de connexion de base
         conn_params = {
-            "host": os.getenv("DB_HOST"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
+            "host": db_host,
+            "user": db_user,
+            "password": db_password,
             "port": db_port
         }
 
+        # Aiven exige une connexion sécurisée (SSL). On l'active automatiquement.
+        if "aivencloud" in db_host:
+            conn_params["ssl_disabled"] = False
+
         # Sélection la base de données seulement si connect_to_db est True
-        if connect_to_db:
-            conn_params["database"] = os.getenv("DB_NAME")
+        if connect_to_db and db_name:
+            conn_params["database"] = db_name
 
         connection = mysql.connector.connect(**conn_params)
         if connection.is_connected():
             return connection
     except mysql.connector.Error as err:
-        # Affichage erreur
+        # Affichage erreur précise
         print(f"Erreur de connexion MySQL : {err}")
         return None
 

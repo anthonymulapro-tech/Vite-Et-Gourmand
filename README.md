@@ -137,6 +137,9 @@ Le système d'authentification a été conçu en respectant les standards de sé
 ## Installation et Déploiement Local
 ### Rappel: 
 Le projet est déjà déployé dans une architecture Cloud complète. Les étapes ci-dessous sont fournies uniquement si vous souhaitez tester le projet en environnement de développement local. Le code source intègre une détection automatique de l'environnement (le port bascule dynamiquement entre le port Cloud et le port local 3306).
+Afin de prévenir la mise en veille automatique de la base de données (due aux restrictions des plans gratuits), un service UptimeRobot a été configuré pour maintenir l'instance active.
+Toutefois, en cas d'indisponibilité exceptionnelle du serveur distant lors de votre évaluation, l'environnement local complet est prévu.
+
 * **Prérequis Serveur local :** _Laragon_ (recommandé) ou WAMP/XAMPP.
 
 * **Base de données :** MongoDB (local ou Atlas) et MySQL (Laragon/WAMP).
@@ -144,39 +147,12 @@ Le projet est déjà déployé dans une architecture Cloud complète. Les étape
 * **Environnement :**  `Python 3.13`
 
 * **Git :** Clonage du dépôt 
-
+#### 1. Clonage du dépôt
 ```bash
 git clone https://github.com/anthonymulapro-tech/Vite-Et-Gourmand.git
 cd Vite-Et-Gourmand
 ```
-
-#### 1. Configuration de la Base de Données (MySQL)
-* a. Ouvrir votre outil de gestion SQL (_HeidiSQL_ ou _phpMyAdmin_ via _Laragon_).
-* b. Créer une nouvelle base de données nommée **vite_et_gourmand**.
-* c. Importer et exécuter le script de création des tables : `sql/01_create_tables.sql`
-* d. Exécuter le script d'insertion des données : `sql/02_insert_data.sql`.
-* e. Exécuter le haschage des mots de passes par sécurité : `backend/secure.py`.
-
-### 2. Configuration des variables d'environnement
-Dupliquez le fichier `.env.example` à la racine du projet et renommez-le en `.env`, puis ajustez vos accès si nécessaire :
-```bash
-DB_HOST=127.0.0.1
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=vite_et_gourmand
-SECRET_KEY=une_cle_secrete_aleatoire_et_ultra_securisee
-STRIPE_PUBLIC_KEY=pk_test_clé_via_stripe
-STRIPE_SECRET_KEY=sk_test_clé_via_stripe
-MAIL_SERVER=sandbox.smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=identifiant_mailtrap
-MAIL_PASSWORD=mot_de_passe_mailtrap
-MAIL_USE_TLS=True
-MAIL_USE_SSL=False
-# Note : Le DB_PORT n'est pas requis ici, le code basculera automatiquement sur 3306.
-```
-
-#### 3. Configuration du Backend (Python)
+#### 2. Configuration du Backend (Python)
 * a. Créer un environnement virtuel : 
 ```bash 
 python -m venv .venv
@@ -198,7 +174,37 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Serveur Flask
+### 3. Configuration des variables d'environnement
+Dupliquez le fichier `.env.example` à la racine du projet et renommez-le en `.env`, puis ajustez vos accès si nécessaire :
+```bash
+DB_HOST=127.0.0.1
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=vite_et_gourmand
+SECRET_KEY=une_cle_secrete_aleatoire_et_ultra_securisee
+STRIPE_PUBLIC_KEY=pk_test_clé_via_stripe
+STRIPE_SECRET_KEY=sk_test_clé_via_stripe
+MAIL_SERVER=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=identifiant_mailtrap
+MAIL_PASSWORD=mot_de_passe_mailtrap
+MAIL_USE_TLS=True
+MAIL_USE_SSL=False
+MONGO_URI=mongodb://localhost:27017/ # Ou votre lien Atlas si applicable
+# Note : Le DB_PORT n'est pas requis ici, le code basculera automatiquement sur 3306.
+```
+#### 4. Configuration de la Base de Données (MySQL)
+* a. Ouvrir votre outil de gestion SQL (_HeidiSQL_ ou _phpMyAdmin_ via _Laragon_).
+* b. Exécutez le script d'initialisation (qui créera la base vite_et_gourmand, les tables, et insérera les données) : 
+```bash
+python database.py
+```
+* c. Exécuter le hachage des mots de passes par sécurité :
+```bash
+python backend/secure.py
+```
+
+### 5. Serveur Flask
 * démarrage du serveur : 
 ```bash
 python app.py

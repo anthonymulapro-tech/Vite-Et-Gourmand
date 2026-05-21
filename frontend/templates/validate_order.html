@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block title %}Finalisation - Vite & Gourmand{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+
+    <div class="row mb-3">
+        <div class="col-lg-7 text-center">
+            <h2 class="title-brand m-0">Finalisation de votre commande</h2>
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-7 mb-4">
+            <form action="{{ url_for('confirm_order') }}" method="POST" id="orderForm" class="needs-validation" novalidate>
+                <div class="card shadow-sm vg-box checkout-box">
+                    <div class="card-body p-4 p-md-5">
+
+                        <h5 class="card-title mb-4 fw-bold">
+                            <i class="bi bi-geo-alt-fill me-2"></i> Adresse de livraison
+                        </h5>
+
+                        <div class="mb-4">
+                            <label for="adresse" class="form-label">Adresse précise (rue, appartement...)</label>
+                            <input type="text" class="form-control" id="adresse" name="adresse_livraison" value="{{ user.adresse if user and user.adresse else '' }}" required>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="ville" class="form-label">Ville</label>
+                                <input type="text" class="form-control" id="ville" name="ville_livraison" value="{{ user.ville if user and user.ville else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="code_postal" class="form-label">Code Postal</label>
+                                <input type="text" class="form-control" id="code_postal" name="code_postal_livraison" pattern="[0-9]{5}" value="{{ user.code_postal if user and user.code_postal else '' }}" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" style="border-color: var(--brand-brown); opacity: 0.2;">
+
+                        <h5 class="card-title mb-4 fw-bold">
+                            <i class="bi bi-calendar-event me-2"></i> Date et heure souhaitées
+                        </h5>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="date_prestation" class="form-label">Date de prestation</label>
+                                <input type="date" class="form-control" id="date_prestation" name="date_prestation" min="{{ min_date }}" required>
+                                <div class="invalid-feedback">Veuillez choisir une date (J+2 minimum).</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="heure_livraison" class="form-label">Heure de livraison</label>
+
+                                <div class="dropdown custom-delivery-dropdown">
+                                    <button class="form-select text-start d-flex justify-content-between align-items-center" type="button" id="timeDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span id="selected-time-text" style="color: var(--brand-brown) !important; font-weight: 500;">12:00</span>
+                                    </button>
+                                    <ul class="dropdown-menu w-100 shadow-sm" aria-labelledby="timeDropdownBtn" style="max-height: 250px; overflow-y: auto;">
+                                        <li><a class="dropdown-item time-item" href="#" data-value="11:30">11:30</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="12:00">12:00</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="12:30">12:30</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="13:00">13:00</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="11:30">13:30</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="19:00">19:00</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="19:30">19:30</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="20:00">20:00</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="20:30">20:30</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="20:30">21:00</a></li>
+                                        <li><a class="dropdown-item time-item" href="#" data-value="20:30">21:30</a></li>
+                                    </ul>
+                                </div>
+
+                                <input type="hidden" id="heure_livraison" name="heure_livraison" value="12:00">
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <a href="{{ url_for('cart') }}" class="btn btn-vg rounded-pill px-4 py-2 shadow-sm">
+                                <i class="bi bi-arrow-left"></i> Retour au panier
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm vg-box sticky-top" style="top: 30px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold pb-3 mb-4" style="border-bottom: 2px solid rgba(136, 84, 32, 0.2);">Résumé du panier</h5>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Total menus :</span>
+                        <strong>{{ "%.2f"|format(total_menus) }} €</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Livraison :</span>
+                        <strong>{{ "%.2f"|format(total_delivery) }} €</strong>
+                    </div>
+
+                    <hr class="my-3" style="border-color: var(--brand-brown); opacity: 0.2;">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0 fw-bold">Total :</h4>
+                        <h4 class="mb-0 fw-bold">{{ "%.2f"|format(total_menus + total_delivery) }} €</h4>
+                    </div>
+
+                    <button type="submit" form="orderForm" class="btn btn-vg w-100 py-3 fs-5 rounded-pill shadow-sm">
+                        Valider et accéder au paiement
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

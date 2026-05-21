@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block body_class %}bg-gold{% endblock %}
+{% block title %}Nos Menus - Vite & Gourmand{% endblock %}
+
+{% block content %}
+<div class="py-5">
+
+    <div class="text-center mb-4">
+        <div class="position-relative d-inline-block">
+            <a href="{{ url_for('home') }}" class="btn-back-circle position-absolute top-50 translate-middle-y" style="left: -100px;" title="Retour à l'accueil">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
+                </svg>
+            </a>
+            <h1 class="menu-main-title font-pacifico m-0">Nos menus</h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6 col-lg-5">
+            <div class="search-wrapper">
+                <input type="text" class="form-control custom-search-input" placeholder="Rechercher un menu...">
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-section vg-box vg-box-padded vg-layout-margins mb-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="filter-label d-flex justify-content-between mb-2">
+                    <span class="fw-bold">Fourchette de prix par personne</span>
+                    <span class="filter-value fw-bold" id="price-val">10€ - 100€</span>
+                </label>
+                <div class="double-slider-box">
+                    <div class="slider-track" id="price-track"></div>
+                    <input type="range" class="range-min" id="price-min" min="10" max="100" step="5" value="10">
+                    <input type="range" class="range-max" id="price-max" min="10" max="100" step="5" value="100">
+                </div>
+                <div class="d-flex justify-content-between range-limits fw-semibold mt-2">
+                    <span>10€</span>
+                    <span>100€</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="filter-label d-flex justify-content-between mb-2">
+                    <span class="fw-bold">Convives (Min)</span>
+                    <span class="filter-value fw-bold" id="people-val">30 pers.</span>
+                </label>
+                <div class="double-slider-box">
+                    <div class="slider-track" id="people-track"></div>
+                    <input type="range" class="range-single" id="people-filter" min="2" max="30" step="1" value="30">
+                </div>
+                <div class="d-flex justify-content-between range-limits fw-semibold mt-2">
+                    <span>2 pers.</span>
+                    <span>30 pers.</span>
+                </div>
+            </div>
+        </div>
+
+        <hr class="filter-divider my-4">
+
+        <div class="row g-3 text-start">
+            <div class="col-lg-4">
+                <span class="checkbox-group-title">Thème :</span>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <input type="checkbox" class="btn-check" id="theme-noel" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="theme-noel">Noël</label>
+
+                    <input type="checkbox" class="btn-check" id="theme-paques" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="theme-paques">Pâques</label>
+
+                    <input type="checkbox" class="btn-check" id="theme-evenement" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="theme-evenement">Évènement</label>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <span class="checkbox-group-title">Régime :</span>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <input type="checkbox" class="btn-check" id="diet-vegetarien" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="diet-vegetarien">Végétarien</label>
+
+                    <input type="checkbox" class="btn-check" id="diet-vegan" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="diet-vegan">Végan</label>
+
+                    <input type="checkbox" class="btn-check" id="diet-classique" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="diet-classique">Classique</label>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <span class="checkbox-group-title">Allergies :</span>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <input type="checkbox" class="btn-check" id="allergy-gluten" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="allergy-gluten">Sans gluten</label>
+
+                    <input type="checkbox" class="btn-check" id="allergy-lactose" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="allergy-lactose">Sans lactose</label>
+
+                    <input type="checkbox" class="btn-check" id="allergy-noix" autocomplete="off">
+                    <label class="btn btn-outline-custom-pill" for="allergy-noix">Sans fruits à coque</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="menus-grid-container vg-layout-margins mb-5">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% if menus %}
+                {% for menu in menus %}
+                <div class="col menu-card-wrapper"
+                     data-price="{{ menu.prix_par_personne }}"
+                     data-people="{{ menu.nombre_personne_min }}"
+                     data-theme="{{ menu.theme.nom_theme|lower|replace('é', 'e')|replace('è', 'e')|replace('ê', 'e')|replace('ë', 'e')|replace('â', 'a') if menu.theme else 'classique' }}"
+                     data-diet="{{ menu.regime.nom_regime|lower|replace('é', 'e')|replace('è', 'e')|replace('ê', 'e')|replace('ë', 'e')|replace('â', 'a') if menu.regime else 'classique' }}"
+                     data-allergies="{{ menu.allergenes|join(',') }}">
+                    <div class="card h-100 menu-card vg-boxshadow-sm">
+                        <div class="card-body d-flex flex-column text-center p-4">
+                            <h2 class="menu-card-title font-pacifico">{{ menu.titre_menu }}</h2>
+                            <p class="menu-card-price mb-3">{{ menu.prix_par_personne }}€ / personne</p>
+
+                            <div class="menu-image-container mb-3">
+                                {% if menu.photos %}
+                                    <img src="{{ url_for('static', filename='images/dishes/' + menu.photos[0].url_photo) }}" class="card-img-top vg-card-img rounded-3" alt="{{ menu.photos[0].alt_text }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/default_menu.jpg') }}" class="card-img-top vg-card-img rounded-3" alt="Image de présentation">
+                                {% endif %}
+                            </div>
+
+                            <p class="menu-card-description flex-grow-1 px-2">
+                                {{ menu.description_menu }}
+                            </p>
+
+                            <div class="menu-details-list my-3">
+                                <div class="menu-detail-item text-brand-brown">
+                                    Issu de notre thème {{ menu.theme.nom_theme if menu.theme else "Classique" }}, convient aux {{ (menu.regime.nom_regime if menu.regime else "Classique")|lower }}s
+                                </div>
+                                <div class="menu-detail-item border-top py-1">Minimum de {{ menu.nombre_personne_min }} personnes</div>
+                                <div class="menu-detail-item border-top py-1">Dès {{ (menu.prix_par_personne * menu.nombre_personne_min)|int }}€ TTC</div>
+                                <div class="menu-detail-item border-top py-1 text-brand-brown small">
+                                    Ajouter {{ menu.seuil_reduction }} menus {{ menu.titre_menu }} supplémentaires pour bénéficier de {{ menu.pourcentage_reduction }}%
+                                </div>
+                                <div class="menu-detail-item border-top py-1 font-monospace text-brand-brown">{{ menu.conditions if menu.conditions else "Livraison sous 48h ouvrées" }}</div>
+                            </div>
+
+                            <div class="mt-auto">
+                                <a href="{{ url_for('detail_menu', id_menu=menu.menu_id) }}" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">
+                                    Voir le détail
+                                </a>
+                            </div>
+
+                            <div class="menu-stock-alert mt-3 text-center">
+                                {% if menu.quantite_restante and menu.quantite_restante >= 0 %}
+                                    <small class="text-brand-brown fw-bold">Il ne reste plus que {{ menu.quantite_restante }} menus, commandez vite !</small>
+                                {% else %}
+                                    <small class="text-danger fw-bold"> INDISPONIBLE ACTUELLEMENT !</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col">
+                    <div class="card h-100 menu-card shadow-sm">
+                        <div class="card-body d-flex flex-column text-center p-4">
+                            <h2 class="menu-card-title font-pacifico">Menu fraîcheur</h2>
+                            <p class="menu-card-price mb-3">25€ / personne</p>
+                            <div class="menu-image-container mb-3">
+                                <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" class="img-fluid rounded-3" alt="Menu fraîcheur">
+                            </div>
+                            <p class="menu-card-description flex-grow-1 px-2">
+                                Une salade légère et fraîche mettant à l'honneur les produits de saison de notre belle région bordelaise. Idéal pour vos déjeuners ensoleillés.
+                            </p>
+                            <div class="menu-details-list my-3">
+                                <div class="menu-detail-item fw-semibold">Issu de notre thème Événements, convient aux végétariens</div>
+                                <div class="menu-detail-item border-top py-1">Minimum de 15 personnes</div>
+                                <div class="menu-detail-item border-top py-1">Dès 375€ TTC</div>
+                                <div class="menu-detail-item border-top py-1 text-muted small">Ajouter 5 menus Fraîcheur supplémentaires pour bénéficier de 10%</div>
+                                <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
+                            </div>
+                            <div class="menu-stock-alert mt-3">
+                                <small class="text-danger fw-bold">Il ne reste plus que 42 menus, commandez vite !</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 menu-card shadow-sm">
+                        <div class="card-body d-flex flex-column text-center p-4">
+                            <h2 class="menu-card-title font-pacifico">Menu gourmand</h2>
+                            <p class="menu-card-price mb-3">35€ / personne</p>
+                            <div class="menu-image-container mb-3">
+                                <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" class="img-fluid rounded-3" alt="Menu gourmand">
+                            </div>
+                            <p class="menu-card-description flex-grow-1 px-2">
+                                Une formule plus généreuse et réconfortante mettant à l'honneur les saveurs traditionnelles. Idéal pour vos repas de partage chaleureux.
+                            </p>
+                            <div class="menu-details-list my-3">
+                                <div class="menu-detail-item fw-semibold">Issu de notre thème Pâques, convient aux végans</div>
+                                <div class="menu-detail-item border-top py-1">Minimum de 10 personnes</div>
+                                <div class="menu-detail-item border-top py-1">Dès 350€ TTC</div>
+                                <div class="menu-detail-item border-top py-1 text-muted small">Ajouter 5 menus Gourmands supplémentaires pour bénéficier de 10%</div>
+                                <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
+                            </div>
+                            <div class="menu-stock-alert mt-3">
+                                <small class="text-danger fw-bold">Il ne reste plus que 24 menus, commandez vite !</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 menu-card shadow-sm">
+                        <div class="card-body d-flex flex-column text-center p-4">
+                            <h2 class="menu-card-title font-pacifico">Menu étoilé</h2>
+                            <p class="menu-card-price mb-3">65€ / personne</p>
+                            <div class="menu-image-container mb-3">
+                                <img src="{{ url_for('static', filename='images/homepage/gratin_homepage.jpg') }}" class="img-fluid rounded-3" alt="Menu étoilé">
+                            </div>
+                            <p class="menu-card-description flex-grow-1 px-2">
+                                Découvrez une partition gastronomique de haute volée où chaque produit d'exception est sublimé avec passion pour marquer vos plus grands événements.
+                            </p>
+                            <div class="menu-details-list my-3">
+                                <div class="menu-detail-item fw-semibold">Issu de notre thème Noël, convient aux classiques</div>
+                                <div class="menu-detail-item border-top py-1">Minimum de 5 personnes</div>
+                                <div class="menu-detail-item border-top py-1">Dès 325€ TTC</div>
+                                <div class="menu-detail-item border-top py-1 text-muted small">Ajouter 5 menus Étoilés supplémentaires pour bénéficier de 10%</div>
+                                <div class="menu-detail-item border-top py-1 text-muted">Livrable sous 48h ouvrées</div>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="#" class="btn btn-vg w-80 py-2 fs-5 rounded-pill shadow-sm">Voir le détail</a>
+                            </div>
+                            <div class="menu-stock-alert mt-3">
+                                <small class="text-muted fw-bold text-uppercase">PERSONNALISABLE SUR DEMANDE !</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

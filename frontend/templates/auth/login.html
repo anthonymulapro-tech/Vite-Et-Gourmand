@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% set sans_header_footer = True %}
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('home') }}" class="text-decoration-none" title="Retour à l'accueil">
+                        <h1 class="title-brand">Vite & Gourmand</h1>
+                    </a>
+                </div>
+
+                <div class="card vg-box shadow p-2">
+                    <div class="card-body">
+
+                        <h2 class="card-title-custom">Connexion</h2>
+
+                        <form action="{{ url_for('login_page', next=request.args.get('next')) }}" method="POST" class="needs-validation login-form" novalidate>
+                             <div class="mb-3">
+                                <label for="email" class="form-label">Adresse email</label>
+                                <input type="email"
+                                       class="form-control py-2 {% if email_error %}is-invalid{% endif %}"
+                                       id="email"
+                                       name="email"
+                                       required
+                                       placeholder="adresse@mail.com"
+                                       value="{{ email_saved if email_saved else request.form.get('email', '') }}"
+                                       oninput="this.classList.remove('is-invalid')">
+                                <div class="invalid-feedback text-start">
+                                     Aucun compte n'est associé à cette adresse email.
+                                 </div>
+                            </div>
+                             <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <div class="input-group password-group">
+                                    <input type="password"
+                                           class="form-control py-2 {% if password_error %}is-invalid{% endif %}"
+                                           id="password"
+                                           name="password"
+                                           required
+                                           placeholder="••••••••"
+                                           oninput="this.classList.remove('is-invalid')"><button class="btn btn-toggle-password toggle-password" type="button"><i class="bi bi-eye"></i></button>
+                                </div>
+                                    <div class="invalid-feedback text-start">
+                                         {% if password_error %}
+                                             Mot de passe incorrect.
+                                         {% else %}
+                                             Veuillez saisir votre mot de passe.
+                                         {% endif %}
+                                    </div>
+                                </div>
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <div class="form-check mb-0">
+                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                    <label class="form-check-label text-muted small" for="remember">Se souvenir de moi</label>
+                                </div>
+                                <a href="{{ url_for('forgot_password') }}" class="link-brand text-decoration-none small fw-semibold">Mot de passe oublié ?</a>
+                            </div>
+                            <button type="submit" class="btn btn-vg w-100 py-2.5 rounded-pill fs-5">Se connecter</button>
+                        </form>
+
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-3">Pas encore de compte ?
+                        <a href="{{ url_for('register_page') }}" class="link-brand text-decoration-none fw-bold">Inscrivez-vous ici</a>
+                    </p>
+
+                    <a href="{{ url_for('home') }}" class="btn btn-vg w-100 py-2.5 rounded-pill fs-5">
+                        <i class="bi bi-arrow-left me-1"></i>Continuer sans se connecter
+                    </a>
+                </div>
+           </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

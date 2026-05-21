@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Conditions Générales de Vente - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <a href="{{ url_for('home') }}" class="btn btn-vg rounded-pill btn-sm fw-bold bg-cream px-4 py-2 text-brand-brown">
+        <i class="bi bi-house-door-fill me-2"></i>Retour à l'accueil
+    </a>
+</div>
+    <div class="text-center container mt-5 mb-5">
+        <h1 class="title-brand mb-4 text-center">Conditions Générales de Vente (CGV)</h1>
+    </div>
+        <div class="container mt-5 mb-5 vg-box p-4 rounded shadow-sm border-0 text-brand-brown">
+            <p class="text-muted small mb-4"><em>Ces conditions sont applicables dans le cadre strict du projet de démonstration Vite & Gourmand.</em></p>
+
+            <h4 class="fw-bold mt-4">Article 1 - Objet</h4>
+            <p>Les présentes Conditions Générales de Vente régissent les ventes de menus traiteur et de prestations de service (livraison, prêt de matériel) proposées par Vite & Gourmand.</p>
+
+            <h4 class="fw-bold mt-4">Article 2 - Prix et Paiement</h4>
+            <p>Les prix de nos produits sont indiqués en euros toutes taxes comprises (TTC). Le règlement des commandes s'effectue exclusivement en ligne via le système de paiement sécurisé <strong>Stripe</strong>. La commande n'est validée qu'après confirmation du paiement par l'organisme bancaire.</p>
+
+            <h4 class="fw-bold mt-4">Article 3 - Livraison et Retrait</h4>
+            <p>Les frais de livraison sont calculés dynamiquement selon la zone géographique (forfait base + tarification kilométrique au-delà d'un certain périmètre). La date et l'heure de livraison sont convenues lors de la commande. Le client s'engage à être présent pour réceptionner la commande.</p>
+
+            <h4 class="fw-bold mt-4">Article 4 - Prêt de matériel</h4>
+            <p>Lors de certaines commandes, du matériel (couverts, nappes, etc..) peut être prêté au client. Le client en devient le gardien responsable jusqu'à sa restitution. En cas de non-restitution, de détérioration ou de perte, une facturation de remplacement pourra être émise par Vite & Gourmand.</p>
+
+            <h4 class="fw-bold mt-4">Article 5 - Droit de rétractation (Exception légale)</h4>
+            <p>Conformément aux dispositions de l'article L.221-28 4° du Code de la Consommation, <strong>le droit de rétractation ne peut être exercé</strong> pour les contrats de fourniture de biens susceptibles de se détériorer ou de se périmer rapidement, ce qui inclut les denrées alimentaires et menus traiteur préparés par Vite & Gourmand. Toute commande validée est donc considérée comme ferme et définitive.</p>
+
+            <h4 class="fw-bold mt-4">Article 6 - Litiges</h4>
+            <p>Les présentes CGV sont soumises à la loi française. En cas de litige, une solution amiable sera recherchée avant toute action judiciaire.</p>
+        </div>
+    </div>
+{% endblock %}

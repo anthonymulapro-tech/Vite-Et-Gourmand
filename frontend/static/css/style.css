@@ -1,0 +1,1484 @@
+/* Variables et configuration de base */
+:root {
+    /* Palette de couleurs */
+    --bg-cream: #FFEDC5;
+    --brand-brown: #885420;
+    --text-dark: #372D24;
+    --brand-gold: #FFDE96;
+    --brand-peach: #FFCB97;
+    --text-muted-custom: #757575;
+    --white: #FFFFFF;
+    --brand-star: #FFBB01;
+
+    /* Typographies centralisées */
+    --title-font: 'Pacifico', cursive;
+    --body-font: 'Montserrat', sans-serif;
+}
+
+/* Style global du site */
+body {
+    font-family: var(--body-font);
+    background-color: var(--bg-cream);
+    color: var(--brand-brown);
+}
+
+/* Utilitaire : Police Pacifico */
+.font-pacifico {
+    font-family: var(--title-font);
+}
+
+/* Utilitaire : Couleur marron chocolat */
+.text-brand-brown {
+    color: var(--brand-brown);
+}
+
+/* Utilitaire : Couleurs d'arrière-plan du body */
+.bg-cream {
+    background-color: var(--bg-cream) !important;
+}
+.bg-gold {
+    background-color: var(--brand-gold) !important;
+}
+
+/* ÉLÉMENTS DE STRUCTURE ET CARTES */
+
+/* Titre principal */
+.title-brand {
+    font-family: var(--title-font);
+    color: var(--brand-brown);
+    font-size: clamp(1.8rem, 7vw, 3rem);
+    /* Retour à la ligne automatique sur mobile */
+    white-space: normal;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+/* Force le titre sur une seule ligne sur grand écran */
+@media (min-width: 576px) {
+    .title-brand {
+        white-space: nowrap;
+    }
+}
+
+/* Libellés des formulaires */
+.form-label {
+    font-family: var(--body-font);
+    color: var(--brand-brown) !important;
+    font-weight: 600;
+}
+
+/* État par défaut et état valide après soumission */
+.form-check-input,
+.was-validated .form-check-input:valid {
+    border: 2px solid var(--brand-brown) !important;
+    background-color: transparent !important;
+    cursor: pointer;
+}
+
+/* Halo pêche au focus (par défaut et après validation) */
+.form-check-input:focus,
+.was-validated .form-check-input:valid:focus {
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 203, 151, 0.55) !important;
+}
+
+/* État coché : fond chocolat avec coche crème personnalisée */
+.form-check-input:checked,
+.was-validated .form-check-input:valid:checked {
+    background-color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23FFEDC5' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Style des liens (Inscription, mot de passe oublié) */
+.link-brand {
+    color: var(--brand-brown);
+    transition: color 0.2s ease-in-out;
+}
+
+/* Effet de survol sur les liens */
+.link-brand:hover {
+    color: var(--brand-peach) !important;
+}
+
+/* Suppression du contour bleu d'accessibilité sur la croix des alertes */
+.btn-close:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Personnalisationd de l'autofill (Saisie automatique de Google Chrome) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important; /* Fond blanc forcé */
+    -webkit-text-fill-color: var(--brand-brown) !important;    /* Texte marron forcé */
+    transition: background-color 5000s ease-in-out 0s;          /* Empêche le retour du bleu */
+}
+
+/* Structure principale calquée sur le layout 80% */
+.custom-layout-container {
+    width: 80%;
+    max-width: 2100px;
+    margin: 0 auto;
+    padding-top: 10px;
+    font-family: var(--body-font);
+    border-left: 3px solid var(--brand-brown);
+    border-right: 3px solid var(--brand-brown);
+    background-color: var(--bg-cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header & Navigation */
+.main-title {
+    font-family: var(--title-font);
+    font-size: 64px;
+    color: var(--brand-brown);
+    margin: 0;
+}
+
+.nav-logo-circle {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    font-family: var(--title-font);
+    font-size: 24px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link-custom {
+    font-family: var(--body-font);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--brand-brown);
+    text-decoration: none;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active:hover {
+    color: var(--brand-peach) !important;
+    text-decoration: underline;
+}
+
+.nav-link-custom.active {
+    color: var(--brand-brown) !important;
+    text-decoration: underline;
+}
+
+.nav-divider {
+    color: var(--brand-brown);
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.nav-profile-icon {
+    border: 3px solid var(--brand-brown);
+    color: var(--brand-brown);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+
+/* Bannière rectangulaire */
+.banner-wrapper {
+    border-top: 3px solid var(--brand-brown);
+    border-bottom: 3px solid var(--brand-brown);
+    overflow: hidden;
+    height: 380px;
+}
+
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.box-title {
+    font-family: var(--title-font);
+    font-size: 40px;
+    color: var(--brand-brown);
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.box-text {
+    font-size: 20px;
+    line-height: 1.7;
+    color: var(--brand-brown);
+}
+
+/* 4. Cartes Avis */
+.testimonial-card {
+    background-color: var(--white);
+    border: 2px solid var(--brand-brown);
+    border-radius: 10px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.stars {
+    color: var(--brand-star);
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+.testimonial-text {
+    font-size: 16px;
+    color: var(--brand-brown);
+    margin: 0;
+    line-height: 1.5;
+    max-height: 50px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+/* Personnalisation de la scrollbar pour qu'elle reste discrète */
+.testimonial-text::-webkit-scrollbar {
+    width: 5px;
+}
+.testimonial-text::-webkit-scrollbar-track {
+    background: transparent;
+}
+.testimonial-text::-webkit-scrollbar-thumb {
+    background-color: var(--brand-peach);
+    border-radius: 10px;
+}
+
+.custom-checkbox {
+    border: 2px solid var(--brand-brown) !important;
+    background-color: var(--white) !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 4px !important;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked {
+    background-color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* 6. Footer sombre */
+.custom-footer {
+    background-color: var(--text-dark);
+    border-radius: 0 0 0px 0px;
+    color: var(--white);
+}
+
+.footer-hours {
+    font-size: 16px;
+}
+
+.text-cream-light {
+    color: var(--bg-cream);
+}
+
+.footer-links {
+    border-top: 1px solid rgba(255, 237, 197, 0.15);
+}
+
+.footer-link-item {
+    color: var(--white);
+    font-size: 16px;
+    text-decoration: underline;
+}
+
+.footer-link-item:hover {
+    color: var(--bg-cream);
+}
+
+/* Logo V&G à gauche */
+.nav-logo-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.nav-logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Icône profil à droite */
+
+.nav-profile-svg-link {
+    color: var(--brand-brown);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.25s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Force la taille d'affichage idéale */
+.nav-profile-svg-link svg {
+    width: 100px;
+    height: 100px;
+}
+
+.nav-profile-svg-link:hover {
+    color: var(--brand-peach) !important;
+    transform: scale(1.05);
+}
+
+/* --- BARRE DE NAVIGATION UNIFIÉE ET SYMÉTRIQUE --- */
+.nav-unified-container {
+    gap: 100px; /* Même espace uniforme de 70px entre TOUS les éléments */
+}
+
+/* Ajustements responsives pour garantir que rien ne casse, peu importe l'écran */
+@media (max-width: 1400px) {
+    .nav-unified-container {
+        gap: 40px; /* On réduit un peu l'espace sur les écrans moyens */
+    }
+}
+
+@media (max-width: 1100px) {
+    .nav-unified-container {
+        gap: 20px; /* On resserre encore sur tablette */
+    }
+    .nav-logo-img,
+    .nav-profile-svg-link svg {
+        width: 70px;  /* On réduit légèrement la taille des logos pour gagner de la place */
+        height: 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-unified-container {
+        gap: 15px;
+        flex-wrap: wrap; /* Permet un retour à la ligne propre sur mobile */
+    }
+    .nav-divider {
+        display: none; /* On cache temporairement les barres verticales sur mobile pour éviter les bugs visuels */
+    }
+}
+
+
+.content-box {
+    background-color: var(--brand-gold);
+    border: 3px solid var(--brand-brown);
+    border-radius: 15px;
+    padding: 40px;
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+/* ==========================================================================
+   PAGE NOS MENUS - HARMONISÉE AVEC LA CHARTE GRAPHIQUE
+   ========================================================================== */
+
+/* Titre principal de la page */
+.menu-main-title {
+    font-family: var(--title-font) !important;
+    color: var(--brand-brown) !important;
+    font-size: 3rem;
+}
+
+/* Alignement de la grille des cartes sur PC (120px de marges comme .content-box) */
+.menus-grid-container {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+/* Sur mobile, on retire les grandes marges pour que ça respire */
+@media (max-width: 992px) {
+    .menus-grid-container {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* Bouton retour en arrière */
+.btn-back-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 2px solid var(--text-dark);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-back-circle:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    transform: scale(1.08);
+}
+
+/* Barre de recherche personnalisée */
+.custom-search-input {
+    border-radius: 20px !important;
+    border: 2.5px solid var(--brand-brown) !important;
+    padding: 10px 20px !important;
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    text-align: center;
+}
+
+/* Bloc focus corrigé */
+.custom-search-input:focus {
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+    outline: none !important;
+}
+
+/* Force aussi la couleur du texte "placeholder" (le texte gris par défaut) */
+.custom-search-input::placeholder {
+    color: var(--brand-brown) !important;
+    opacity: 0.6;
+}
+
+/* Section Filtre (Hérite déjà de .content-box, on ajuste l'intérieur) */
+.filter-label {
+    color: var(--brand-brown);
+}
+
+.filter-value {
+    color: var(--brand-brown);
+}
+
+.filter-divider {
+    border-top: 2px dashed var(--brand-brown) !important;
+    opacity: 0.5;
+}
+
+.checkbox-group-title {
+    font-weight: 700;
+    color: var(--brand-brown);
+    display: block;
+}
+
+/* Boutons filtres en forme de pilules interactives */
+.btn-outline-custom-pill {
+    border: 2px solid var(--brand-brown) !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-custom-pill:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+.btn-check:checked + .btn-outline-custom-pill {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* Cartes des menus (Style calqué sur les cartes avis) */
+.menu-card {
+    background-color: var(--brand-gold) !important;
+    border: 3px solid var(--brand-brown) !important;
+    border-radius: 15px !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.menu-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(136, 84, 32, 0.15) !important;
+}
+
+.menu-card-title {
+    font-family: var(--title-font) !important;
+    color: var(--brand-brown);
+    font-size: 2.2rem;
+}
+
+.menu-card-price {
+    font-family: var(--body-font);
+    font-weight: 700;
+    color: var(--brand-brown);
+    font-size: 1.25rem;
+    border-bottom: 2px solid var(--brand-brown);
+    display: inline-block;
+    padding-bottom: 5px;
+    margin: 0 auto;
+}
+
+.menu-image-container img {
+    border: 2px solid var(--brand-brown);
+    border-radius: 10px;
+    max-height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.menu-card-description {
+    color: var(--brand-brown);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Liste des détails techniques */
+.menu-details-list {
+    font-size: 0.9rem;
+    color: var(--brand-brown);
+}
+
+.menu-detail-item {
+    padding: 8px 0;
+    border-color: rgba(136, 84, 32, 0.2) !important;
+}
+
+/* On s'assure que le body a bien la couleur de fond  */
+.bg-yellow-global {
+    background-color: #FFDE96;
+}
+
+/* --- Désactivation des bordures sur les pages Login / Register --- */
+.custom-layout-container.no-borders {
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}
+
+/* ==========================================================================
+   DOUBLE RANGE et SIMPLE SLIDERS (Système à double poignée et une poignée)
+   ========================================================================== */
+
+/* Adaptation de ton design pour un slider unique */
+.range-single {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: none;
+    pointer-events: auto; /* Important : on réactive le clic */
+    margin: 0;
+}
+
+/* On réutilise tes styles de thumb (ronds) */
+.range-single::-webkit-slider-thumb {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: var(--bg-cream);
+    border: 2px solid var(--brand-brown);
+    cursor: pointer;
+    -webkit-appearance: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease-in-out;
+}
+
+/* 1. Le conteneur reste le même */
+.double-slider-box {
+    position: relative;
+    height: 24px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* 2. On cible l'input à l'intérieur du conteneur, qu'il soit simple ou double */
+.double-slider-box input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background: none;
+    pointer-events: none; /* L'input est au-dessus mais ne bloque pas le clic */
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+/* 3. On réactive le clic sur le "thumb" (le rond) */
+.double-slider-box input[type="range"]::-webkit-slider-thumb {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: var(--bg-cream);
+    border: 2px solid var(--brand-brown);
+    cursor: pointer;
+    pointer-events: auto; /* IMPORTANT : permet de cliquer sur le rond */
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease-in-out;
+}
+
+/* Garde ton slider-track tel quel, il est parfait */
+.slider-track {
+    position: absolute;
+    height: 8px;
+    width: 100%;
+    border-radius: 10px;
+    background: var(--brand-peach);
+    border: 2px solid var(--brand-brown);
+    pointer-events: none;
+}
+
+/* --- Personnalisation de la Box de Profil --- */
+
+.custom-dropdown-box {
+    background-color: var(--brand-peach) !important;
+    min-width: 200px;
+    border-radius: 12px !important;
+    padding: 10px 0;
+}
+
+/* Changement de couleur au survol des liens dans le menu */
+.custom-dropdown-box .dropdown-item:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Supprime la flèche Bootstrap */
+.no-caret::after {
+    display: none !important;
+}
+
+/* Centrage de la box sous l'icone profile */
+.dropdown-center .dropdown-menu {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+}
+
+/* Couleur des liens du menu profil */
+.custom-dropdown-box .dropdown-item {
+    color: var(--brand-brown) !important;
+    font-weight: 500;
+}
+
+/* Couleur des icônes à l'intérieur des liens */
+.custom-dropdown-box .dropdown-item i {
+    color: var(--brand-brown) !important;
+}
+
+/* Hover pour garder la lisibilité */
+.custom-dropdown-box .dropdown-item:hover {
+    background-color: var(--brand-gold) !important;
+    color: var(--brand-brown) !important;
+    opacity: 0.8;
+}
+
+/* Déconnexion en rouge pour la sécurité */
+.custom-dropdown-box .dropdown-item.text-danger,
+.custom-dropdown-box .dropdown-item.text-danger i {
+    color: #dc3545 !important;
+}
+
+.btn-back-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: var(--brand-brown);
+    border: 1px solid var(--text-dark);
+    border-radius: 12px;
+    color: var(--brand-gold);
+    text-decoration: none;
+    font-weight: bold;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.btn-back-box:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    border: 1px solid var(--brand-brown);
+}
+
+/* Bordure pour la carte de commande */
+.border-top-brand {
+    border-top: 4px solid #885420 !important;
+}
+
+/* Assurer que les images ont toutes la même dimension */
+.content-box img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   PAGE DÉTAIL DU MENU
+   ========================================================================== */
+
+/* Limite la largeur des grandes cartes sur écran PC */
+.menu-detail-card {
+    max-width: 1100px;
+}
+
+/* Limite la largeur du texte de description pour faciliter la lecture */
+.menu-description-text {
+    max-width: 900px;
+}
+
+/* Texte des allergènes légèrement plus petit */
+.allergen-text {
+    font-size: 0.85rem;
+}
+
+/* Séparateurs (Lignes horizontales) */
+.divider-80 {
+    width: 80%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-40 {
+    width: 40%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+.divider-30 {
+    width: 30%;
+    border: 1px solid var(--brand-brown);
+    opacity: 0.4;
+}
+
+
+/* Correction du champ d'entrée Nombre de convives */
+.input-convives {
+    width: 80px !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-radius: 5px;
+    border: 2px solid var(--brand-brown) !important;
+    text-align: center;
+}
+
+/* Garde le fond crème même quand on clique dans le champ */
+.input-convives:focus {
+    background-color: var(--bg-cream) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Texte d'aide convives */
+.help-text-convives {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    bottom: -20px;
+    margin-right: 140px;
+    color: var(--brand-brown);
+    opacity: 0.8;
+    display: block;
+}
+
+/* Bouton spécifique pour l'ajout au panier (Taille réduite) */
+
+
+/* ==========================================================================
+   SÉLECTEUR DE QUANTITÉ PERSONNALISÉ (Type + et -)
+   ========================================================================== */
+
+/* Conteneur principal du sélecteur */
+.custom-quantity-selector {
+    width: 130px;
+    height: 45px;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px;
+    background-color: var(--bg-cream);
+    padding: 0 5px; /
+    transition: all 0.2s ease;
+}
+
+/* Effet halo au focus */
+.custom-quantity-selector:focus-within {
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Stylisation commune pour les boutons + et -  */
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 2px solid transparent;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+/* Symbole '−' (U+2212) plus propre que le trait d'union '-' */
+.btn-minus {
+    content: "\2212";
+}
+
+/* Symbole '+' */
+.btn-plus {
+    content: "\002B";
+}
+
+/* Hover et clic effects sur les boutons */
+.quantity-btn:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    border-color: var(--brand-brown);
+}
+
+.quantity-btn:active {
+    transform: scale(0.92);
+}
+
+/* Stylisation de la valeur centrale (le nombre) */
+.quantity-value {
+    color: var(--brand-brown);
+    line-height: 1;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* --- Finition de l'intégration dans Bootstrap --- */
+.selector-label-container {
+    align-items: center;
+}
+
+.quantity-input-field {
+    width: 50px;
+    background: transparent;
+    border: none;
+    text-align: center;
+    color: var(--brand-brown);
+    font-family: inherit;
+    outline: none;
+}
+
+/* Changement sur les flèches par défaut du navigateur pour garder le même design */
+.quantity-input-field::-webkit-outer-spin-button,
+.quantity-input-field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.quantity-input-field {
+    -moz-appearance: textfield;
+}
+
+/* --- 4. Conteneur Distance kilométrique --- */
+#distance_container {
+    background-color: var(--brand-brown) !important;
+    border: 1px solid var(--brand-peach) !important; /* Barre latérale crème pour contraster avec le fond marron */
+    border-radius: 20px;
+    padding: 10px;
+}
+
+/* Force tous les textes à l'intérieur de ce conteneur à être crème */
+#distance_container label,
+#distance_container small {
+    color: var(--bg-cream) !important;
+}
+
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#display_grand_total {
+    font-weight: bold;
+}
+
+/* --- DESIGN DES BOÎTES DU PANIER --- */
+
+/*L'icône de la poubelle prend aussi la couleur */
+.btn-outline-danger {
+    color: var(--brand-brown);
+    border-color: var(--brand-brown);
+}
+.btn-outline-danger:hover {
+    background-color: var(--brand-brown);
+    color: var(--brand-gold);
+}
+
+
+/* Masquer les flèches natives du navigateur pour les champs number */
+#distance_container input[type="number"]::-webkit-inner-spin-button,
+#distance_container input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#distance_container input[type="number"] {
+    /* Pour Firefox */
+    -moz-appearance: textfield; /
+    text-align: center; /
+}
+
+/* Style des nouveaux boutons + et - de la distance */
+.btn-distance {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border: 1px solid var(--brand-peach) !important;
+}
+.btn-distance:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- Suppression du halo de clic (focus) sur le compteur de distance --- */
+#distance_container .form-control:focus,
+#distance_container .btn-distance:focus,
+#distance_container .btn-distance:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--brand-gold) !important;
+}
+
+/* --- Correction des bordures noires sur le compteur de distance --- */
+#distance_container .input-group .btn-distance,
+#distance_container .input-group .form-control {
+    border-color: var(--brand-gold) !important;
+}
+
+#distance_container .input-group .form-control:focus,
+#distance_container .input-group .btn-distance:focus {
+    border-color: var(--brand-gold) !important;
+}
+
+/* ==========================================================================
+   MENU DÉROULANT CUSTOM (PANIER) - HOVER CRÈME
+   ========================================================================== */
+
+/* Masque la flèche interne du dropdown Bootstrap pour laisser agir celle du form-select */
+.custom-delivery-dropdown button::after {
+    display: none !important;
+}
+
+/* Apparence du menu déroulant */
+.custom-delivery-dropdown .dropdown-menu {
+    background-color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 15px;
+    margin-top: 5px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.custom-delivery-dropdown .dropdown-item {
+    color: var(--bg-cream) !important;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.custom-delivery-dropdown .dropdown-item:hover,
+.custom-delivery-dropdown .dropdown-item:focus {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+#selected-zone-text {
+    color: var(--bg-cream) !important;
+}
+
+/* ==========================================================================
+   SCROLLBAR PERSONNALISÉE (HEURE DE LIVRAISON)
+   ========================================================================== */
+
+/* 1. Pour Firefox  */
+.custom-delivery-dropdown .dropdown-menu {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-peach) var(--brand-brown);
+}
+
+/* 2. Pour Chrome, Safari et Edge */
+
+/* Largeur de la barre entière */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar {
+    width: 14px;
+}
+
+/* Le fond de la barre (La piste) */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-track {
+    background: var(--brand-brown);
+    border-radius: 0 15px 15px 0;
+}
+
+/* Curseur */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: var(--brand-peach);
+    border-radius: 10px;
+    border: 3px solid var(--brand-brown);
+}
+
+/* Hover */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background-color: var(--brand-peach);
+}
+
+/* Les boutons contenant les flèches (Haut et Bas) */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button {
+    background-color: var(--brand-brown);
+    display: block;
+    height: 18px;
+}
+
+/* Flèche du Haut  */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFEDC5'%3e%3Cpath d='M8 5.5l5 5H3z'/%3e%3C/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center 6px;
+    background-size: 10px;
+}
+
+/* Flèche du Bas  */
+.custom-delivery-dropdown .dropdown-menu::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFEDC5'%3e%3Cpath d='M8 10.5l-5-5h10z'/%3e%3C/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center 2px;
+    background-size: 10px;
+}
+
+/* =======================================
+   PAGE MES COMMANDES
+   ======================================= */
+
+/* Version pour contrer l'héritage du parent */
+span.badge.badge-vg-status {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown);
+    font-weight: 600;
+    min-width: 100px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+/* Style barre */
+
+.border-brand-brown {
+    border-color: var(--brand-brown) !important;
+}
+
+/* =======================================
+   LE BOUTON UNIVERSEL VITE & GOURMAND
+   ======================================= */
+.btn-vg {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: 600;
+    transition: all 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-vg:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   LE CONTENEUR UNIVERSEL VITE & GOURMAND (.vg-box)
+   ========================================================================== */
+.vg-box {
+    background-color: var(--brand-gold) !important;
+    border: 3px solid var(--brand-brown) !important;
+    border-radius: 15px !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Version avec padding pour l'accueil, les filtres et les formulaires */
+.vg-box-padded {
+    padding: 40px;
+}
+
+/* Gestion spécifique des marges à 120px pour l'accueil et la grille (Écrans PC) */
+.vg-layout-margins {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+/* Réduction des grandes marges pour que ça respire sur tablette et mobile */
+@media (max-width: 992px) {
+    .vg-layout-margins {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* --- COULEUR MARRON SUR TOUS LES TEXTES INTERNES --- */
+.vg-box h4, .vg-box h5, .vg-box span, .vg-box strong,
+.vg-box small, .vg-box label, .vg-box td, .vg-box th {
+    color: var(--brand-brown) !important;
+}
+
+/* --- LOGIQUE DE CONTRASTE DES TABLEAUX (PANIER / HISTORIQUE) --- */
+.vg-box table {
+    border-color: var(--brand-brown) !important;
+}
+
+.vg-box .table-light th {
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--brand-brown) !important;
+}
+
+/* Fond les lignes du tableau */
+.vg-box table tbody tr,
+.vg-box table tbody td,
+.vg-box table tbody td strong {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* --- CHAMPS DE SAISIE SOMBRES UNIQUEMENT POUR LE PANIER (.vg-box-dark-fields) --- */
+.vg-box-dark-fields .form-select,
+.vg-box-dark-fields .form-control {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+    border-radius: 20px;
+}
+
+/* Conserver les couleurs au clic (Focus) */
+.vg-box-dark-fields .form-select:focus,
+.vg-box-dark-fields .form-control:focus {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+.vg-box-dark-fields .form-select option {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+}
+
+/* ==========================================================================
+   LES FORMULAIRES CLAIRS (CONNEXION, INSCRIPTION, FINALISATION)
+   ========================================================================== */
+
+/* Style par défaut pour les champs sur fond clair */
+.login-form .form-control,
+.needs-validation .form-control,
+.needs-validation .form-select {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 20px !important;
+    font-weight: 500;
+}
+
+/* Effet au clic (Focus) pour les champs clairs */
+.login-form .form-control:focus,
+.needs-validation .form-control:focus,
+.needs-validation .form-select:focus {
+    background-color: var(--white) !important;
+    color: var(--brand-brown) !important;
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Style du texte d'aide (Placeholder) */
+.login-form .form-control::placeholder,
+.needs-validation .form-control::placeholder {
+    color: var(--text-muted-custom) !important;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   GESTION DU CHAMP DE MOT DE PASSE UNIQUE (.password-group)
+   ========================================================================== */
+
+/* On force l'input et le bouton à partager le même fond et la même bordure */
+.password-group .form-control {
+    border: 2px solid var(--brand-brown) !important;
+    border-right: none !important;
+    background-color: #ffffff !important;
+    border-top-left-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.password-group .btn-toggle-password {
+    border: 2px solid var(--brand-brown) !important;
+    border-left: none !important;
+    background-color: #ffffff !important;
+    color: var(--brand-brown) !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    padding-right: 15px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease-in-out;
+}
+
+/* Effet au survol de l'œil */
+.password-group .btn-toggle-password:hover {
+    color: #5e350f !important;
+}
+
+/* Effet focus unifié du groupe mot de passe (Passé à 20px pour correspondre au site) */
+.password-group:focus-within {
+    border-radius: 20px !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Quand on clique dans le champ, la bordure complète s'assombrit légèrement */
+.password-group:focus-within .form-control,
+.password-group:focus-within .btn-toggle-password {
+    border-color: #8b5b40 !important;
+}
+
+/* Désactivation du comportement de focus individuel par défaut de Bootstrap */
+.password-group .form-control:focus {
+    box-shadow: none !important;
+    border-color: var(--brand-brown) !important;
+}
+
+/* --- GESTION DE LA VALIDATION & ERREURS --- */
+
+/* Si invalide (Erreur) */
+.password-group .form-control.is-invalid,
+.password-group .form-control.is-invalid + .btn-toggle-password,
+.was-validated .password-group .form-control:invalid,
+.was-validated .password-group .form-control:invalid + .btn-toggle-password {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+/* Désactivation complète du vert de validation sur le login */
+.login-form.was-validated .form-control:valid,
+.login-form .form-control.is-valid {
+    border-color: var(--brand-brown) !important;
+    background-image: none !important;
+    padding-right: 12px !important;
+    color: var(--brand-brown) !important;
+}
+
+/* On force l'œil du mot de passe à rester marron et sans bordure verte */
+.login-form.was-validated .password-group .form-control:valid + .btn-toggle-password,
+.login-form .password-group .form-control.is-valid + .btn-toggle-password {
+    border-color: var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* On conserve le halo orange/pêche chaleureux lors du clic */
+.login-form.was-validated .form-control:valid:focus,
+.login-form .form-control.is-valid:focus {
+    border-color: #8b5b40 !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Affichage dynamique de l'erreur à l'extérieur du groupe de mot de passe (sélecteur adjacent) */
+.password-group:has(.is-invalid) ~ .invalid-feedback,
+.was-validated .password-group:has(:invalid) ~ .invalid-feedback {
+    display: block !important;
+}
+
+/* ===== REVIEW CLIENT ====== */
+/* Bordures des champs  */
+#reviewModal .form-control,
+#reviewModal .form-select {
+    border-color: var(--brand-peach);
+    border-width: 1px !important;
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+}
+/* Effet quand on clique à l'intérieur du champ (Focus) */
+#reviewModal .form-control:focus,
+#reviewModal .form-select:focus {
+    border-color: var(--brand-peach) !important;
+    box-shadow: 0 0 0 0.25rem rgba(244, 162, 97, 0.25) !important;
+    color: var(--brand-brown) !important;
+}
+
+#reviewModal .form-control::placeholder {
+    color: var(--text-muted-custom) !important;
+    opacity: 1;
+}
+
+/* ===== REVIEW EMPLOYE/ADMIN ====== */
+
+/* Bouton Refuser : Fond rouge solide et hover rouge foncé */
+    .btn-review-reject {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fcf9f5 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-review-reject:hover {
+        background-color: #bd2130 !important;
+        border-color: #b21f2d !important;
+        color: #fcf9f5 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /*  Bouton Approuver : Hover vert foncé prononcé */
+    .btn-review-approve {
+        background-color: #198754 !important;
+        border-color: #198754 !important;
+        color: #fcf9f5 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-review-approve:hover {
+        background-color: #146c43 !important;
+        border-color: #13653f !important;
+        color: #fcf9f5 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .review-comment-box {
+        border-color: var(--brand-peach) !important;
+        border-width: 2px !important;
+    }
+
+
+    /* Avis page d'accueil */
+    .home-comment-text {
+    max-height: 110px;
+    overflow-y: auto;
+    padding-right: 5px;
+
+}
+/* ===== MENUS EMPLOYEE====== */
+
+/* Personnalisation des cases Prix et Quantité dans le tableau */
+.table .custom-input {
+    background-color: var(--brand-gold) !important;
+    border: 2px solid var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Effet de focus quand l'employé clique dans la case pour modifier */
+.table .custom-input:focus {
+    background-color: var(--brand-gold) !important;
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.25rem var(--brand-peach) !important;
+}
+
+/* Suppression définitive des flèches d'origine pour un design épuré */
+.table .custom-input::-webkit-outer-spin-button,
+.table .custom-input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+.table .custom-input {
+    -moz-appearance: textfield !important;
+}
+
+/* Couleur Brand Peach au survol des options du statut */
+.dropdown-menu .status-link:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Optionnel : couleur de fond si l'élément est actif/cliqué */
+.dropdown-menu .status-link:active {
+    background-color: var(--brand-brown) !important;
+    color: #fcf9f5 !important;
+}
+
+/* Halo de focus Pêche sur les inputs d'horaires */
+input[type="time"].vg-box:focus {
+    border-color: var(--brand-peach) !important;
+    box-shadow: 0 0 0 0.25rem rgba(242, 163, 101, 0.25) !important; /* Code RGB de ta couleur pêche avec opacité */
+    color: var(--brand-brown) !important;
+    outline: none !important;
+}
+
+/* Donne un style au logo d'horloge natif dans l'input */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    background-color: var(--brand-peach) !important;
+}
+
+/* Couleur Brand Peach au survol des options (Commandes ET Horaires) */
+.dropdown-menu .status-link:hover,
+.dropdown-menu .schedule-link:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+/* Ligne de séparation marron dans tout les tableaux */
+.table tbody tr.border-bottom {
+    border-bottom: 1px solid var(--brand-brown) !important;
+}
+
+/* Hover page admin pour filtre */
+.dropdown-item:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Unifie le format des images des menus et de l'accueil */
+.vg-card-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.vg-img-bordered {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border: 3px solid #885420;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Personnalisation des flèches du carrousel des images */
+.vg-carousel-icon {
+    font-size: 3rem;
+    color: #FFF8E7;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.7));
+    transition: color 0.3s ease;
+}
+
+/* Changement de couleur au survol */
+.vg-carousel-icon:hover {
+    color: var(--brand-gold);
+}
+
+/* Conteneur de la bannière immage accueil*/
+.banner-wrapper {
+    width: 100%;
+    height: 500px;
+}
+
+/* L'image à l'intérieur */
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

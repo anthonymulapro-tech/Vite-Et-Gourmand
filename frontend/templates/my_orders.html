@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Commandes - Vite & Gourmand{% endblock %}
+
+{% block body_class %}bg-gold{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="min-height: 60vh;">
+
+    <div class="text-center mb-5">
+        <h1 class="title-brand d-block mb-2">Mes commandes</h1>
+        <p class="fs-5 text-brand-brown">Retrouvez ici tout votre historique.</p>
+    </div>
+
+    {% if commandes %}
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                {% for cmd in commandes %}
+                <div class="card shadow-sm mb-4 vg-box rounded-4 border-top-brand transition-hover">
+                    <div class="card-body p-4">
+
+                        <div class="row align-items-center text-brand-brown">
+
+                            <div class="col-md-3 text-center text-md-center mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Référence</span>
+                                <strong class="fs-5 font-monospace">{{ cmd.reference_commande }}</strong>
+                            </div>
+
+                            <div class="col-md-2 text-center text-md-center mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Livraison prévue le</span>
+                                <strong>{{ cmd.date_prestation.strftime('%d/%m/%Y') }}</strong> à {{ cmd.heure_livraison }}
+                            </div>
+
+                            <div class="col-md-2 text-center text-md-center mb-3 mb-md-0">
+                                <span class="small d-block text-uppercase fw-bold opacity-75">Total</span>
+                                <span class="fs-5 fw-bold">{{ "%.2f"|format(cmd.total_ttc) }} €</span>
+                            </div>
+
+                            <div class="col-md-3 text-center text-md-center mb-3 mb-md-0">
+                                <span class="badge badge-vg-status rounded-pill px-3 py-2 shadow-sm text-wrap" style="line-height: 1.2;">
+                                    {% if cmd.statut_commande == 'En attente' %}
+                                        En attente de validation
+                                    {% elif cmd.statut_commande == 'Validée' %}
+                                        En préparation
+                                    {% elif cmd.statut_commande == 'Terminée' %}
+                                        Commande livrée
+                                    {% elif cmd.statut_commande == 'Annulée' %}
+                                        Commande annulée
+                                    {% else %}
+                                        {{ cmd.statut_commande }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-md-2 d-flex flex-column align-items-center align-items-md-end gap-2 mt-2 mt-md-0">
+
+                                {% if cmd.statut_commande == 'En attente' %}
+                                <form action="{{ url_for('client_cancel_order') }}" method="POST" class="m-0 w-100 text-center text-md-end" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ? Cette action est définitive.');">
+                                    <input type="hidden" name="commande_id" value="{{ cmd.commande_id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm rounded-pill w-80 w-md-auto px-4 shadow-sm fw-bold">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <button class="btn btn-vg rounded-pill w-80 w-md-auto px-4 shadow-sm"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#details-{{ cmd.commande_id }}">
+                                    <i class="bi bi-eye me-1"></i> Détails
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="collapse" id="details-{{ cmd.commande_id }}">
+                            <div class="mt-4 pt-3 border-top border-brand-brown">
+                                <h6 class="fw-bold mb-3 text-brand-brown"><i class="bi bi-basket2-fill me-2"></i>Contenu de la commande :</h6>
+
+                                {% set calcul = namespace(total_brut=0) %}
+
+                                <ul class="list-group list-group-flush rounded-3 overflow-hidden">
+                                    {% for detail in cmd.details %}
+                                    {% set calcul.total_brut = calcul.total_brut + (detail.prix_par_personne * detail.quantite) %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-cream border-brand-brown py-3">
+                                        <div class="d-flex align-items-center flex-grow-1">
+                                            <span class="badge bg-brand-brown rounded-pill me-3">{{ detail.quantite }}x</span>
+                                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between w-100 gap-2">
+                                                <strong class="text-brand-brown">{{ detail.titre_menu }}</strong>
+
+                                                {% if cmd.statut_commande == 'Terminée' %}
+
+                                                    {% if detail.a_deja_note and detail.a_deja_note > 0 %}
+                                                        <span class="badge bg-success rounded-pill px-3 py-2 shadow-sm" style="pointer-events: none; color: var(--bg-cream)!important;">
+                                                            <i class="bi bi-check-circle-fill me-1"></i> Avis envoyé !
+                                                        </span>
+                                                    {% else %}
+                                                        <button type="button"
+                                                                class="btn btn-vg btn-sm rounded-pill px-3 shadow-sm fw-bold"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#reviewModal"
+                                                                data-menu-id="{{ detail.menu_id }}"
+                                                                data-commande-id="{{ cmd.commande_id }}"
+                                                                data-menu-titre="{{ detail.titre_menu }}">
+                                                            <i class="bi bi-star-fill me-1 text-warning"></i> Laisser un avis
+                                                        </button>
+                                                    {% endif %}
+
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                        <span class="fw-bold text-brand-brown ms-3">{{ "%.2f"|format(detail.prix_par_personne * detail.quantite) }} €</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <div class="mt-3 pt-2 border-top border-brand-brown d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center small text-brand-brown">
+                                    <div>
+                                        <p class="mb-1">
+                                            <i class="bi bi-info-circle-fill me-1"></i> Prêt de matériel :
+                                            <strong>{% if cmd.pret_materiel %}Inclus{% else %}Non demandé{% endif %}</strong>
+                                        </p>
+                                        <p class="mb-0 italic">
+                                            <i class="bi bi-geo-alt-fill me-1"></i> Livraison à : <strong>{{ cmd.adresse_livraison }}, {{ cmd.ville_livraison }}</strong>
+                                        </p>
+                                    </div>
+
+                                    <div class="text-md-end mt-2 mt-md-0 w-100 w-md-auto">
+                                        <div class="d-flex justify-content-between justify-content-md-end gap-3 mb-1">
+                                            <span>Total menus :</span>
+                                            <strong>{{ "%.2f"|format(calcul.total_brut) }} €</strong>
+                                        </div>
+
+                                        {% if calcul.total_brut > cmd.prix_menu %}
+                                            {% set montant_remise = calcul.total_brut - cmd.prix_menu %}
+                                            <div class="d-flex justify-content-between justify-content-md-end gap-3 mb-1 text-success">
+                                                <span>Remise appliquée :</span>
+                                                <strong>- {{ "%.2f"|format(montant_remise) }} €</strong>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if cmd.prix_livraison and cmd.prix_livraison > 0 %}
+                                        <div class="d-flex justify-content-between justify-content-md-end gap-3 mb-1">
+                                            <span>Frais de livraison :</span>
+                                            <strong>{{ "%.2f"|format(cmd.prix_livraison) }} €</strong>
+                                        </div>
+                                        {% else %}
+                                        <div class="d-flex justify-content-between justify-content-md-end gap-3 mb-1 text-success">
+                                            <span>Frais de livraison :</span>
+                                            <strong>Gratuit</strong>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="d-flex justify-content-between justify-content-md-end gap-3 fw-bold fs-6 mt-2 pt-2 border-top border-brand-brown">
+                                            <span>Total payé (TTC):</span>
+                                            <span>{{ "%.2f"|format(cmd.total_ttc) }} €</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5 content-box mx-auto shadow-sm" style="max-width: 600px;">
+            <i class="bi bi-bag-x mb-3 d-block text-brand-brown" style="font-size: 4rem;"></i>
+            <h3 class="mb-4 text-brand-brown font-pacifico">Vous n'avez pas encore passé de commande.</h3>
+            <a href="{{ url_for('menus_page') }}" class="btn btn-vg rounded-pill fs-5 px-4 py-2 mt-2 shadow-sm">
+                Découvrir la carte
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content vg-box rounded-4 border-0 shadow-lg bg-cream text-brand-brown">
+            <div class="modal-header border-bottom border-brand-brown border-opacity-25">
+                <h5 class="modal-title fw-bold" id="reviewModalLabel"><i class="bi bi-pencil-square me-2"></i>Votre avis sur le menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('client_submit_review') }}" method="POST">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="menu_id" id="modal_menu_id">
+                    <input type="hidden" name="commande_id" id="modal_commande_id">
+
+                    <div class="mb-3">
+                        <label class="small text-uppercase fw-bold opacity-75 d-block mb-2">Menu concerné</label>
+                        <input type="text" id="modal_menu_titre" class="form-control rounded-3 bg-white text-brand-brown border-brand-brown fw-bold" readonly style="pointer-events: none;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="review_note" class="small text-uppercase fw-bold opacity-75 d-block mb-2">Votre note</label>
+                        <select name="note" id="review_note" class="form-select rounded-3 border-brand-brown text-brand-brown" required>
+                            <option value="5">⭐⭐⭐⭐⭐ — Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ — Très bon</option>
+                            <option value="3">⭐⭐⭐ — Moyen</option>
+                            <option value="2">⭐⭐ — Décevant</option>
+                            <option value="1">⭐ — Médiocre</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="review_comment" class="small text-uppercase fw-bold opacity-75 d-block mb-2">Votre commentaire</label>
+                        <textarea name="commentaire" id="review_comment" rows="4" class="form-control rounded-3 border-brand-brown text-brand-brown" placeholder="Partagez votre expérience culinaire avec nous..." required max-length="1000"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-brand-brown border-opacity-25 d-flex justify-content-between">
+                    <button type="button" class="btn btn-vg rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-vg rounded-pill px-4 shadow-sm fw-bold">Envoyer l'avis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

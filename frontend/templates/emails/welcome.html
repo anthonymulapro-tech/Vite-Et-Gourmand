@@ -30,7 +30,7 @@
             </p>
 
             <div style="text-align: center;">
-                <a href="http://127.0.0.1:5000/login" style="display: block; background-color: #885420; color: #FFEDC5; text-decoration: none; padding: 14px 20px; border-radius: 50px; font-weight: 600; font-size: 16px; text-align: center;">
+                <a href="{{ url_for('login_page', _external=True) }}" style="display: block; background-color: #885420; color: #FFEDC5; text-decoration: none; padding: 14px 20px; border-radius: 50px; font-weight: 600; font-size: 16px; text-align: center;">
                     Se connecter à mon espace
                 </a>
             </div>
@@ -40,7 +40,7 @@
         <div style="text-align: center; margin-top: 25px;">
             <p style="font-size: 13px; color: #885420; margin: 0;">
                 Julie & José — Vite & Gourmand<br>
-                <a href="http://127.0.0.1:5000" style="color: #885420; text-decoration: underline;">Retourner sur le site</a>
+                <a href="{{ url_for('home', _external=True) }}" style="color: #885420; text-decoration: underline;">Retourner sur le site</a>
             </p>
         </div>
 

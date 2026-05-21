@@ -1046,7 +1046,5 @@ def gtc():
 
 # RUN
 if __name__ == '__main__':
-    # Render fournit le port via la variable d'environnement PORT, sinon on met 5000 par défaut
     port = int(os.environ.get('PORT', 5000))
-    # On force l'host à 0.0.0.0 pour que Render puisse y accéder
     app.run(host='0.0.0.0', port=port, debug=False)

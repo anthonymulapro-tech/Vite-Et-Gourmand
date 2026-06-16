@@ -14,7 +14,7 @@ from backend.order import create_order
 # ==========================================================================
 from backend.menu import get_all_menus
 from backend.review import get_validated_reviews
-from backend.contact import save_contact_message
+from backend.contact import ContactRepository
 from backend.schedule import get_schedule, update_day_schedule
 from backend.menu_model import get_menu_details
 from backend.database import get_connection
@@ -99,10 +99,14 @@ def contact():
     if not motif or not prenom or not nom or not email or not description:
         flash("Veuillez remplir tous les champs du formulaire.", "error")
         return redirect(url_for('home'))
+    # Ouverture BDD (POO)
+    db = get_connection()
 
     # Tentative d'enregistrement dans la table message_contact
     try:
-        success = save_contact_message(
+        contact_repo = ContactRepository(db)
+
+        success = contact_repo.save_contact_message(
             nom_contact=nom,
             prenom_contact=prenom,
             motif=motif,
@@ -127,6 +131,11 @@ def contact():
     except Exception as e:
         print(f"Erreur d'insertion du message de contact : {e}")
         flash("Impossible d'envoyer le message. Service indisponible.", "error")
+
+    finally:
+        # Fermeture connexion
+        if db:
+            db.close()
 
     return redirect(url_for('home'))
 

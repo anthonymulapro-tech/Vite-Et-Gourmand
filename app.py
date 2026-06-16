@@ -13,7 +13,7 @@ from backend.order import create_order
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
 from backend.menu import MenuRepository
-from backend.review import get_validated_reviews
+from backend.review import ReviewRepository
 from backend.contact import ContactRepository
 from backend.schedule import ScheduleRepository
 from backend.menu_model import MenuDetailRepository
@@ -80,12 +80,17 @@ def inject_global_data():
 # Route d'accueil (Affiche les avis dynamiques)
 @app.route('/')
 def home():
+    db = get_connection()
     try:
+        review_repo = ReviewRepository(db)
         # Récupère uniquement les avis validés par l'administration
-        les_avis = get_validated_reviews()
+        les_avis = review_repo.get_validated_reviews()
     except Exception as e:
         print(f"Erreur de chargement des avis : {e}")
         les_avis = []
+    finally:
+        if db:
+            db.close()
 
     return render_template('home.html', les_avis=les_avis)
 

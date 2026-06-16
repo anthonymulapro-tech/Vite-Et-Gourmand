@@ -1,5 +1,3 @@
-from backend.database import get_connection
-
 # Insère un nouveau message de contact dans la base de données.
 class ContactRepository:
     def __init__(self, db_connection):

@@ -12,11 +12,11 @@ from backend.order import create_order
 # ==========================================================================
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
-from backend.menu import get_all_menus
+from backend.menu import MenuRepository
 from backend.review import get_validated_reviews
 from backend.contact import ContactRepository
 from backend.schedule import ScheduleRepository
-from backend.menu_model import get_menu_details
+from backend.menu_model import MenuDetailRepository
 from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
@@ -148,12 +148,17 @@ def contact():
 # Route d'affichage des menus (Dynamique SQL)
 @app.route('/menus')
 def menus_page():
+    db = get_connection()
     try:
-        # Récupère tous les menus avec leurs prix, stocks, régimes, thèmes, etc.
-        catalogue_menus = get_all_menus()
+        # Récupération de tous les menus avec leurs prix, stocks, régimes, thèmes, etc.
+        menu_repo = MenuRepository(db)
+        catalogue_menus = menu_repo.get_all_menus()
     except Exception as e:
         print(f"Erreur de chargement du catalogue : {e}")
-        catalogue_menus = None
+        catalogue_menus = []
+    finally:
+        if db:
+            db.close()
 
     return render_template('menus.html', menus=catalogue_menus)
 
@@ -271,21 +276,21 @@ def register_page():
 
 @app.route('/menu/<int:id_menu>')
 def detail_menu(id_menu):
-    db = get_connection()  # Ouverture de la connexion
+    db = get_connection()
     if db is None:
         return "Erreur de connexion à la base de données", 500
 
     try:
-        # On passe la connexion et l'ID au modèle
-        menu = get_menu_details(db, id_menu)
+        menu_detail_repo = MenuDetailRepository(db)
+        menu = menu_detail_repo.get_menu_details(id_menu)
 
         if menu is None:
             return "Menu non trouvé", 404
 
         return render_template('detail_menu.html', menu=menu)
     finally:
-        # Fermeture
-        db.close()
+        if db:
+            db.close()
 
 
 @app.route('/add-to-cart', methods=['POST'])
@@ -299,8 +304,12 @@ def add_to_cart():
         return redirect(url_for('menus_page'))
 
     db = get_connection()
-    menu = get_menu_details(db, id_menu_form)
-    db.close()
+    try:
+        menu_detail_repo = MenuDetailRepository(db)
+        menu = menu_detail_repo.get_menu_details(id_menu_form)
+    finally:
+        if db:
+            db.close()
 
     if not menu:
         return redirect(url_for('menus_page'))
@@ -770,12 +779,16 @@ def employee_menu():
         flash("Accès refusé.", "error")
         return redirect(url_for('home'))
 
+    db = get_connection()
     try:
-        # Réutilisation de la fonction pour charger la carte
-        catalogue_menus = get_all_menus()
+        menu_repo = MenuRepository(db)
+        catalogue_menus = menu_repo.get_all_menus()
     except Exception as e:
         print(f"Erreur de chargement du catalogue employé : {e}")
         catalogue_menus = []
+    finally:
+        if db:
+            db.close()
 
     return render_template('employee/manage_menu.html', menus=catalogue_menus)
 

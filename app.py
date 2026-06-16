@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
-from backend.user import create_user, login_user, validate_password, email_exists, get_user_by_id, update_user_profile
+from backend.user import User, UserRepository
 from backend.cart import calculer_prix_total
 from backend.order import create_order
 # ==========================================================================
@@ -159,38 +159,44 @@ def menus_page():
 
 
 # Route pour gérer la connexion
+# Route pour gérer la connexion
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     if 'user_prenom' in session:
         return redirect(url_for('home'))
 
-    # On récupère l'éventuelle page suivante
     next_page = request.args.get('next')
 
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if not email_exists(email):
-            return render_template('auth/login.html', email_error=True, email_saved=email)
+        db = get_connection()
+        try:
+            user_repo = UserRepository(db)
 
-        user = login_user(email, password)
-        if not user:
-            return render_template('auth/login.html', password_error=True, email_saved=email)
+            if not user_repo.email_exists(email):
+                return render_template('auth/login.html', email_error=True, email_saved=email)
 
-        # Connexion réussie
-        session['user_id'] = user.get('utilisateur_id')
-        session['user_prenom'] = user['prenom']
-        session['user_nom'] = user['nom']
-        session['user_role'] = user['role_id']
+            user = user_repo.login_user(email, password)
+            if not user:
+                return render_template('auth/login.html', password_error=True, email_saved=email)
 
-        # Redirection intelligente : vers next_page si elle existe, sinon vers home
-        return redirect(next_page or url_for('home'))
+            # Connexion réussie (on utilise le dictionnaire renvoyé par to_dict)
+            session['user_id'] = user.get('utilisateur_id')
+            session['user_prenom'] = user['prenom']
+            session['user_nom'] = user['nom']
+            session['user_role'] = user['role_id']
+
+            return redirect(next_page or url_for('home'))
+        finally:
+            if db:
+                db.close()
 
     return render_template('auth/login.html')
 
 
-# Route pour gérer l'inscription d'un nouvel utilisateur
+# Route pour gérer l'inscription
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     if 'user_prenom' in session:
@@ -207,63 +213,59 @@ def register_page():
         code_postal = request.form.get('code_postal')
         pays = request.form.get('pays', 'France')
 
-        # Double vérification de sécurité en Python
         if not email or not password or not prenom or not nom:
             flash("Veuillez remplir tous les champs obligatoires.", "error")
             return render_template('auth/register.html')
 
-        # Validation du mot de passe
-        if not validate_password(password):
+        # Utilisation de la méthode statique du Modèle User
+        if not User.validate_password(password):
             return render_template('auth/register.html', password_error=True)
 
         confirm_password = request.form.get('confirm_password')
 
-        # 1. Vérification de la correspondance des mots de passe
         if password != confirm_password:
-            # On renvoie la page avec la variable d'erreur à True
             return render_template('auth/register.html', confirm_password_error=True)
 
-        # Validation du format Téléphone (10 chiffres)
         if telephone and not (telephone.strip().isdigit() and len(telephone.strip()) == 10):
             flash("Le numéro de téléphone doit contenir exactement 10 chiffres.", "error")
             return render_template('auth/register.html')
 
-        # Validation du format Code Postal (5 chiffres)
         if code_postal and not (code_postal.strip().isdigit() and len(code_postal.strip()) == 5):
             flash("Le code postal doit contenir exactement 5 chiffres.", "error")
             return render_template('auth/register.html')
 
-        # Vérification de l'email doublon
-        if email_exists(email):
-            return render_template('auth/register.html', email_error=True)
+        db = get_connection()
+        try:
+            user_repo = UserRepository(db)
 
-        # Tentative de création
-        success = create_user(
-            email=email,
-            password=password,
-            prenom=prenom,
-            nom=nom,
-            telephone=telephone,
-            pays=pays,
-            ville=ville,
-            adresse=adresse,
-            code_postal=code_postal
-        )
+            if user_repo.email_exists(email):
+                return render_template('auth/register.html', email_error=True)
 
-        if success:
-            # Envoi de l'e-mail de bienvenue
-            send_html_email(
-                subject="Bienvenue chez Vite & Gourmand !",
-                recipient=email,
-                template_name="emails/welcome.html",
-                prenom=prenom
+            # 1. On crée l'objet User
+            nouvel_utilisateur = User(
+                email=email, password=password, prenom=prenom, nom=nom,
+                telephone=telephone, pays=pays, ville=ville, adresse=adresse,
+                code_postal=code_postal
             )
 
-            flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
-            return redirect(url_for('login_page'))
-        else:
-            flash("Une erreur technique est survenue. Veuillez réessayer plus tard.", "error")
-            return render_template('auth/register.html')
+            # 2. On l'envoie au Repository
+            success = user_repo.create_user(nouvel_utilisateur)
+
+            if success:
+                send_html_email(
+                    subject="Bienvenue chez Vite & Gourmand !",
+                    recipient=email,
+                    template_name="emails/welcome.html",
+                    prenom=prenom
+                )
+                flash("Votre compte a été créé avec succès\u00a0! Connectez-vous.", "success")
+                return redirect(url_for('login_page'))
+            else:
+                flash("Une erreur technique est survenue.", "error")
+                return render_template('auth/register.html')
+        finally:
+            if db:
+                db.close()
 
     return render_template('auth/register.html')
 
@@ -379,7 +381,11 @@ def order_details():
 
     # 1. Récupération des infos de l'utilisateur en BDD
     user_id = session['user_id']
-    current_user = get_user_by_id(user_id)
+    db = get_connection()
+    try:
+        current_user = UserRepository(db).get_user_by_id(user_id)
+    finally:
+        if db: db.close()
 
     cart_items = session.get('panier', [])
     total_menus = sum(item['total_price'] for item in cart_items)
@@ -521,7 +527,12 @@ def payment_success():
     )
 
     if success:
-        user = get_user_by_id(session['user_id'])
+        db = get_connection()
+        try:
+            user = UserRepository(db).get_user_by_id(session['user_id'])
+        finally:
+            if db: db.close()
+
         if user and user.get('email'):
             montant_total_paye = total_menus + total_delivery
 
@@ -621,45 +632,51 @@ def client_submit_review():
 
     return redirect(url_for('my_orders'))
 
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    # 1. Vérification de la session (méthode de ton projet)
     if 'user_id' not in session:
         flash("Veuillez vous connecter pour accéder à votre profil.", "error")
         return redirect(url_for('login_page'))
 
     user_id = session['user_id']
 
-    # 2. Si le formulaire est soumis (POST)
-    if request.method == 'POST':
-        prenom = request.form.get('prenom')
-        nom = request.form.get('nom')
-        telephone = request.form.get('telephone')
-        adresse = request.form.get('adresse')
-        ville = request.form.get('ville')
-        code_postal = request.form.get('code_postal')
-        pays = request.form.get('pays', 'France')
+    db = get_connection()
+    try:
+        user_repo = UserRepository(db)
 
-        # Mise à jour en BDD
-        success = update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
+        if request.method == 'POST':
+            prenom = request.form.get('prenom')
+            nom = request.form.get('nom')
+            telephone = request.form.get('telephone')
+            adresse = request.form.get('adresse')
+            ville = request.form.get('ville')
+            code_postal = request.form.get('code_postal')
+            pays = request.form.get('pays', 'France')
 
-        if success:
-            # MAJ de la session au cas où le prénom affiché dans le menu change
-            session['user_prenom'] = prenom
-            session['user_nom'] = nom
-            session.modified = True
-            flash("Votre profil a été mis à jour avec succès !", "success")
-        else:
-            flash("Erreur technique lors de la mise à jour de votre profil.", "error")
+            success = user_repo.update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
 
-        return redirect(url_for('profile'))
+            if success:
+                session['user_prenom'] = prenom
+                session['user_nom'] = nom
+                session.modified = True
+                flash("Votre profil a été mis à jour avec succès !", "success")
+            else:
+                flash("Erreur technique lors de la mise à jour de votre profil.", "error")
 
-    # 3. Affichage de la page (GET)
-    current_user = get_user_by_id(user_id)
-    if not current_user:
-        return redirect(url_for('logout'))
+            return redirect(url_for('profile'))
 
-    return render_template('profile.html', user=current_user)
+        # Affichage (GET)
+        current_user = user_repo.get_user_by_id(user_id)
+        if not current_user:
+            return redirect(url_for('logout'))
+
+        return render_template('profile.html', user=current_user)
+
+    finally:
+        if db:
+            db.close()
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -922,7 +939,7 @@ def admin_add_employee():
         flash("Veuillez remplir tous les champs.", "error")
         return redirect(url_for('admin_employees'))
 
-    if not validate_password(password):
+    if not User.validate_password(password):
         flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.",
               "error")
         return redirect(url_for('admin_employees'))
@@ -1003,17 +1020,18 @@ def forgot_password():
         email = request.form.get('email')
 
         # Vérifier si l'email existe en base
-        if email_exists(email):
-            # Génère le lien cliquable absolu vers la route reset_password
-            reset_url = url_for('reset_password', email=email, _external=True)
-
-            # Envoi de l'e-mail
-            send_html_email(
-                subject="Réinitialisation de votre mot de passe - Vite & Gourmand",
-                recipient=email,
-                template_name="emails/email_reset_password.html",
-                reset_url=reset_url
-            )
+        db = get_connection()
+        try:
+            if UserRepository(db).email_exists(email):
+                reset_url = url_for('reset_password', email=email, _external=True)
+                send_html_email(
+                    subject="Réinitialisation de votre mot de passe - Vite & Gourmand",
+                    recipient=email,
+                    template_name="emails/email_reset_password.html",
+                    reset_url=reset_url
+                )
+        finally:
+            if db: db.close()
 
         # Message de sécurité global
         flash("Si cette adresse existe, un e-mail de réinitialisation vous a été envoyé.", "success")
@@ -1041,7 +1059,7 @@ def reset_password():
             return render_template('auth/reset_password.html', email=email)
 
         # Validation des critères de sécurité du mot de passe
-        if not validate_password(new_password):
+        if not User.validate_password(new_password):
             flash("Le mot de passe ne respecte pas les critères de sécurité.", "error")
             return render_template('auth/reset_password.html', email=email)
 

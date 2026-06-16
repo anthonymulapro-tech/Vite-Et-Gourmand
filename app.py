@@ -7,8 +7,8 @@ from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
 from backend.user import User, UserRepository
-from backend.cart import calculer_prix_total
-from backend.order import create_order
+from backend.cart import CartService
+from backend.order import OrderRepository
 # ==========================================================================
 # IMPORTS DU BACKEND (On sépare la logique SQL)
 # ==========================================================================
@@ -319,8 +319,8 @@ def add_to_cart():
     if not menu:
         return redirect(url_for('menus_page'))
 
-    # Récupération des 3 prix calculés
-    prix_calcules = calculer_prix_total(
+    # Récupération des 3 prix calculés via le Service POO
+    prix_calcules = CartService.calculer_prix_total(
         quantite=quantite,
         prix_unitaire=float(menu['prix_par_personne']),
         min_convives=menu['nombre_personne_min'],
@@ -527,25 +527,29 @@ def payment_success():
     total_delivery = 5 + (dist_km * 0.59) if get_meta('delivery_zone') == 'outside' else 0
 
     # 5. Insertion en BDD
-    success, result = create_order(
-        utilisateur_id=session['user_id'],
-        cart_items=cart_items,
-        prix_menu=total_menus,
-        prix_livraison=total_delivery,
-        pret_materiel=get_meta('pret_materiel'),
-        adresse_livraison=get_meta('adresse_livraison'),
-        ville_livraison=get_meta('ville_livraison'),
-        code_postal_livraison=get_meta('code_postal_livraison'),
-        date_prestation=get_meta('date_prestation'),
-        heure_livraison=get_meta('heure_livraison')
-    )
+    db = get_connection()
+    try :
+        order_repo = OrderRepository(db)
+        success, result = order_repo.create_order(
+            utilisateur_id=session['user_id'],
+            cart_items=cart_items,
+            prix_menu=total_menus,
+            prix_livraison=total_delivery,
+            pret_materiel=get_meta('pret_materiel'),
+            adresse_livraison=get_meta('adresse_livraison'),
+            ville_livraison=get_meta('ville_livraison'),
+            code_postal_livraison=get_meta('code_postal_livraison'),
+            date_prestation=get_meta('date_prestation'),
+            heure_livraison=get_meta('heure_livraison')
+        )
+
+        user_repo = UserRepository(db)
+        user = user_repo.get_user_by_id(session['user_id'])
+    finally:
+        if db:
+            db.close()
 
     if success:
-        db = get_connection()
-        try:
-            user = UserRepository(db).get_user_by_id(session['user_id'])
-        finally:
-            if db: db.close()
 
         if user and user.get('email'):
             montant_total_paye = total_menus + total_delivery

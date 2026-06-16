@@ -18,8 +18,8 @@ from backend.contact import ContactRepository
 from backend.schedule import ScheduleRepository
 from backend.menu_model import MenuDetailRepository
 from backend.database import get_connection
-from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
-from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
+from backend.order_history import OrderHistoryRepository
+from backend.employee_order import EmployeeOrderRepository
 from backend.admin import AdminRepository
 from backend.admin_data import AdminDataRepository
 
@@ -595,17 +595,23 @@ def my_orders():
     if 'user_id' not in session:
         return redirect(url_for('login_page'))
 
-    # Récupère les commandes de base
-    commandes_raw = get_user_orders(session['user_id'])
+    db = get_connection()
+    try:
+        history_repo = OrderHistoryRepository(db)
+        # Récupère les commandes de base
+        commandes_raw = history_repo.get_user_orders(session['user_id'])
 
-    # Pour chaque commande, on va chercher ses menus
-    commandes_completes = []
-    for cmd in commandes_raw:
-        # C'EST ICI QU'IL FAUT AJOUTER session['user_id']
-        cmd['details'] = get_order_details(cmd['commande_id'], session['user_id'])
-        commandes_completes.append(cmd)
+        # Pour chaque commande, on va chercher ses menus
+        commandes_completes = []
+        for cmd in commandes_raw:
+            cmd['details'] = history_repo.get_order_details(cmd['commande_id'], session['user_id'])
+            commandes_completes.append(cmd)
+
+    finally:
+        if db: db.close()
 
     return render_template('my_orders.html', commandes=commandes_completes)
+
 
 # ROUTE ANNULATION COMMANDE
 @app.route('/cancel-order', methods=['POST'])
@@ -616,13 +622,21 @@ def client_cancel_order():
     commande_id = request.form.get('commande_id')
     user_id = session['user_id']
 
-    success = cancel_client_order(commande_id, user_id)
-    if success:
-        flash("Votre commande a bien été annulée.", "success")
-    else:
-        flash("Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge.", "error")
+    db = get_connection()
+    try:
+        history_repo = OrderHistoryRepository(db)
+        success = history_repo.cancel_client_order(commande_id, user_id)
+
+        if success:
+            flash("Votre commande a bien été annulée.", "success")
+        else:
+            flash("Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge.", "error")
+
+    finally:
+        if db: db.close()
 
     return redirect(url_for('my_orders'))
+
 
 # ROUTE AVIS CLIENT
 @app.route('/submit-review', methods=['POST'])
@@ -631,7 +645,7 @@ def client_submit_review():
         return redirect(url_for('login_page'))
 
     menu_id = request.form.get('menu_id')
-    commande_id = request.form.get('commande_id') # NOUVEAU
+    commande_id = request.form.get('commande_id')
     note = request.form.get('note')
     commentaire = request.form.get('commentaire')
     user_id = session['user_id']
@@ -640,13 +654,18 @@ def client_submit_review():
         flash("Tous les champs sont obligatoires.", "error")
         return redirect(url_for('my_orders'))
 
-    # On passe le commande_id à la fonction !
-    success = add_client_review(user_id, menu_id, commande_id, int(note), commentaire)
+    db = get_connection()
+    try:
+        history_repo = OrderHistoryRepository(db)
+        success = history_repo.add_client_review(user_id, menu_id, commande_id, int(note), commentaire)
 
-    if success:
-        flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
-    else:
-        flash("Vous avez déjà laissé un avis pour ce menu dans cette commande.", "error")
+        if success:
+            flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
+        else:
+            flash("Vous avez déjà laissé un avis pour ce menu dans cette commande.", "error")
+
+    finally:
+        if db: db.close()
 
     return redirect(url_for('my_orders'))
 
@@ -842,12 +861,19 @@ def update_menu_stock_price(menu_id):
 
 @app.route('/employee/orders')
 def employee_orders():
-    # 🔒 Sécurité : Réservé aux rôles 1 (Admin) et 2 (Employé)
+    # Sécurité : Réservé aux rôles 1 (Admin) et 2 (Employé)
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
         flash("Accès refusé.", "error")
         return redirect(url_for('home'))
 
-    orders = get_all_orders_for_employee()
+    db = get_connection()
+    try:
+        employee_order_repo = EmployeeOrderRepository(db)
+        orders = employee_order_repo.get_all_orders_for_employee()
+    finally:
+        if db:
+            db.close()
+
     return render_template('employee/manage_orders.html', orders=orders)
 
 
@@ -858,16 +884,23 @@ def employee_update_order(commande_id):
 
     # Récupération des données du formulaire
     nouveau_statut = request.form.get('statut_commande')
-
-    # Si la case "restitution" est cochée, request.form.get renvoie 'on', sinon None
     restitution_val = 1 if request.form.get('restitution_materiel') == '1' else 0
 
-    success, message = update_order_status_and_material(commande_id, nouveau_statut, restitution_val)
+    db = get_connection()
+    try:
+        employee_order_repo = EmployeeOrderRepository(db)
+        success, message = employee_order_repo.update_order_status_and_material(
+            commande_id, nouveau_statut, restitution_val
+        )
 
-    if success:
-        flash(message, "success")
-    else:
-        flash(message, "error")
+        if success:
+            flash(message, "success")
+        else:
+            flash(message, "error")
+
+    finally:
+        if db:
+            db.close()
 
     return redirect(url_for('employee_orders'))
 

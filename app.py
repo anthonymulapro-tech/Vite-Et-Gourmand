@@ -20,8 +20,8 @@ from backend.menu_model import MenuDetailRepository
 from backend.database import get_connection
 from backend.order_history import get_user_orders, get_order_details, cancel_client_order, add_client_review
 from backend.employee_order import get_all_orders_for_employee, update_order_status_and_material
-from backend.admin import get_all_employees, create_employee_account, toggle_employee_status
-from backend.admin_data import sync_mysql_to_mongo, get_nosql_data
+from backend.admin import AdminRepository
+from backend.admin_data import AdminDataRepository
 
 load_dotenv()
 
@@ -933,12 +933,18 @@ def employee_update_schedule(horaire_id):
 
 @app.route('/admin/employees')
 def admin_employees():
-    # 🔒 Sécurité absolue : SEUL le rôle 1 (Admin) peut accéder ici
+    # Sécurité : SEUL le rôle 1 (Admin) peut accéder ici
     if 'user_id' not in session or session.get('user_role') != 1:
         flash("Accès strictement interdit. Zone réservée à l'administration.", "error")
         return redirect(url_for('home'))
 
-    employes = get_all_employees()
+    db = get_connection()
+    try:
+        admin_repo = AdminRepository(db)
+        employes = admin_repo.get_all_employees()
+    finally:
+        if db: db.close()
+
     return render_template('admin/manage_employees.html', employes=employes)
 
 
@@ -952,30 +958,33 @@ def admin_add_employee():
     email = request.form.get('email')
     password = request.form.get('password')
 
-    # Double validation Python
     if not prenom or not nom or not email or not password:
         flash("Veuillez remplir tous les champs.", "error")
         return redirect(url_for('admin_employees'))
 
     if not User.validate_password(password):
-        flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.",
-              "error")
+        flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.", "error")
         return redirect(url_for('admin_employees'))
 
-    success, message = create_employee_account(prenom, nom, email, password)
+    db = get_connection()
+    try:
+        admin_repo = AdminRepository(db)
+        success, message = admin_repo.create_employee_account(prenom, nom, email, password)
 
-    if success:
-        # Envoi de l'e-mail RGPD SANS le mot de passe
-        send_html_email(
-            subject="Ton compte Employé Vite & Gourmand est prêt !",
-            recipient=email,
-            template_name="emails/employee_welcome.html",
-            prenom=prenom,
-            email=email
-        )
-        flash(message, "success")
-    else:
-        flash(message, "error")
+        if success:
+            # Envoi de l'e-mail RGPD SANS le mot de passe
+            send_html_email(
+                subject="Ton compte Employé Vite & Gourmand est prêt !",
+                recipient=email,
+                template_name="emails/employee_welcome.html",
+                prenom=prenom,
+                email=email
+            )
+            flash(message, "success")
+        else:
+            flash(message, "error")
+    finally:
+        if db: db.close()
 
     return redirect(url_for('admin_employees'))
 
@@ -988,13 +997,18 @@ def admin_toggle_employee(employe_id):
     # On récupère le nouvel état depuis un input caché
     est_actif_val = int(request.form.get('est_actif', 0))
 
-    success = toggle_employee_status(employe_id, est_actif_val)
+    db = get_connection()
+    try:
+        admin_repo = AdminRepository(db)
+        success = admin_repo.toggle_employee_status(employe_id, est_actif_val)
 
-    if success:
-        etat = "réactivé" if est_actif_val == 1 else "désactivé"
-        flash(f"Le compte employé a été {etat} avec succès.", "success")
-    else:
-        flash("Erreur lors de la modification du compte.", "error")
+        if success:
+            etat = "réactivé" if est_actif_val == 1 else "désactivé"
+            flash(f"Le compte employé a été {etat} avec succès.", "success")
+        else:
+            flash("Erreur lors de la modification du compte.", "error")
+    finally:
+        if db: db.close()
 
     return redirect(url_for('admin_employees'))
 
@@ -1005,11 +1019,10 @@ def admin_data_dashboard():
         flash("Accès strictement interdit.", "error")
         return redirect(url_for('home'))
 
-    # Récupération du paramètre dans l'URL (par défaut 'all')
     periode = request.args.get('periode', 'all')
 
-    # Envoie du filtre à MongoDB
-    nosql_data = get_nosql_data(periode)
+    admin_data_repo = AdminDataRepository()
+    nosql_data = admin_data_repo.get_nosql_data(periode)
 
     return render_template('admin/data.html', nosql_data=nosql_data, periode_actuelle=periode)
 
@@ -1020,11 +1033,16 @@ def admin_sync_data():
     if 'user_id' not in session or session.get('user_role') != 1:
         return "Accès interdit", 403
 
-    success, message = sync_mysql_to_mongo()
-    if success:
-        flash(message, "success")
-    else:
-        flash(message, "error")
+    db = get_connection()
+    try:
+        admin_data_repo = AdminDataRepository(db)
+        success, message = admin_data_repo.sync_mysql_to_mongo()
+        if success:
+            flash(message, "success")
+        else:
+            flash(message, "error")
+    finally:
+        if db: db.close()
 
     return redirect(url_for('admin_data_dashboard'))
 

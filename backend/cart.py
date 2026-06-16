@@ -1,17 +1,24 @@
-# Calcul de la remise
-def calculer_prix_total(quantite, prix_unitaire, min_convives, seuil_reduction, pourcentage_reduction):
-    prix_brut = quantite * prix_unitaire
-    remise = 0
+# SERVICE (Logique Métier du Panier)
+class CartService:
 
-    # Logique de remise : si la quantité dépasse le (minimum + seuil)
-    if quantite >= (min_convives + seuil_reduction):
-        remise = prix_brut * (pourcentage_reduction / 100)
+    @staticmethod
+    def calculer_prix_total(quantite, prix_unitaire, min_convives, seuil_reduction, pourcentage_reduction):
+        """
+        Calcule le prix brut, la remise et le prix final pour un menu donné
+        selon les règles de réduction du panier.
+        """
+        prix_brut = quantite * prix_unitaire
+        remise = 0
 
-    prix_final = prix_brut - remise
+        # Logique de remise : si la quantité dépasse le (minimum + seuil)
+        if quantite >= (min_convives + seuil_reduction):
+            remise = prix_brut * (pourcentage_reduction / 100)
 
-    # Renvoie un dictionnaire avec tous les détails
-    return {
-        "prix_brut": round(prix_brut, 2),
-        "remise": round(remise, 2),
-        "prix_final": round(prix_final, 2)
-    }
+        prix_final = prix_brut - remise
+
+        # Renvoie un dictionnaire avec tous les détails pour le panier en session
+        return {
+            "prix_brut": round(prix_brut, 2),
+            "remise": round(remise, 2),
+            "prix_final": round(prix_final, 2)
+        }

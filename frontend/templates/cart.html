@@ -34,26 +34,43 @@
                                 <th>Total Ligne</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="cart-tbody">
                             {% for item in cart_items %}
-                            <tr>
-                                <td><strong>{{ item.name }}</strong></td>
-                                <td>{{ item.quantity }}</td>
+                            <tr id="row-{{ item.id_menu }}">
+                                <td>
+                                    <strong>{{ item.name }}</strong><br>
+                                    <button type="button" class="btn btn-sm text-danger p-0 mt-1 btn-remove-item" data-id="{{ item.id_menu }}">
+                                        <i class="bi bi-trash"></i> Supprimer
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm cart-qty-group" style="width: 110px;">
+                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="minus" data-id="{{ item.id_menu }}">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+
+                                        <input type="text" class="form-control text-center fw-bold text-brand-brown" id="qty-{{ item.id_menu }}" value="{{ item.quantity }}" readonly>
+
+                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="plus" data-id="{{ item.id_menu }}">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 <td>{{ item.price }} €</td>
-                                <td>{{ item.total_price }} €</td>
+                                <td>
+                                    <strong id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> €
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
 
-
                <div class="d-flex justify-content-end mb-4 mt-2">
                     <a href="{{ url_for('clear_cart') }}" class="btn btn-vg px-3 py-2 rounded-2" onclick="return confirm('Voulez-vous vraiment vider tout votre panier ?');">
                         <i class="bi bi-trash"></i> Vider le panier
                     </a>
                 </div>
-
 
                 <div class="card shadow-sm mb-4 vg-box">
                     <div class="card-body">
@@ -108,7 +125,7 @@
                             <strong><span id="display_subtotal">{{ subtotal }}</span> €</strong>
                         </div>
 
-                        <div class="d-flex justify-content-between mb-2 {% if total_discount == 0 %}d-none{% endif %}" id="discount_row">
+                        <div class="d-flex justify-content-between mb-2 text-success {% if total_discount == 0 %}d-none{% endif %}" id="discount_row">
                             <span>Remise appliquée :</span>
                             <strong>- <span id="display_discount">{{ total_discount }}</span> €</strong>
                         </div>
@@ -140,6 +157,8 @@
     </div>
     {% endif %}
 </div>
-{% endblock %} {% block extra_js %}
+{% endblock %}
+
+{% block extra_js %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

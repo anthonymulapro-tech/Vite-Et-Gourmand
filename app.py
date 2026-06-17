@@ -1182,6 +1182,81 @@ def reset_password():
 
     return render_template('auth/reset_password.html', email=email)
 
+
+# ==========================================================================
+#                           PANIER ASYNCHRONE
+# ==========================================================================
+@app.route('/update-cart-async', methods=['POST'])
+def update_cart_async():
+    # Sécurité : on n'accepte que les requêtes venant du JavaScript
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    data = request.get_json()
+    id_menu = int(data.get('id_menu'))
+    action = data.get('action')  # 'plus', 'minus', ou 'remove'
+
+    panier = session.get('panier', [])
+
+    # Chercher l'article dans le panier
+    index_article = next((i for i, item in enumerate(panier) if item['id_menu'] == id_menu), None)
+
+    if index_article is None:
+        return jsonify({"success": False, "message": "Article introuvable."})
+
+    item = panier[index_article]
+
+    # Récupérer les infos du menu en BDD (pour la quantité min et les remises)
+    db = get_connection()
+    try:
+        menu_detail_repo = MenuDetailRepository(db)
+        menu = menu_detail_repo.get_menu_details(id_menu)
+    finally:
+        if db:
+            db.close()
+
+    # Appliquer l'action
+    if action == 'remove':
+        panier.pop(index_article)
+    else:
+        if action == 'plus':
+            item['quantity'] += 1
+        elif action == 'minus':
+            item['quantity'] -= 1
+            if item['quantity'] < menu['nombre_personne_min']:
+                item['quantity'] = menu['nombre_personne_min']  # Sécurité : on bloque au minimum
+
+        # Recalcul via service POO
+        prix_calcules = CartService.calculer_prix_total(
+            quantite=item['quantity'],
+            prix_unitaire=float(menu['prix_par_personne']),
+            min_convives=menu['nombre_personne_min'],
+            seuil_reduction=menu['seuil_reduction'],
+            pourcentage_reduction=menu['pourcentage_reduction']
+        )
+        item['prix_brut'] = prix_calcules['prix_brut']
+        item['remise'] = prix_calcules['remise']
+        item['total_price'] = prix_calcules['prix_final']
+
+    session.modified = True
+
+    # Si le panier est vide, on prévient le JS pour qu'il recharge la page
+    if len(panier) == 0:
+        return jsonify({"success": True, "cart_empty": True})
+
+    # Recalcul des totaux globaux du panier
+    new_subtotal = sum(i['total_price'] for i in panier)  # Assumant que subtotal = somme des prix finaux
+    new_discount = sum(i['remise'] for i in panier)
+
+    return jsonify({
+        "success": True,
+        "new_qty": item['quantity'] if action != 'remove' else 0,
+        "new_line_total": "{:.2f}".format(item['total_price']) if action != 'remove' else 0,
+        "new_subtotal": "{:.2f}".format(new_subtotal),
+        "new_discount": "{:.2f}".format(new_discount),
+        "cart_count": len(panier)
+    })
+
 # ==========================================================================
 #                       MENTIONS LEGALES ET CVG
 # ==========================================================================

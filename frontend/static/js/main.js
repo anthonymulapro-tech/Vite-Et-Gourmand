@@ -167,88 +167,137 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ==========================================================================
        3. GESTION DE LA LIVRAISON ET PANIER (PAGE COMMANDE)
        ========================================================================== */
-    const subtotalElement = document.getElementById('display_subtotal');
+    const deliveryZone = document.getElementById('delivery_zone');
+    const distanceContainer = document.getElementById('distance_container');
+    const distanceKm = document.getElementById('distance_km');
+    const displayDelivery = document.getElementById('display_delivery');
+    const displayGrandTotal = document.getElementById('display_grand_total');
 
-    if (subtotalElement) {
-        const discountElement = document.getElementById('display_discount');
-        const baseSubtotal = parseFloat(subtotalElement.textContent) || 0;
-        const baseDiscount = discountElement ? parseFloat(discountElement.textContent) : 0;
+    // FONCTION DE CALCUL DU TOTAL GÉNÉRAL
+    function calculateTotal() {
+        if (!displayGrandTotal) return;
 
-        const deliveryZone = document.getElementById('delivery_zone');
-        const distanceContainer = document.getElementById('distance_container');
-        const distanceKm = document.getElementById('distance_km');
-        const displayDelivery = document.getElementById('display_delivery');
-        const displayGrandTotal = document.getElementById('display_grand_total');
+        // 1. On récupère le sous-total ET la remise directement dans le HTML
+        let currentSubtotal = parseFloat(document.getElementById('display_subtotal').textContent) || 0;
+        let currentDiscount = parseFloat(document.getElementById('display_discount').textContent) || 0;
 
-        function calculateTotal() {
-            let deliveryCost = 0;
-            let finalTotal = baseSubtotal - baseDiscount;
+        // 2. Le total de départ, c'est le Sous-total MOINS la remise
+        let finalTotal = currentSubtotal - currentDiscount;
+        let deliveryCost = 0;
 
-            if (deliveryZone.value === 'outside') {
-                distanceContainer.classList.remove('d-none');
-                let km = parseFloat(distanceKm.value) || 0;
-                deliveryCost = km > 0 ? 5 + (km * 0.59) : 5;
-            } else {
-                distanceContainer.classList.add('d-none');
-                distanceKm.value = 0;
-            }
-
-            displayDelivery.textContent = deliveryCost.toFixed(2);
-            finalTotal += deliveryCost;
-            displayGrandTotal.textContent = finalTotal.toFixed(2);
+        // 3. Calcul des frais de livraison si hors zone
+        if (deliveryZone && deliveryZone.value === 'outside') {
+            distanceContainer.classList.remove('d-none');
+            let km = parseFloat(distanceKm.value) || 0;
+            deliveryCost = km > 0 ? 5 + (km * 0.59) : 5;
+        } else if (distanceContainer) {
+            distanceContainer.classList.add('d-none');
+            if (distanceKm) distanceKm.value = 0;
         }
 
-        const btnDistMinus = document.getElementById('btn_dist_minus');
-        const btnDistPlus = document.getElementById('btn_dist_plus');
+        // 4. Mise à jour des affichages du bloc récapitulatif
+        if (displayDelivery) displayDelivery.textContent = deliveryCost.toFixed(2);
+        finalTotal += deliveryCost;
+        displayGrandTotal.textContent = finalTotal.toFixed(2);
+    }
 
-        if (btnDistMinus && btnDistPlus) {
-            btnDistMinus.addEventListener('click', function() {
-                let currentVal = parseInt(distanceKm.value) || 0;
-                if (currentVal > 0) {
-                    distanceKm.value = currentVal - 1;
-                    calculateTotal();
-                }
-            });
-
-            btnDistPlus.addEventListener('click', function() {
-                distanceKm.value = (parseInt(distanceKm.value) || 0) + 1;
-                calculateTotal();
-            });
-        }
-
+    // Écouteurs pour la livraison (seulement si on est sur la page panier)
+    if (deliveryZone) {
         deliveryZone.addEventListener('change', calculateTotal);
-        distanceKm.addEventListener('input', calculateTotal);
+        if (distanceKm) distanceKm.addEventListener('input', calculateTotal);
 
-        // Menu déroulant custom (Zone de livraison)
-        const dropdownZoneItems = document.querySelectorAll('.custom-delivery-dropdown .dropdown-item');
-        const selectedZoneText = document.getElementById('selected-zone-text');
-
-        dropdownZoneItems.forEach(item => {
+        document.querySelectorAll('.custom-delivery-dropdown .dropdown-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
-                selectedZoneText.textContent = this.textContent;
+                document.getElementById('selected-zone-text').textContent = this.textContent;
                 deliveryZone.value = this.getAttribute('data-value');
                 deliveryZone.dispatchEvent(new Event('change'));
             });
         });
 
-        calculateTotal();
-    }
-
-    // Menu déroulant custom (Heure de livraison)
-    const timeItems = document.querySelectorAll('.time-item');
-    const selectedTimeText = document.getElementById('selected-time-text');
-    const inputHeureLivraison = document.getElementById('heure_livraison');
-
-    if (timeItems.length > 0 && selectedTimeText && inputHeureLivraison) {
-        timeItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                selectedTimeText.textContent = this.textContent;
-                inputHeureLivraison.value = this.getAttribute('data-value');
-            });
+        // Les boutons +/- de la distance
+        document.getElementById('btn_dist_minus')?.addEventListener('click', () => {
+            if (distanceKm.value > 0) { distanceKm.value--; calculateTotal(); }
         });
+        document.getElementById('btn_dist_plus')?.addEventListener('click', () => {
+            distanceKm.value++; calculateTotal();
+        });
+
+        calculateTotal(); // Initialisation au chargement
     }
+
+    // --- REQUÊTES ASYNCHRONES POUR MODIFIER LES QUANTITÉS ---
+    document.querySelectorAll('.btn-qty, .btn-remove-item').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const idMenu = this.getAttribute('data-id');
+            let action = 'remove';
+            if (this.classList.contains('btn-qty')) {
+                action = this.getAttribute('data-action');
+            }
+
+            if (action === 'remove' && !confirm("Voulez-vous retirer ce menu de votre panier ?")) {
+                return;
+            }
+
+            fetch('/update-cart-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id_menu: idMenu, action: action })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.cart_empty) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    if (action === 'remove') {
+                        const row = document.getElementById(`row-${idMenu}`);
+                        row.style.transition = "opacity 0.3s";
+                        row.style.opacity = "0";
+                        setTimeout(() => row.remove(), 300);
+                        showToast("Le menu a été retiré.", "success");
+                    } else {
+                        document.getElementById(`qty-${idMenu}`).value = data.new_qty;
+                        document.getElementById(`line-total-${idMenu}`).innerText = data.new_line_total;
+                    }
+
+                    // --- MISE À JOUR DU BLOC DES TOTAUX ---
+                    document.getElementById('display_subtotal').innerText = data.new_subtotal;
+                    document.getElementById('display_discount').innerText = data.new_discount;
+
+                    // Gestion dynamique de l'affichage de la ligne de remise (Afficher/Masquer)
+                    const discountRow = document.getElementById('discount_row');
+                    if (discountRow) {
+                        if (parseFloat(data.new_discount) > 0) {
+                            discountRow.classList.remove('d-none'); // Affichage de la ligne de remise
+                        } else {
+                            discountRow.classList.add('d-none'); // Masque la ligne de remise si 0€
+                        }
+                    }
+
+                    // Mise à jour des badges du panier (Header + Flottant)
+                    const cartBadge = document.getElementById('cart-badge');
+                    const floatingBadge = document.getElementById('floating-cart-badge');
+                    if (cartBadge) cartBadge.innerText = data.cart_count;
+                    if (floatingBadge) floatingBadge.innerText = data.cart_count;
+
+                    // Recalcul immédiat du Total Général (Livraison incluse)
+                    calculateTotal();
+
+                } else {
+                    showToast(data.message, "error");
+                }
+            })
+            .catch(err => console.error("Erreur AJAX:", err));
+        });
+    });
 
 
     /* ==========================================================================

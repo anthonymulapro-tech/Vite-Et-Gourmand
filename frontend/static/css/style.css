@@ -1555,3 +1555,46 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     right: 310px;
 }
 
+/* ==========================================================================
+   BOUTONS DE QUANTITÉ DU PANIER
+   ========================================================================== */
+
+/* Style spécifique des boutons + et - du panier */
+.btn-cart-qty {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 1px solid var(--brand-brown) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-cart-qty:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .form-control:focus,
+.cart-qty-group .btn-cart-qty:focus,
+.cart-qty-group .btn-cart-qty:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .btn-cart-qty,
+.cart-qty-group .form-control {
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .form-control:focus,
+.cart-qty-group .btn-cart-qty:focus {
+    border-color: var(--brand-brown) !important;
+}
+
+/* Style du champ texte de quantité */
+.cart-qty-group .form-control {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-left: 1px solid var(--brand-brown) !important;
+    border-right: 1px solid var(--brand-brown) !important;
+}

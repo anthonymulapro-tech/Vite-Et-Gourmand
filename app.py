@@ -2,7 +2,7 @@ import os
 import stripe
 
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
@@ -306,6 +306,8 @@ def add_to_cart():
     try:
         quantite = int(raw_quantity)
     except (ValueError, TypeError):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Quantité invalide."})
         return redirect(url_for('menus_page'))
 
     db = get_connection()
@@ -317,6 +319,8 @@ def add_to_cart():
             db.close()
 
     if not menu:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Menu introuvable."})
         return redirect(url_for('menus_page'))
 
     # Récupération des 3 prix calculés via le Service POO
@@ -343,6 +347,20 @@ def add_to_cart():
     })
 
     session.modified = True
+
+    # ==========================================
+    # GESTION ASYNCHRONE (AJAX) vs SYNCHRONE
+    # ==========================================
+    # Si la requête contient ce header, c'est que c'est notre JavaScript (fetch) qui parle
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        nombre_articles = len(session.get('panier', []))
+        return jsonify({
+            "success": True,
+            "cart_count": nombre_articles
+        })
+
+    # Si le JS est désactivé sur le navigateur du client, on garde l'ancien comportement (Sécurité)
+    flash("Le menu a été ajouté à votre panier.", "success")
     return redirect(url_for('cart'))
 
 

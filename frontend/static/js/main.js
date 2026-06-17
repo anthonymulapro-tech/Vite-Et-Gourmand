@@ -367,4 +367,118 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+/* ==========================================================================
+       6. ASYNCHRONE (AJOUT AU PANIER AVEC TOAST BOOTSTRAP)
+       ========================================================================== */
+
+    // --- Fonction utilitaire pour afficher une belle notification ---
+    function showToast(message, type = 'success') {
+        const toastEl = document.getElementById('liveToast');
+        const toastMessage = document.getElementById('toast-message');
+
+        if (toastEl && toastMessage) {
+            toastMessage.textContent = message;
+
+            // On nettoie les anciennes couleurs
+            toastEl.classList.remove('bg-success', 'bg-danger', 'bg-brand-brown');
+
+            // On applique la couleur selon le succès ou l'erreur
+            if (type === 'success') {
+                toastEl.classList.add('bg-success');
+            } else {
+                toastEl.classList.add('bg-danger');
+            }
+
+            // On lance l'animation Bootstrap
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 }); // Disparaît après 3 secondes
+            toast.show();
+        } else {
+            // Sécurité : si le HTML du Toast est introuvable, on fait un vieux alert
+            alert(message);
+        }
+    }
+
+    // --- Interception du formulaire ---
+    const addToCartForm = document.getElementById('add-to-cart-form');
+
+    if (addToCartForm) {
+        addToCartForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(addToCartForm);
+
+            fetch(addToCartForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+               if (data.success) {
+                    // 1. Mise à jour de la pastille du menu principal
+                    const badge = document.getElementById('cart-badge');
+                    if (badge) {
+                        badge.innerText = data.cart_count;
+                        badge.classList.remove('d-none');
+
+                        badge.classList.add('animate__animated', 'animate__headShake');
+                        setTimeout(() => badge.classList.remove('animate__animated', 'animate__headShake'), 1000);
+                    }
+
+                    // 2. Mise à jour et affichage du Panier Flottant (Le jumeau)
+                    const floatingCart = document.getElementById('floating-cart');
+                    const floatingBadge = document.getElementById('floating-cart-badge');
+
+                    if (floatingCart && floatingBadge) {
+                        floatingCart.classList.remove('d-none'); // On fait apparaitre le bouton flottant
+                        floatingBadge.innerText = data.cart_count; // On met à jour son chiffre
+
+                        // Petit effet de rebond sur le bouton flottant
+                        floatingCart.classList.remove('animate__fadeInUp'); // Retire l'animation d'apparition initiale
+                        floatingCart.classList.add('animate__animated', 'animate__tada');
+                        setTimeout(() => floatingCart.classList.remove('animate__animated', 'animate__tada'), 1000);
+                    }
+
+                    // 3. Affichage du message
+                    showToast("Le menu a bien été ajouté au panier !", "success");
+
+                } else {
+                    // Message d'erreur (en rouge)
+                    showToast("Erreur : " + data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+                showToast("Une erreur technique est survenue.", "error");
+            });
+        });
+    }
+
+    /* ==========================================================================
+       7. GESTION DU PANIER FLOTTANT ET TOAST (ÉVITEMENT DU FOOTER)
+       ========================================================================== */
+    window.addEventListener('scroll', function() {
+        const floatingCart = document.getElementById('floating-cart');
+        const toastContainer = document.querySelector('.toast-container');
+        const footer = document.querySelector('.custom-footer');
+
+        if (footer) {
+            const footerRect = footer.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+
+            // Si le haut du footer entre dans l'écran
+            if (footerRect.top < viewportHeight) {
+                // Calcul de la marge pour s'arrêter net au-dessus du footer
+                const pushAmount = viewportHeight - footerRect.top + 50;
+
+                if (floatingCart) floatingCart.style.bottom = pushAmount + 'px';
+                if (toastContainer) toastContainer.style.bottom = pushAmount + 'px';
+            } else {
+                // Position normale quand le footer n'est pas visible
+                if (floatingCart) floatingCart.style.bottom = '50px';
+                if (toastContainer) toastContainer.style.bottom = '50px';
+            }
+        }
+    });
+
 });

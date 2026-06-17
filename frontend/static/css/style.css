@@ -1482,3 +1482,76 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     height: 100%;
     object-fit: cover;
 }
+
+/* ==========================================================================
+   PASTILLE DU PANIER PRINCIPAL (HEADER)
+   ========================================================================== */
+
+/* Design normal : Fond pêche, Texte marron, Bordure foncée */
+#cart-badge {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* L'effet au survol : on inverse les couleurs quand on passe sur le lien "Mon panier" */
+#header-cart-link:hover #cart-badge {
+    background-color: var(--brand-brown) !important;
+    color: var(--brand-peach) !important;
+}
+
+/* ==========================================================================
+   PANIER FLOTTANT (JUMEAU)
+   ========================================================================== */
+
+#floating-cart {
+    /* Positionnement et dimensions */
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    z-index: 1050;
+    text-decoration: none;
+
+    /* Design */
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+
+    /* Transition fluide pour le mouvement et les couleurs */
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* L'effet au survol du panier : On inverse les couleurs et on grossit */
+#floating-cart:hover {
+    /* Grossit de 10% */
+    transform: scale(1.1);
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+}
+
+/* Pastille (Badge) - Design */
+#floating-cart-badge {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-size: 0.85rem;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Pastille (Badge) - L'effet au survol du panier (inversion synchronisée) */
+#floating-cart:hover #floating-cart-badge {
+    background-color: var(--brand-brown) !important;
+    color: var(--brand-peach) !important;
+}
+
+/* ==========================================================================
+   POSITIONNEMENT DU TOAST (POUR ÉVITER LE PANIER)
+   ========================================================================== */
+.toast-container {
+    bottom: 160px;
+    right: 310px;
+}
+

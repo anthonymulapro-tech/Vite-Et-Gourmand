@@ -167,7 +167,7 @@
     </div>
 </div>
 
-<form action="{{ url_for('add_to_cart') }}" method="POST">
+<form id="add-to-cart-form" action="{{ url_for('add_to_cart') }}" method="POST">
     <input type="hidden" name="id_menu" value="{{ menu.menu_id }}">
     <div class="content-box shadow px-4 py-4 text-center mx-auto menu-detail-card mb-5">
         <div class="row align-items-center">

@@ -586,7 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* ==========================================================================
+   /* ==========================================================================
        VIDAGE DU PANIER EN ASYNC VIA MODAL CUSTOM
        ========================================================================== */
     const btnConfirmClear = document.getElementById('btn-confirm-clear-cart');
@@ -609,7 +609,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // 3. Recharger la page pour basculer sur l'affichage "Votre panier est vide"
                     window.location.reload();
                 } else {
                     showToast("Une erreur est survenue lors du vidage du panier.", "error");
@@ -619,49 +618,40 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-});
-
-/* ==========================================================================
-       ANNULATION ASYNCHRONE DE COMMANDE (ESPACE CLIENT)
+    /* ==========================================================================
+       8. ANNULATION ASYNCHRONE DE COMMANDE (ESPACE CLIENT)
        ========================================================================== */
     let orderIdToCancel = null;
     let cancelBoxToHide = null;
     let statusBadgeToUpdate = null;
 
-    // A. Capturer les clics sur les boutons d'annulation pour ouvrir le modal
     document.querySelectorAll('.btn-trigger-cancel-order').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             orderIdToCancel = this.getAttribute('data-id');
             const orderRef = this.getAttribute('data-ref');
 
-            // On mémorise les éléments cibles de la carte correspondante
             cancelBoxToHide = document.getElementById(`cancel-box-${orderIdToCancel}`);
             statusBadgeToUpdate = document.getElementById(`status-badge-${orderIdToCancel}`);
 
-            // On injecte la référence dans le texte du modal
             const refContainer = document.getElementById('modal-cancel-order-ref');
             if (refContainer) refContainer.innerText = orderRef;
 
-            // Ouverture propre du modal
             const cancelModalEl = document.getElementById('confirmCancelOrderModal');
             const cancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
             cancelModal.show();
         });
     });
 
-    // B. Confirmation finale dans le modal
     const btnConfirmCancelOrder = document.getElementById('btn-confirm-cancel-order');
     if (btnConfirmCancelOrder) {
         btnConfirmCancelOrder.addEventListener('click', function() {
             if (!orderIdToCancel) return;
 
-            // Fermer le modal
             const modalEl = document.getElementById('confirmCancelOrderModal');
             const modalInst = bootstrap.Modal.getInstance(modalEl);
             if (modalInst) modalInst.hide();
 
-            // Envoi de la requête asynchrone au backend
             fetch('/client-cancel-order-async', {
                 method: 'POST',
                 headers: {
@@ -673,29 +663,88 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // 1. Changement immédiat du libellé du badge
-                    if (statusBadgeToUpdate) {
-                        statusBadgeToUpdate.innerText = "Commande annulée";
-                    }
-                    // 2. Disparition propre du bouton d'annulation
-                    if (cancelBoxToHide) {
-                        cancelBoxToHide.remove();
-                    }
+                    if (statusBadgeToUpdate) statusBadgeToUpdate.innerText = "Commande annulée";
+                    if (cancelBoxToHide) cancelBoxToHide.remove();
+                    if (typeof showToast === "function") showToast("La commande a bien été annulée.", "success");
 
-                    if (typeof showToast === "function") {
-                        showToast("La commande a bien été annulée.", "success");
-                    }
-
-                    // Réinitialisation des variables de suivi
                     orderIdToCancel = null;
                     cancelBoxToHide = null;
                     statusBadgeToUpdate = null;
                 } else {
-                    if (typeof showToast === "function") {
-                        showToast(data.message || "Impossible d'annuler cette commande.", "error");
-                    }
+                    if (typeof showToast === "function") showToast(data.message || "Impossible d'annuler cette commande.", "error");
                 }
             })
             .catch(err => console.error("Erreur d'annulation AJAX:", err));
         });
     }
+
+    /* ==========================================================================
+       9. SOUMISSION ASYNCHRONE DES AVIS CLIENTS
+       ========================================================================== */
+    const reviewForm = document.getElementById('async-review-form');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const menuId = document.getElementById('modal_menu_id').value;
+            const commandeId = document.getElementById('modal_commande_id').value;
+            const note = document.getElementById('review_note').value;
+            const commentaire = document.getElementById('review_comment').value;
+
+            fetch('/client-submit-review-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    menu_id: menuId,
+                    commande_id: commandeId,
+                    note: note,
+                    commentaire: commentaire
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // 1. Fermer le modal
+                    const modalEl = document.getElementById('reviewModal');
+                    const modalInst = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInst) modalInst.hide();
+
+                    // 2. Transformer le bouton en badge "Avis envoyé !" dans l'accordéon
+                    const container = document.getElementById(`review-container-${commandeId}-${menuId}`);
+                    if (container) {
+                        container.innerHTML = `
+                            <span class="badge bg-success rounded-pill px-3 py-2 shadow-sm" style="pointer-events: none; color: var(--bg-cream)!important;">
+                                <i class="bi bi-check-circle-fill me-1"></i> Avis envoyé !
+                            </span>
+                        `;
+                    }
+
+                    // 3. Réinitialiser le formulaire
+                    reviewForm.reset();
+
+                    // 4. message à côté du titre H1
+                    const popReviewMsg = document.getElementById('pop-review-msg');
+                    if (popReviewMsg) {
+                        popReviewMsg.classList.remove('d-none'); // Affiche la bulle
+
+                        // Sécurité : annule l'ancien minuteur s'il y en a un
+                        if (window.reviewMessageTimeout) clearTimeout(window.reviewMessageTimeout);
+
+                        // Fait disparaître la bulle après 4 secondes
+                        window.reviewMessageTimeout = setTimeout(() => {
+                            popReviewMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                } else {
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => console.error("Erreur d'envoi d'avis:", err));
+        });
+    }
+
+});

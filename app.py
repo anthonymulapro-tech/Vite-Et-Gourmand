@@ -674,35 +674,47 @@ def client_cancel_order_async():
 
 
 # ROUTE AVIS CLIENT
-@app.route('/submit-review', methods=['POST'])
-def client_submit_review():
+@app.route('/client-submit-review-async', methods=['POST'])
+def client_submit_review_async():
+    # 1. Vérification de la session
     if 'user_id' not in session:
-        return redirect(url_for('login_page'))
+        return jsonify({"success": False, "message": "Veuillez vous connecter pour laisser un avis."})
 
-    menu_id = request.form.get('menu_id')
-    commande_id = request.form.get('commande_id')
-    note = request.form.get('note')
-    commentaire = request.form.get('commentaire')
+    # 2. Vérification de la requête AJAX
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 3. Récupération des données JSON
+    data = request.get_json()
+    menu_id = data.get('menu_id')
+    commande_id = data.get('commande_id')
+    note = data.get('note')
+    commentaire = data.get('commentaire')
     user_id = session['user_id']
 
     if not menu_id or not commande_id or not note or not commentaire:
-        flash("Tous les champs sont obligatoires.", "error")
-        return redirect(url_for('my_orders'))
+        return jsonify({"success": False, "message": "Tous les champs sont obligatoires."})
 
+    # 4. Traitement avec  Repository
     db = get_connection()
     try:
         history_repo = OrderHistoryRepository(db)
         success = history_repo.add_client_review(user_id, menu_id, commande_id, int(note), commentaire)
 
         if success:
-            flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
+            # Succès : le JavaScript s'occupera d'afficher le toast et de changer le bouton en badge
+            return jsonify({"success": True})
         else:
-            flash("Vous avez déjà laissé un avis pour ce menu dans cette commande.", "error")
+            # Échec (ex: avis déjà laissé)
+            return jsonify({"success": False, "message": "Vous avez déjà laissé un avis pour ce menu dans cette commande."})
+
+    except Exception as e:
+        print(f"Erreur avis asynchrone : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
 
     finally:
-        if db: db.close()
-
-    return redirect(url_for('my_orders'))
+        if db:
+            db.close()
 
 
 @app.route('/profile', methods=['GET', 'POST'])

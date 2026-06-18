@@ -634,28 +634,43 @@ def my_orders():
 
 
 # ROUTE ANNULATION COMMANDE
-@app.route('/cancel-order', methods=['POST'])
-def client_cancel_order():
+@app.route('/client-cancel-order-async', methods=['POST'])
+def client_cancel_order_async():
+    # 1. Vérification de la session
     if 'user_id' not in session:
-        return redirect(url_for('login_page'))
+        return jsonify({"success": False, "message": "Veuillez vous connecter pour continuer."})
 
-    commande_id = request.form.get('commande_id')
+    # 2. Vérification que la requête vient bien du JS asynchrone
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 3. Récupération des données envoyées en JSON
+    data = request.get_json()
+    commande_id = data.get('commande_id')
     user_id = session['user_id']
 
+    if not commande_id:
+        return jsonify({"success": False, "message": "Numéro de commande manquant."})
+
+    # 4. Traitement avec Repository
     db = get_connection()
     try:
         history_repo = OrderHistoryRepository(db)
         success = history_repo.cancel_client_order(commande_id, user_id)
 
         if success:
-            flash("Votre commande a bien été annulée.", "success")
+            return jsonify({"success": True})
         else:
-            flash("Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge.", "error")
+            return jsonify({"success": False,
+                            "message": "Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge."})
+
+    except Exception as e:
+        print(f"Erreur annulation asynchrone : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
 
     finally:
-        if db: db.close()
-
-    return redirect(url_for('my_orders'))
+        if db:
+            db.close()
 
 
 # ROUTE AVIS CLIENT

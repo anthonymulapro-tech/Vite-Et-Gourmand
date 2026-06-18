@@ -37,7 +37,7 @@
                             </div>
 
                             <div class="col-md-3 text-center text-md-center mb-3 mb-md-0">
-                                <span class="badge badge-vg-status rounded-pill px-3 py-2 shadow-sm text-wrap" style="line-height: 1.2;">
+                                <span id="status-badge-{{ cmd.commande_id }}" class="badge badge-vg-status rounded-pill px-3 py-2 shadow-sm text-wrap" style="line-height: 1.2;">
                                     {% if cmd.statut_commande == 'En attente' %}
                                         En attente de validation
                                     {% elif cmd.statut_commande == 'Validée' %}
@@ -55,12 +55,13 @@
                             <div class="col-md-2 d-flex flex-column align-items-center align-items-md-end gap-2 mt-2 mt-md-0">
 
                                 {% if cmd.statut_commande == 'En attente' %}
-                                <form action="{{ url_for('client_cancel_order') }}" method="POST" class="m-0 w-100 text-center text-md-end" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ? Cette action est définitive.');">
-                                    <input type="hidden" name="commande_id" value="{{ cmd.commande_id }}">
-                                    <button type="submit" class="btn btn-danger btn-sm rounded-pill w-80 w-md-auto px-4 shadow-sm fw-bold">
+                                <div id="cancel-box-{{ cmd.commande_id }}" class="w-100 text-center text-md-end">
+                                    <button type="button" class="btn btn-danger btn-sm rounded-pill w-80 w-md-auto px-4 shadow-sm fw-bold btn-trigger-cancel-order"
+                                            data-id="{{ cmd.commande_id }}"
+                                            data-ref="{{ cmd.reference_commande }}">
                                         <i class="bi bi-x-circle me-1"></i> Annuler
                                     </button>
-                                </form>
+                                </div>
                                 {% endif %}
 
                                 <button class="btn btn-vg rounded-pill w-80 w-md-auto px-4 shadow-sm"
@@ -216,6 +217,34 @@
                     <button type="submit" class="btn btn-vg rounded-pill px-4 shadow-sm fw-bold">Envoyer l'avis</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmCancelOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--brand-gold); border: 2px solid var(--brand-brown) !important; border-radius: 15px;">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" style="color: var(--brand-brown);">Annuler la commande ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body fw-medium" style="color: var(--brand-brown);">
+                Êtes-vous sûr de vouloir annuler la commande
+                <strong id="modal-cancel-order-ref" class="font-monospace px-2 py-1 rounded shadow-sm text-nowrap d-inline-block" style="color: var(--bg-cream); background-color: var(--brand-brown);"></strong> ?
+                Cette action est définitive.
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-modal-cancel px-3 py-2 rounded-2" data-bs-dismiss="modal">
+                    Retour
+                </button>
+                <button type="button" id="btn-confirm-cancel-order" class="btn btn-modal-confirm px-3 py-2 rounded-2">
+                    Oui, annuler
+                </button>
+            </div>
+
         </div>
     </div>
 </div>

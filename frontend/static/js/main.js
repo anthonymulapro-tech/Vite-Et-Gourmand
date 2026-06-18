@@ -226,71 +226,54 @@ document.addEventListener("DOMContentLoaded", function () {
         calculateTotal(); // Initialisation au chargement
     }
 
-    // --- REQUÊTES ASYNCHRONES POUR MODIFIER LES QUANTITÉS ---
-    document.querySelectorAll('.btn-qty, .btn-remove-item').forEach(button => {
+    // --- FONCTION UTILITAIRE : MISE À JOUR DES TOTAUX DE L'INTERFACE ---
+    function updateCartUI(data) {
+        // Sous-total et Remise
+        const subtotalEl = document.getElementById('display_subtotal');
+        if (subtotalEl) subtotalEl.innerText = data.new_subtotal;
+
+        const discountEl = document.getElementById('display_discount');
+        if (discountEl) discountEl.innerText = data.new_discount;
+
+        // Grand Total TTC
+        const grandTotalEl = document.getElementById('display_grand_total');
+        if (grandTotalEl) grandTotalEl.innerText = data.new_subtotal;
+
+        // Affichage/Masquage de la ligne de remise
+        const discountRow = document.getElementById('discount_row');
+        if (discountRow) {
+            if (parseFloat(data.new_discount) > 0) {
+                discountRow.classList.remove('d-none');
+            } else {
+                discountRow.classList.add('d-none');
+            }
+        }
+
+        // Badges du panier
+        const cartBadge = document.getElementById('cart-badge');
+        const floatingBadge = document.getElementById('floating-cart-badge');
+        if (cartBadge) cartBadge.innerText = data.cart_count;
+        if (floatingBadge) floatingBadge.innerText = data.cart_count;
+    }
+
+    // --- 1. REQUÊTES ASYNCHRONES POUR LES QUANTITÉS (+ et -) ---
+    document.querySelectorAll('.btn-qty').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-
             const idMenu = this.getAttribute('data-id');
-            let action = 'remove';
-            if (this.classList.contains('btn-qty')) {
-                action = this.getAttribute('data-action');
-            }
-
-            if (action === 'remove' && !confirm("Voulez-vous retirer ce menu de votre panier ?")) {
-                return;
-            }
+            const action = this.getAttribute('data-action');
 
             fetch('/update-cart-async', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 body: JSON.stringify({ id_menu: idMenu, action: action })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    if (data.cart_empty) {
-                        window.location.reload();
-                        return;
-                    }
-
-                    if (action === 'remove') {
-                        const row = document.getElementById(`row-${idMenu}`);
-                        row.style.transition = "opacity 0.3s";
-                        row.style.opacity = "0";
-                        setTimeout(() => row.remove(), 300);
-                        showToast("Le menu a été retiré.", "success");
-                    } else {
-                        document.getElementById(`qty-${idMenu}`).value = data.new_qty;
-                        document.getElementById(`line-total-${idMenu}`).innerText = data.new_line_total;
-                    }
-
-                    // --- MISE À JOUR DU BLOC DES TOTAUX ---
-                    document.getElementById('display_subtotal').innerText = data.new_subtotal;
-                    document.getElementById('display_discount').innerText = data.new_discount;
-
-                    // Gestion dynamique de l'affichage de la ligne de remise (Afficher/Masquer)
-                    const discountRow = document.getElementById('discount_row');
-                    if (discountRow) {
-                        if (parseFloat(data.new_discount) > 0) {
-                            discountRow.classList.remove('d-none'); // Affichage de la ligne de remise
-                        } else {
-                            discountRow.classList.add('d-none'); // Masque la ligne de remise si 0€
-                        }
-                    }
-
-                    // Mise à jour des badges du panier (Header + Flottant)
-                    const cartBadge = document.getElementById('cart-badge');
-                    const floatingBadge = document.getElementById('floating-cart-badge');
-                    if (cartBadge) cartBadge.innerText = data.cart_count;
-                    if (floatingBadge) floatingBadge.innerText = data.cart_count;
-
-                    // Recalcul immédiat du Total Général (Livraison incluse)
-                    calculateTotal();
-
+                    document.getElementById(`qty-${idMenu}`).value = data.new_qty;
+                    document.getElementById(`line-total-${idMenu}`).innerText = data.new_line_total;
+                    updateCartUI(data);
                 } else {
                     showToast(data.message, "error");
                 }
@@ -298,6 +281,79 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("Erreur AJAX:", err));
         });
     });
+
+    // --- 2. GESTION DU MODAL DE SUPPRESSION D'UN MENU ---
+    let menuIdToRemove = null;
+    let rowToRemove = null;
+
+    // A. Écouter le clic sur les poubelles pour ouvrir le modal
+    document.querySelectorAll('.btn-remove-item').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            menuIdToRemove = this.getAttribute('data-id');
+            rowToRemove = document.getElementById(`row-${menuIdToRemove}`);
+
+            // Méthode propre et sécurisée pour ouvrir un modal Bootstrap en JS
+            const modalElement = document.getElementById('confirmRemoveItemModal');
+            const removeModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            removeModal.show();
+        });
+    });
+    // B. Écouter le clic sur le bouton de confirmation DANS le modal
+    const btnConfirmRemove = document.getElementById('btn-confirm-remove-item');
+    if (btnConfirmRemove) {
+        btnConfirmRemove.addEventListener('click', function() {
+            if (!menuIdToRemove) return;
+
+            // 1. Masquer le modal proprement
+            const modalEl = document.getElementById('confirmRemoveItemModal');
+            const modalInst = bootstrap.Modal.getInstance(modalEl);
+            if (modalInst) modalInst.hide();
+
+            // 2. Lancer la requête asynchrone
+            fetch('/update-cart-async', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ id_menu: menuIdToRemove, action: 'remove' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Si le panier est devenu vide, la page se recharge
+                    if (data.cart_empty) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    // A. Suppression immédiate de la ligne
+                    if (rowToRemove) {
+                        rowToRemove.remove();
+                    }
+
+                    // B. message à côté du titre
+                    const popMsg = document.getElementById('pop-remove-msg');
+                    if (popMsg) {
+                        popMsg.classList.remove('d-none');
+                        if (window.cartMessageTimeout) clearTimeout(window.cartMessageTimeout);
+                        window.cartMessageTimeout = setTimeout(() => {
+                            popMsg.classList.add('d-none');
+                        }, 3000);
+                    }
+
+                    // C. Mise à jour des totaux
+                    updateCartUI(data);
+
+                    // D. RESET SÉCURISÉ DES VARIABLES
+                    menuIdToRemove = null;
+                    rowToRemove = null;
+
+                } else {
+                    console.error("Erreur serveur :", data.message);
+                }
+            })
+            .catch(err => console.error("Erreur AJAX fatale :", err));
+        });
+    }
 
 
     /* ==========================================================================
@@ -529,5 +585,38 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
+    /* ==========================================================================
+       VIDAGE DU PANIER EN ASYNC VIA MODAL CUSTOM
+       ========================================================================== */
+    const btnConfirmClear = document.getElementById('btn-confirm-clear-cart');
+
+    if (btnConfirmClear) {
+        btnConfirmClear.addEventListener('click', function() {
+            // 1. Fermer le modal Bootstrap programmatiquement
+            const modalElement = document.getElementById('confirmClearCartModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) modal.hide();
+
+            // 2. Envoyer la requête Fetch au serveur
+            fetch('/clear-cart-async', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // 3. Recharger la page pour basculer sur l'affichage "Votre panier est vide"
+                    window.location.reload();
+                } else {
+                    showToast("Une erreur est survenue lors du vidage du panier.", "error");
+                }
+            })
+            .catch(err => console.error("Erreur:", err));
+        });
+    }
 
 });

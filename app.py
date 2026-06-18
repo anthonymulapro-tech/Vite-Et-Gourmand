@@ -377,14 +377,16 @@ def cart():
     return render_template('cart.html', cart_items=cart_items, subtotal=subtotal, total_discount=total_discount)
 
 
-@app.route('/clear-cart')
-def clear_cart():
-    # On vide la clé 'panier' de la session
-    session.pop('panier', None)
+@app.route('/clear-cart-async', methods=['POST'])
+def clear_cart_async():
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # On vide le panier dans la session
+    session['panier'] = []
     session.modified = True
 
-    # Redirection sur le panier ( message de panier vide + voir les menus )
-    return redirect(url_for('cart'))
+    return jsonify({"success": True})
 
 
 # Route pour gérer la validation du panier ( à faire ensuite )

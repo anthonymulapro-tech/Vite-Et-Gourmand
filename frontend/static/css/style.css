@@ -1598,3 +1598,45 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     border-left: 1px solid var(--brand-brown) !important;
     border-right: 1px solid var(--brand-brown) !important;
 }
+
+/* ==========================================================================
+   BOUTONS DU MODAL (VIDAGE PANIER)
+   ========================================================================== */
+
+/* Bouton Annuler : Fond crème, Texte et Bordure marron */
+.btn-modal-cancel {
+    background-color: #dc3545 !important;
+    color:  #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover Bouton Annuler : Fond pêche, Texte marron */
+.btn-modal-cancel:hover {
+    background-color:  #a71d2a !important;
+    color: #ffffff !important;
+}
+
+/* Bouton Confirmer (Danger) : Rouge classique */
+.btn-modal-confirm {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border:1px solid var(--text-dark) !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover Bouton Confirmer : Rouge beaucoup plus foncé */
+.btn-modal-confirm:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Style du bouton "Supprimer" individuel dans le panier */
+.btn-trash-custom {
+    color: #dc3545 !important;
+    transition: color 0.2s ease-in-out;
+}
+
+.btn-trash-custom:hover {
+    color:  #a71d2a !important; /* Devient rouge au survol */
+}

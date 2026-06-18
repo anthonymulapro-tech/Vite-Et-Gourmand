@@ -13,8 +13,15 @@
 
     {% if cart_items %}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+   <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
         <h2 class="title-brand mb-0" style="color: var(--brand-brown);">Votre panier !</h2>
+
+        <span id="pop-remove-msg" class="fw-bold fs-6 d-none p-2 rounded shadow-sm" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 1px solid var(--brand-gold);">
+            <i class="bi bi-check-circle-fill me-1"></i> Le menu a été retiré.
+        </span>
+    </div>
+
         <a href="{{ url_for('menus_page') }}" class="btn btn-vg px-3 py-2 rounded-2">
             <i class="bi bi-arrow-left"></i> Retour aux menus
         </a>
@@ -39,7 +46,7 @@
                             <tr id="row-{{ item.id_menu }}">
                                 <td>
                                     <strong>{{ item.name }}</strong><br>
-                                    <button type="button" class="btn btn-sm text-danger p-0 mt-1 btn-remove-item" data-id="{{ item.id_menu }}">
+                                    <button type="button" class="btn btn-sm p-0 mt-1 btn-remove-item btn-trash-custom" data-id="{{ item.id_menu }}">
                                         <i class="bi bi-trash"></i> Supprimer
                                     </button>
                                 </td>
@@ -67,9 +74,9 @@
                 </div>
 
                <div class="d-flex justify-content-end mb-4 mt-2">
-                    <a href="{{ url_for('clear_cart') }}" class="btn btn-vg px-3 py-2 rounded-2" onclick="return confirm('Voulez-vous vraiment vider tout votre panier ?');">
+                    <button type="button" class="btn btn-vg px-3 py-2 rounded-2" data-bs-toggle="modal" data-bs-target="#confirmClearCartModal">
                         <i class="bi bi-trash"></i> Vider le panier
-                    </a>
+                    </button>
                 </div>
 
                 <div class="card shadow-sm mb-4 vg-box">
@@ -155,7 +162,60 @@
             Découvrez nos menus
         </a>
     </div>
+</div>
     {% endif %}
+
+
+<div class="modal fade" id="confirmClearCartModal" tabindex="-1" aria-labelledby="clearCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--brand-gold); border: 2px solid var(--brand-brown) !important; border-radius: 15px;">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="clearCartModalLabel" style="color: var(--brand-brown);">Vider le panier ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body fw-medium" style="color: var(--brand-brown);">
+                Êtes-vous sûr de vouloir retirer tous les menus de votre panier ? Cette action est irréversible.
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-modal-cancel px-3 py-2 rounded-2" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" id="btn-confirm-clear-cart" class="btn btn-modal-confirm px-3 py-2 rounded-2">
+                    Oui, tout vider
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmRemoveItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-cream); border: 2px solid var(--brand-brown) !important; border-radius: 15px;">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" style="color: var(--brand-brown);">Retirer ce menu ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body fw-medium" style="color: var(--brand-brown);">
+                Êtes-vous sûr de vouloir retirer ce menu de votre panier ?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-modal-cancel px-3 py-2 rounded-2" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" id="btn-confirm-remove-item" class="btn btn-modal-confirm px-3 py-2 rounded-2">
+                    Oui, retirer
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 {% endblock %}
 

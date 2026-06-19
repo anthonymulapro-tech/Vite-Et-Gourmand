@@ -943,15 +943,26 @@ def employee_orders():
     return render_template('employee/manage_orders.html', orders=orders)
 
 
-@app.route('/employee/orders/update/<int:commande_id>', methods=['POST'])
-def employee_update_order(commande_id):
+@app.route('/employee-update-order-async', methods=['POST'])
+def employee_update_order_async():
+    # 1. Vérification des droits (Admin = 1, Employé = 2)
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Récupération des données du formulaire
-    nouveau_statut = request.form.get('statut_commande')
-    restitution_val = 1 if request.form.get('restitution_materiel') == '1' else 0
+    # 2. Vérification que la requête est bien asynchrone
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 3. Récupération des données du JSON (au lieu du form)
+    data = request.get_json()
+    commande_id = data.get('commande_id')
+    nouveau_statut = data.get('statut')
+    restitution_val = data.get('restitution_materiel') # Le JS nous envoie déjà 1 ou 0
+
+    if not commande_id or not nouveau_statut:
+        return jsonify({"success": False, "message": "Données incomplètes."})
+
+    # 4. Traitement avec le Repository
     db = get_connection()
     try:
         employee_order_repo = EmployeeOrderRepository(db)
@@ -959,16 +970,15 @@ def employee_update_order(commande_id):
             commande_id, nouveau_statut, restitution_val
         )
 
-        if success:
-            flash(message, "success")
-        else:
-            flash(message, "error")
+        # On renvoie le résultat au JavaScript
+        return jsonify({"success": success, "message": message})
 
+    except Exception as e:
+        print(f"Erreur update employé async : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
         if db:
             db.close()
-
-    return redirect(url_for('employee_orders'))
 
 
 @app.route('/employee/schedule')

@@ -808,4 +808,97 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 }
 
+    /* ==========================================================================
+       11. GESTION DES COMMANDES (EMPLOYÉ) - ASYNCHRONE
+       ========================================================================== */
+
+    // Fonction centrale pour envoyer la mise à jour
+    function updateOrderAsync(orderId, newStatus) {
+        // On vérifie si la case "matériel" existe et si elle est cochée
+        const materialCheckbox = document.getElementById(`rest_Check_${orderId}`);
+        let isMaterialReturned = 0;
+        if (materialCheckbox) {
+            isMaterialReturned = materialCheckbox.checked ? 1 : 0;
+        }
+
+        fetch('/employee-update-order-async', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                commande_id: orderId,
+                statut: newStatus,
+                restitution_materiel: isMaterialReturned
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // 1. Mettre à jour le texte du bouton
+                const dropdownBtn = document.getElementById(`dropdownMenuButton_${orderId}`);
+                if (dropdownBtn) dropdownBtn.innerText = newStatus;
+
+                // 2. Mettre à jour la couleur du badge visuel
+                const badgeContainer = document.getElementById(`badge-container-${orderId}`);
+                if (badgeContainer) {
+                    let badgeHtml = '';
+                    switch(newStatus) {
+                        case 'En attente': badgeHtml = '<span class="badge rounded-pill w-100 py-2" style="background-color: #6c757d !important; color: var(--bg-cream) !important;">En attente</span>'; break;
+                        case 'En préparation': badgeHtml = '<span class="badge rounded-pill w-100 py-2" style="background-color: #ff8800 !important; color: var(--bg-cream) !important;">Préparation</span>'; break;
+                        case 'En livraison': badgeHtml = '<span class="badge rounded-pill w-100 py-2" style="background-color: #ffc300 !important; color: var(--bg-cream) !important;">En livraison</span>'; break;
+                        case 'Livrée': badgeHtml = '<span class="badge rounded-pill w-100 py-2" style="background-color: #65CA00 !important; color: var(--bg-cream) !important;">Livrée</span>'; break;
+                        case 'Terminée': badgeHtml = '<span class="badge rounded-pill w-100 py-2" style="background-color: #198754 !important; color: var(--bg-cream) !important;">Terminée</span>'; break;
+                        default: badgeHtml = `<span class="badge rounded-pill w-100 py-2" style="background-color: #dc3545 !important; color: var(--bg-cream) !important;">${newStatus}</span>`;
+                    }
+                    badgeContainer.innerHTML = badgeHtml;
+                }
+
+                // 3. Mise à jour visuelle du badge "Matériel"
+                const materialBadgeContainer = document.getElementById(`material-badge-container-${orderId}`);
+                if (materialBadgeContainer) {
+                    if (isMaterialReturned === 1) {
+                        materialBadgeContainer.innerHTML = `
+                            <span class="badge rounded-pill px-2 py-1" style="background-color: #198754 !important; color: var(--bg-cream) !important; font-size: 0.75rem;">
+                                <i class="bi bi-box-seam-fill me-1"></i> Matériel Rendu
+                            </span>`;
+                    } else {
+                        materialBadgeContainer.innerHTML = `
+                            <span class="badge vg-box rounded-pill px-2 py-1">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i> À Récupérer
+                            </span>`;
+                    }
+                }
+
+                if (typeof showToast === "function") showToast(data.message, "success");
+            } else {
+                if (typeof showToast === "function") showToast(data.message, "error");
+            }
+        })
+        .catch(err => console.error("Erreur AJAX employé:", err));
+    }
+    // ÉCOUTEUR 1 : Clic sur un statut dans le menu déroulant
+    document.querySelectorAll('.btn-async-status').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const newStatus = this.getAttribute('data-value');
+            updateOrderAsync(orderId, newStatus);
+        });
+    });
+
+    // ÉCOUTEUR 2 : Clic direct sur la case à cocher du matériel
+    document.querySelectorAll('.custom-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const orderId = this.id.replace('rest_Check_', '');
+            const dropdownBtn = document.getElementById(`dropdownMenuButton_${orderId}`);
+            if (dropdownBtn) {
+                const currentStatus = dropdownBtn.innerText.trim();
+                // Envoie la mise à jour avec le statut actuel (seul le matériel change)
+                updateOrderAsync(orderId, currentStatus);
+            }
+        });
+    });
+
 });

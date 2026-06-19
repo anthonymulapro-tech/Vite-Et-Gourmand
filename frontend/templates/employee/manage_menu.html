@@ -14,7 +14,12 @@
     </div>
 
     <div class="text-center mb-5">
-        <h1 class="title-brand d-block mb-2">Gestion de la Carte</h1>
+        <div class="position-relative d-inline-block">
+            <h1 class="title-brand d-block mb-2">Gestion de la Carte</h1>
+            <span id="pop-menu-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                <i class="bi bi-check-circle-fill me-1 text-success"></i> Carte mise à jour !
+            </span>
+        </div>
         <p class="fs-5 text-brand-brown">
             Modifiez en temps réel les prix par personne et suivez l'état des stocks du catalogue.
         </p>
@@ -43,7 +48,7 @@
                                 <span class="fw-bold text-brand-brown fs-6">{{ menu.titre_menu }}</span>
                             </td>
                             
-                            <td>
+                            <td id="stock-badge-container-{{ menu.menu_id }}">
                                 {% if menu.quantite_restante is none %}
                                     <span class="badge bg-secondary rounded-pill">Illimité</span>
                                 {% elif menu.quantite_restante <= 0 %}
@@ -60,26 +65,24 @@
                                     </span>
                                 {% endif %}
                             </td>
-                            
-                            <form action="{{ url_for('update_menu_stock_price', menu_id=menu.menu_id) }}" method="POST">
-                                <td>
-                                    <div class="input-group input-group-sm" style="max-width: 120px;">
-                                        <input type="number" step="0.01" min="0" class="form-control custom-input text-center fw-semibold text-brand-brown" name="prix_par_personne" value="{{ menu.prix_par_personne }}" required>
-                                    </div>
-                                </td>
-                                
-                                <td>
-                                    <div class="input-group input-group-sm" style="max-width: 100px;">
-                                        <input type="number" min="0" class="form-control custom-input text-center fw-semibold text-brand-brown" name="quantite_restante" value="{{ menu.quantite_restante or 0 }}" required>
-                                    </div>
-                                </td>
-                                
-                                <td class="text-center">
-                                    <button type="submit" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold" title="Sauvegarder les modifications">
-                                        <i class="bi bi-floppy"></i>
-                                    </button>
-                                </td>
-                            </form>
+
+                            <td>
+                                <div class="input-group input-group-sm" style="max-width: 120px;">
+                                    <input type="number" step="0.01" min="0" id="prix_menu_{{ menu.menu_id }}" class="form-control custom-input text-center fw-semibold text-brand-brown" value="{{ menu.prix_par_personne }}" required>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="input-group input-group-sm" style="max-width: 100px;">
+                                    <input type="number" min="0" id="qty_menu_{{ menu.menu_id }}" class="form-control custom-input text-center fw-semibold text-brand-brown" value="{{ menu.quantite_restante or 0 }}" required>
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                <button type="button" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold btn-async-save-menu" data-menu-id="{{ menu.menu_id }}" title="Sauvegarder les modifications">
+                                    <i class="bi bi-floppy"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}

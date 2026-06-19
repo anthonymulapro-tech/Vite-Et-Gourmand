@@ -887,43 +887,57 @@ def employee_menu():
     return render_template('employee/manage_menu.html', menus=catalogue_menus)
 
 
-@app.route('/employee/menu/update/<int:menu_id>', methods=['POST'])
-def update_menu_stock_price(menu_id):
+from flask import request, jsonify
+
+
+@app.route('/employee-update-menu-async', methods=['POST'])
+def employee_update_menu_async():
+    # 1. Vérification des droits (Admin = 1, Employé = 2)
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Récupération et conversion des données du formulaire
-    nouvel_unitaire = request.form.get('prix_par_personne')
-    nouveau_stock = request.form.get('quantite_restante')
+    # 2. Vérification du header XMLHttpRequest pour sécuriser l'accès AJAX
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 3. Récupération des données JSON envoyées par le JavaScript
+    data = request.get_json()
+    menu_id = data.get('menu_id')
+    nouvel_unitaire = data.get('prix_par_personne')
+    nouveau_stock = data.get('quantite_restante')
+
+    if not menu_id or nouvel_unitaire is None or nouveau_stock is None:
+        return jsonify({"success": False, "message": "Données incomplètes."})
+
+    # 4. Conversion et validation des types de données
     try:
         prix = float(nouvel_unitaire)
         stock = int(nouveau_stock)
     except (ValueError, TypeError):
-        flash("Données invalides. Le prix doit être un nombre et le stock un entier.", "error")
-        return redirect(url_for('employee_menu'))
+        return jsonify(
+            {"success": False, "message": "Données invalides. Le prix doit être un nombre et le stock un entier."})
 
-    # Mise à jour directe en Base de Données
+    # 5. Mise à jour directe en Base de Données
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             sql = """
                   UPDATE menu
-                  SET prix_par_personne = %s, \
+                  SET prix_par_personne = %s,
                       quantite_restante = %s
-                  WHERE menu_id = %s \
+                  WHERE menu_id = %s
                   """
             cursor.execute(sql, (prix, stock, menu_id))
         connection.commit()
-        flash("Le menu a été mis à jour avec succès !", "success")
+
+        return jsonify({"success": True, "message": "Le menu a été mis à jour avec succès !"})
+
     except Exception as e:
-        print(f"Erreur SQL lors de la mise à jour du menu : {e}")
-        flash("Une erreur technique est survenue.", "error")
+        print(f"Erreur SQL lors de la mise à jour asynchrone du menu : {e}")
+        return jsonify({"success": False, "message": "Une erreur technique est survenue."})
     finally:
-        connection.close()
-
-    return redirect(url_for('employee_menu'))
-
+        if connection:
+            connection.close()
 
 @app.route('/employee/orders')
 def employee_orders():

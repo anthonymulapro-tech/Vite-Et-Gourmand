@@ -1028,4 +1028,78 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+    /* ==========================================================================
+       13. GESTION DE LA CARTE / MENU - ASYNCHRONE
+       ========================================================================== */
+    document.querySelectorAll('.btn-async-save-menu').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const menuId = this.getAttribute('data-menu-id');
+
+            const payload = {
+                menu_id: menuId,
+                prix_par_personne: document.getElementById(`prix_menu_${menuId}`).value,
+                quantite_restante: document.getElementById(`qty_menu_${menuId}`).value
+            };
+
+            // Animation du bouton
+            const originalIcon = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            this.disabled = true;
+
+            fetch('/employee-update-menu-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.innerHTML = originalIcon;
+                this.disabled = false;
+
+                if (data.success) {
+                    // 1. Mise à jour dynamique du badge de statut du stock
+                    const badgeContainer = document.getElementById(`stock-badge-container-${menuId}`);
+                    if (badgeContainer) {
+                        const qty = parseInt(payload.quantite_restante);
+                        let badgeHtml = '';
+
+                        if (qty <= 0) {
+                            badgeHtml = '<span class="badge rounded-pill" style="background-color: #dc3545 !important; color: var(--bg-cream) !important;"><i class="bi bi-exclamation-triangle me-1"></i> Rupture</span>';
+                        } else if (qty <= 5) {
+                            badgeHtml = '<span class="badge rounded-pill" style="background-color: #ffc107 !important; color: var(--bg-cream) !important;"><i class="bi bi-dash-circle me-1"></i> Stock Faible</span>';
+                        } else {
+                            badgeHtml = '<span class="badge rounded-pill" style="background-color: #198754 !important; color: var(--bg-cream) !important;"><i class="bi bi-check-circle me-1"></i> Disponible</span>';
+                        }
+
+                        badgeContainer.innerHTML = badgeHtml;
+                    }
+
+                    // 2. Affichage de la bulle à côté du titre
+                    const popMenuMsg = document.getElementById('pop-menu-msg');
+                    if (popMenuMsg) {
+                        popMenuMsg.classList.remove('d-none');
+
+                        // Sécurité pour réinitialiser le timer si l'employé enchaîne les clics
+                        if (window.menuMessageTimeout) clearTimeout(window.menuMessageTimeout);
+
+                        window.menuMessageTimeout = setTimeout(() => {
+                            popMenuMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+                } else {
+                    // En cas d'erreur, on garde le toast pour bien alerter
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX menu:", err);
+                this.innerHTML = originalIcon;
+                this.disabled = false;
+            });
+        });
+    });
 });

@@ -71,7 +71,9 @@
                         </svg>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end custom-dropdown-box shadow border-0 mt-2" aria-labelledby="profileDropdown">
-                        <li class="px-3 py-2 fw-bold text-brand-brown">Bonjour, {{ session.get('user_prenom') }}</li>
+                        <li class="px-3 py-2 fw-bold text-brand-brown">
+                            Bonjour, <span id="nav-user-firstname">{{ session.get('user_prenom') }}</span>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
 
                         <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person me-2"></i>Mon Profil</a></li>

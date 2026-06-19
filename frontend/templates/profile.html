@@ -8,12 +8,19 @@
 <div class="py-5">
     <section class="vg-box vg-box-padded vg-layout-margins mb-4">
 
-        <h2 class="box-title font-pacifico">Mon Profil</h2>
-        <p class="box-text text-center px-md-4 mb-4">
-            Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
-        </p>
+        <div class="text-center mb-4">
+            <div class="position-relative d-inline-block">
+                <h2 class="box-title font-pacifico mb-0">Mon Profil</h2>
+                <span id="pop-profile-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                    <i class="bi bi-check-circle-fill me-1 text-success"></i> Profil mis à jour !
+                </span>
+            </div>
+            <p class="box-text px-md-4 mt-2">
+                Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
+            </p>
+        </div>
 
-        <form method="POST" action="{{ url_for('profile') }}" class="needs-validation px-md-4 mt-4" novalidate>
+        <form id="async-profile-form" class="needs-validation px-md-4 mt-4" novalidate>
 
             <div class="row g-5">
                 <div class="col-md-6">

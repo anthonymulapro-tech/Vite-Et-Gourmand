@@ -717,46 +717,65 @@ def client_submit_review_async():
             db.close()
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET'])
 def profile():
+    """Route classique : Affiche la page du profil."""
     if 'user_id' not in session:
         flash("Veuillez vous connecter pour accéder à votre profil.", "error")
         return redirect(url_for('login_page'))
 
     user_id = session['user_id']
-
     db = get_connection()
     try:
         user_repo = UserRepository(db)
-
-        if request.method == 'POST':
-            prenom = request.form.get('prenom')
-            nom = request.form.get('nom')
-            telephone = request.form.get('telephone')
-            adresse = request.form.get('adresse')
-            ville = request.form.get('ville')
-            code_postal = request.form.get('code_postal')
-            pays = request.form.get('pays', 'France')
-
-            success = user_repo.update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
-
-            if success:
-                session['user_prenom'] = prenom
-                session['user_nom'] = nom
-                session.modified = True
-                flash("Votre profil a été mis à jour avec succès !", "success")
-            else:
-                flash("Erreur technique lors de la mise à jour de votre profil.", "error")
-
-            return redirect(url_for('profile'))
-
-        # Affichage (GET)
         current_user = user_repo.get_user_by_id(user_id)
         if not current_user:
             return redirect(url_for('logout'))
 
         return render_template('profile.html', user=current_user)
+    finally:
+        if db:
+            db.close()
 
+
+@app.route('/client-update-profile-async', methods=['POST'])
+def client_update_profile_async():
+    """Route asynchrone : Reçoit les données JSON et met à jour la BDD."""
+    if 'user_id' not in session:
+        return jsonify({"success": False, "message": "Session expirée, veuillez vous reconnecter."})
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    data = request.get_json()
+    user_id = session['user_id']
+
+    # Récupération des champs envoyés par le JS
+    prenom = data.get('prenom')
+    nom = data.get('nom')
+    telephone = data.get('telephone')
+    adresse = data.get('adresse')
+    ville = data.get('ville')
+    code_postal = data.get('code_postal')
+    pays = data.get('pays', 'France')
+
+    db = get_connection()
+    try:
+        user_repo = UserRepository(db)
+        success = user_repo.update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
+
+        if success:
+            # MAJ de la session pour que le prénom/nom change partout sur le site (ex: NavBar)
+            session['user_prenom'] = prenom
+            session['user_nom'] = nom
+            session.modified = True
+            return jsonify({"success": True, "message": "Votre profil a été mis à jour avec succès !"})
+        else:
+            return jsonify({"success": False, "message": "Erreur technique lors de la mise à jour."})
+
+    except Exception as e:
+        print(f"Erreur update profil async : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
     finally:
         if db:
             db.close()

@@ -747,4 +747,65 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    /* ==========================================================================
+       10. MISE À JOUR ASYNCHRONE DU PROFIL
+       ========================================================================== */
+    const profileForm = document.getElementById('async-profile-form');
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 1. Validation Bootstrap native (vérifie que les champs "required" sont remplis)
+            if (!profileForm.checkValidity()) {
+                e.stopPropagation();
+                profileForm.classList.add('was-validated');
+                return;
+            }
+
+            // 2. Rassemblement des données
+            const formData = {
+                prenom: document.getElementById('prenom').value,
+                nom: document.getElementById('nom').value,
+                telephone: document.getElementById('telephone').value,
+                adresse: document.getElementById('adresse').value,
+                ville: document.getElementById('ville').value,
+                code_postal: document.getElementById('code_postal').value,
+                pays: document.getElementById('pays').value
+            };
+
+            // 3. Envoie au serveur
+            fetch('/client-update-profile-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Affichage de la bulle de succès à côté du titre H2
+                    const popProfileMsg = document.getElementById('pop-profile-msg');
+                    if (popProfileMsg) {
+                        popProfileMsg.classList.remove('d-none');
+                        if (window.profileMessageTimeout) clearTimeout(window.profileMessageTimeout);
+                        window.profileMessageTimeout = setTimeout(() => {
+                            popProfileMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                    // Met aussi à jour l'interface si l'utilisateur change son prénom
+                    const navbarUserName = document.getElementById('nav-user-firstname');
+                if (navbarUserName) navbarUserName.innerText = formData.prenom;
+
+            } else {
+                if (typeof showToast === "function") showToast(data.message, "error");
+            }
+        })
+        .catch(err => console.error("Erreur de mise à jour du profil:", err));
+    });
+}
+
 });

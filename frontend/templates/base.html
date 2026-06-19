@@ -132,6 +132,7 @@
                     {% for h in horaires_ouverture %}
                         <div class="px-2">
                             <span class="fw-bold text-white">{{ h.jour }} :</span>
+                            <span id="footer-hours-{{ h.horaire_id }}">
                             {% if h.est_ouvert %}
                                 {% if h.heure_midi_ouverture and h.heure_soir_ouverture %}
                                     {{ h.heure_midi_ouverture }} à {{ h.heure_midi_fermeture }} / {{ h.heure_soir_ouverture }} à {{ h.heure_soir_fermeture }}
@@ -143,6 +144,7 @@
                             {% else %}
                                 <span class="text-danger fw-semibold">Fermé</span>
                             {% endif %}
+                            </span>
                         </div>
                     {% endfor %}
                 {% else %}

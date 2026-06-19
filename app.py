@@ -1003,18 +1003,29 @@ def employee_schedule():
     return render_template('employee/manage_schedule.html', horaires=jours_horaires)
 
 
-@app.route('/employee/schedule/update/<int:horaire_id>', methods=['POST'])
-def employee_update_schedule(horaire_id):
+@app.route('/employee-update-schedule-async', methods=['POST'])
+def employee_update_schedule_async():
     # 1. Vérification des droits
-    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    horaire_id = data.get('horaire_id')
+    est_ouvert_val = int(data.get('est_ouvert', 1))
 
-    # 2. Récupération des données du formulaire
-    midi_ouvrir = request.form.get('heure_midi_ouverture')
-    midi_fermer = request.form.get('heure_midi_fermeture')
-    soir_ouvrir = request.form.get('heure_soir_ouverture')
-    soir_fermer = request.form.get('heure_soir_fermeture')
-    est_ouvert_val = int(request.form.get('est_ouvert', 1))
+    # Si le jour est fermé, on ignore les inputs et on force tout à None (NULL en SQL)
+    if est_ouvert_val == 0:
+        midi_ouvrir = None
+        midi_fermer = None
+        soir_ouvrir = None
+        soir_fermer = None
+    else:
+        # Si c'est ouvert, on prend la valeur, ou None si le champ est resté vide
+        midi_ouvrir = data.get('heure_midi_ouverture') or None
+        midi_fermer = data.get('heure_midi_fermeture') or None
+        soir_ouvrir = data.get('heure_soir_ouverture') or None
+        soir_fermer = data.get('heure_soir_fermeture') or None
+
+    if not horaire_id:
+        return jsonify({"success": False, "message": "Données incomplètes."})
 
     # 3. Logique métier en POO
     db = get_connection()
@@ -1025,19 +1036,17 @@ def employee_update_schedule(horaire_id):
         )
 
         if success:
-            flash("Les plages horaires ont été mises à jour avec succès !", "success")
+            return jsonify({"success": True, "message": "Horaires mis à jour avec succès !"})
         else:
-            flash("Aucune modification détectée ou erreur technique.", "error")
+            return jsonify({"success": True, "message": "Horaires enregistrés (aucune modification détectée)."})
 
     except Exception as e:
-        print(f"Erreur technique lors de la mise à jour de l'horaire {horaire_id} : {e}")
-        flash("Erreur lors de la mise à jour.", "error")
+        print(f"Erreur asynchrone horaires : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
 
     finally:
         if db:
             db.close()
-
-    return redirect(url_for('employee_schedule'))
 
 
 # ==========================================================================

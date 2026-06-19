@@ -901,4 +901,131 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    /* ==========================================================================
+       12. GESTION DES HORAIRES (EMPLOYÉ) - ASYNCHRONE
+       ========================================================================== */
+
+    // Fonction utilitaire pour le footer (transforme "12:00" ou "12:00:00" en "12h00")
+    function formatTimeForFooter(timeStr) {
+        if (!timeStr) return "";
+        const parts = timeStr.split(':');
+        if (parts.length >= 2) {
+            return `${parts[0]}h${parts[1]}`;
+        }
+        return timeStr;
+    }
+    document.querySelectorAll('.btn-async-save-schedule').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const horaireId = this.getAttribute('data-horaire-id');
+
+            // 1. Rassemblement de toutes les données de la ligne correspondante
+            const payload = {
+                horaire_id: horaireId,
+                heure_midi_ouverture: document.getElementById(`midi_ouv_${horaireId}`).value,
+                heure_midi_fermeture: document.getElementById(`midi_ferm_${horaireId}`).value,
+                heure_soir_ouverture: document.getElementById(`soir_ouv_${horaireId}`).value,
+                heure_soir_fermeture: document.getElementById(`soir_ferm_${horaireId}`).value,
+                est_ouvert: document.getElementById(`input_schedule_${horaireId}`).value
+            };
+
+            // 2. Animation de chargement sur le bouton
+            const originalIcon = this.innerHTML; // On garde la disquette en mémoire
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            this.disabled = true; // Empêche le multi-clic
+
+            // ÉCOUTEUR : Clic sur "Ouvert" ou "Fermé" dans le dropdown des horaires
+    document.querySelectorAll('.schedule-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const horaireId = this.getAttribute('data-horaire-id');
+            const value = this.getAttribute('data-value'); // "1" pour Ouvert, "0" pour Fermé
+            const label = this.getAttribute('data-label'); // "Ouvert" ou "Fermé"
+
+            // 1. Met à jour le texte du bouton et la valeur de l'input caché
+            const dropdownBtn = document.getElementById(`dropdownScheduleButton_${horaireId}`);
+            if (dropdownBtn) dropdownBtn.innerText = label;
+
+            const hiddenInput = document.getElementById(`input_schedule_${horaireId}`);
+            if (hiddenInput) hiddenInput.value = value;
+
+            // 2. SI FERMÉ : On vide visuellement les heures du Midi et du Soir
+            if (value === "0") {
+                document.getElementById(`midi_ouv_${horaireId}`).value = "";
+                document.getElementById(`midi_ferm_${horaireId}`).value = "";
+                document.getElementById(`soir_ouv_${horaireId}`).value = "";
+                document.getElementById(`soir_ferm_${horaireId}`).value = "";
+            }
+        });
+    });
+
+            // 3. Envoi au serveur
+            fetch('/employee-update-schedule-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Restauration du bouton disquette
+                this.innerHTML = originalIcon;
+                this.disabled = false;
+
+               if (data.success) {
+                    // 1. Affichage de la bulle à côté du titre H1
+                    const popScheduleMsg = document.getElementById('pop-schedule-msg');
+                    if (popScheduleMsg) {
+                        popScheduleMsg.classList.remove('d-none');
+
+                        // Sécurité pour réinitialiser le timer si l'employé enchaîne les clics
+                        if (window.scheduleMessageTimeout) clearTimeout(window.scheduleMessageTimeout);
+
+                        window.scheduleMessageTimeout = setTimeout(() => {
+                            popScheduleMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                    // 2. MISE À JOUR DU FOOTER EN DIRECT
+                    const footerSpan = document.getElementById(`footer-hours-${horaireId}`);
+                    if (footerSpan) {
+                        if (payload.est_ouvert === "0") {
+                            // On remet la classe text-danger pour "Fermé"
+                            footerSpan.innerHTML = '<span class="text-danger fw-semibold">Fermé</span>';
+                        } else {
+                            // Vérification des services remplis
+                            const hasMidi = payload.heure_midi_ouverture && payload.heure_midi_fermeture;
+                            const hasSoir = payload.heure_soir_ouverture && payload.heure_soir_fermeture;
+
+                            const midiStr = hasMidi ? `${formatTimeForFooter(payload.heure_midi_ouverture)} à ${formatTimeForFooter(payload.heure_midi_fermeture)}` : "";
+                            const soirStr = hasSoir ? `${formatTimeForFooter(payload.heure_soir_ouverture)} à ${formatTimeForFooter(payload.heure_soir_fermeture)}` : "";
+
+                            // Application de la même logique que tes IF/ELIF Jinja
+                            if (hasMidi && hasSoir) {
+                                footerSpan.innerHTML = `${midiStr} / ${soirStr}`;
+                            } else if (hasMidi) {
+                                footerSpan.innerHTML = `Midi : ${midiStr}`;
+                            } else if (hasSoir) {
+                                footerSpan.innerHTML = `Soir : ${soirStr}`;
+                            } else {
+                                // Sécurité : si "Ouvert" mais aucune heure remplie
+                                footerSpan.innerHTML = '<span class="text-danger fw-semibold">Fermé</span>';
+                            }
+                        }
+                    }
+                } else {
+                    // En cas d'erreur technique, le toast reste utile pour alerter l'utilisateur
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX horaires:", err);
+                this.innerHTML = originalIcon;
+                this.disabled = false;
+            });
+        });
+    });
 });

@@ -1479,4 +1479,27 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     }
+    /* ==========================================================================
+       18. GESTION DU MENU DÉROULANT DES HORAIRES (Page Validation Commande)
+       ========================================================================== */
+    const timeItems = document.querySelectorAll('.time-item');
+    const selectedTimeText = document.getElementById('selected-time-text');
+    const heureLivraisonInput = document.getElementById('heure_livraison');
+
+    if (timeItems.length > 0) {
+        timeItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const selectedValue = this.getAttribute('data-value');
+
+                if (selectedTimeText) {
+                    selectedTimeText.innerText = selectedValue;
+                }
+                if (heureLivraisonInput) {
+                    heureLivraisonInput.value = selectedValue;
+                }
+            });
+        });
+    }
 });

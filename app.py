@@ -1258,25 +1258,44 @@ def admin_data_dashboard():
     return render_template('admin/data.html', nosql_data=nosql_data, periode_actuelle=periode)
 
 
-@app.route('/admin/data/sync', methods=['POST'])
-def admin_sync_data():
-    """Route pour déclencher manuellement la synchronisation MySQL -> MongoDB"""
+from flask import request, jsonify
+
+
+@app.route('/admin-fetch-data-async', methods=['GET'])
+def admin_fetch_data_async():
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit"}), 403
+
+    periode = request.args.get('periode', 'all')
+
+    try:
+        admin_data_repo = AdminDataRepository()
+        nosql_data = admin_data_repo.get_nosql_data(periode)
+        return jsonify({"success": True, "nosql_data": nosql_data, "periode": periode})
+    except Exception as e:
+        print(f"Erreur AJAX récupération stats : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
+
+
+@app.route('/admin-sync-data-async', methods=['POST'])
+def admin_sync_data_async():
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return jsonify({"success": False, "message": "Accès interdit"}), 403
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
     db = get_connection()
     try:
         admin_data_repo = AdminDataRepository(db)
         success, message = admin_data_repo.sync_mysql_to_mongo()
-        if success:
-            flash(message, "success")
-        else:
-            flash(message, "error")
+        return jsonify({"success": success, "message": message})
+    except Exception as e:
+        print(f"Erreur AJAX synchronisation MongoDB : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
         if db: db.close()
-
-    return redirect(url_for('admin_data_dashboard'))
-
+        
 # ==========================================================================
 #                       MOT DE PASSE
 # ==========================================================================

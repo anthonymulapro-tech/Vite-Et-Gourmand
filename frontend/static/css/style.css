@@ -1640,3 +1640,70 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .btn-trash-custom:hover {
     color:  #a71d2a !important; /* Devient rouge au survol */
 }
+
+/* ==========================================================================
+   BADGES DE STATUT INTERACTIFS (Gestion du personnel)
+   ========================================================================== */
+.btn-status-active {
+    background-color: #198754;
+    color: var(--bg-cream, #FFEDC5);
+    border: 1px solid #198754;
+    max-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.btn-status-active:hover {
+    background-color: #146c43; /
+    color: var(--bg-cream);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+.btn-status-inactive {
+    background-color: #dc3545;
+    color: var(--bg-cream, #FFEDC5);
+    border: 1px solid #dc3545;
+    max-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.btn-status-inactive:hover {
+    background-color: #b02a37;
+    color: var(--bg-cream);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* ==========================================================================
+   BOUTON ANNULER (Modale)
+   ========================================================================== */
+.btn-cancel-vg {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 1px solid var(--brand-brown);
+    transition: all 0.3s ease;
+}
+
+.btn-cancel-vg:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    border-color: var(--brand-peach);
+}
+
+/* ==========================================================================
+   CROIX DE FERMETURE (Modale personnalisée)
+   ========================================================================== */
+.custom-close-vg {
+    background-color: transparent;
+    border: none;
+    color: var(--brand-brown);
+    font-size: 1.5rem;
+    padding: 0.5rem 0.8rem;
+    line-height: 1;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-close-vg:hover {
+    color:var(--brand-peach);
+}

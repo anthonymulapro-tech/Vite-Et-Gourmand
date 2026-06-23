@@ -1096,31 +1096,47 @@ def admin_employees():
     return render_template('admin/manage_employees.html', employes=employes)
 
 
-@app.route('/admin/employees/add', methods=['POST'])
-def admin_add_employee():
+from flask import request, jsonify
+
+
+@app.route('/admin-add-employee-async', methods=['POST'])
+def admin_add_employee_async():
+    # 1. Sécurité Admin
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    prenom = request.form.get('prenom')
-    nom = request.form.get('nom')
-    email = request.form.get('email')
-    password = request.form.get('password')
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    prenom = data.get('prenom')
+    nom = data.get('nom')
+    email = data.get('email')
+    password = data.get('password')
+
+    # 3. Validations de base
     if not prenom or not nom or not email or not password:
-        flash("Veuillez remplir tous les champs.", "error")
-        return redirect(url_for('admin_employees'))
+        return jsonify({"success": False, "message": "Veuillez remplir tous les champs."})
 
     if not User.validate_password(password):
-        flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.", "error")
-        return redirect(url_for('admin_employees'))
+        return jsonify({"success": False,
+                        "message": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."})
 
+    # 4. Traitement en BDD via le Repository
     db = get_connection()
     try:
         admin_repo = AdminRepository(db)
         success, message = admin_repo.create_employee_account(prenom, nom, email, password)
 
         if success:
-            # Envoi de l'e-mail RGPD SANS le mot de passe
+            # On récupère l'ID généré pour permettre au JS d'identifier la ligne de tableau
+            with db.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT utilisateur_id FROM utilisateur WHERE email = %s", (email,))
+                user_data = cursor.fetchone()
+                utilisateur_id = user_data['utilisateur_id'] if user_data else None
+
+            # Envoi de l'e-mail en arrière-plan
             send_html_email(
                 subject="Ton compte Employé Vite & Gourmand est prêt !",
                 recipient=email,
@@ -1128,23 +1144,84 @@ def admin_add_employee():
                 prenom=prenom,
                 email=email
             )
-            flash(message, "success")
+
+            return jsonify({
+                "success": True,
+                "message": message,
+                "employe": {
+                    "utilisateur_id": utilisateur_id,
+                    "prenom": prenom,
+                    "nom": nom.upper(),
+                    "email": email
+                }
+            })
         else:
-            flash(message, "error")
+            return jsonify({"success": False, "message": message})
+
+    except Exception as e:
+        print(f"Erreur AJAX création employé : {e}")
+        return jsonify({"success": False, "message": "Erreur technique serveur."})
     finally:
-        if db: db.close()
+        if db:
+            db.close()
 
-    return redirect(url_for('admin_employees'))
-
-
-@app.route('/admin/employees/toggle/<int:employe_id>', methods=['POST'])
-def admin_toggle_employee(employe_id):
+@app.route('/admin-delete-employee-async', methods=['DELETE'])
+def admin_delete_employee_async():
+    # 1. Sécurité Admin
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # On récupère le nouvel état depuis un input caché
-    est_actif_val = int(request.form.get('est_actif', 0))
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 2. Récupération des données
+    data = request.get_json()
+    employe_id = data.get('employe_id')
+
+    if not employe_id:
+        return jsonify({"success": False, "message": "ID employé manquant."})
+
+    # 3. Traitement
+    db = get_connection()
+    try:
+        with db.cursor() as cursor:
+            # On supprime l'employé ( ou supprime d'abord ses dépendances si nécessaire)
+            sql = "DELETE FROM utilisateur WHERE utilisateur_id = %s AND role_id IN (1, 2)"
+            cursor.execute(sql, (employe_id,))
+        db.commit()
+
+        # Vérification si une ligne a bien été supprimée
+        if cursor.rowcount > 0:
+            return jsonify({"success": True, "message": "Compte supprimé définitivement."})
+        else:
+            return jsonify({"success": False, "message": "Employé introuvable."})
+
+    except Exception as e:
+        print(f"Erreur AJAX suppression employé : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
+    finally:
+        if db:
+            db.close()
+
+
+@app.route('/admin-toggle-employee-async', methods=['POST'])
+def admin_toggle_employee_async():
+    # 1. Sécurité Admin
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    employe_id = data.get('employe_id')
+    est_actif_val = int(data.get('est_actif', 0))
+
+    if not employe_id:
+        return jsonify({"success": False, "message": "ID employé manquant."})
+
+    # 3. Traitement
     db = get_connection()
     try:
         admin_repo = AdminRepository(db)
@@ -1152,13 +1229,19 @@ def admin_toggle_employee(employe_id):
 
         if success:
             etat = "réactivé" if est_actif_val == 1 else "désactivé"
-            flash(f"Le compte employé a été {etat} avec succès.", "success")
+            return jsonify({
+                "success": True,
+                "message": f"Le compte a été {etat}.",
+                "nouveau_statut": est_actif_val
+            })
         else:
-            flash("Erreur lors de la modification du compte.", "error")
+            return jsonify({"success": False, "message": "Erreur lors de la modification."})
+    except Exception as e:
+        print(f"Erreur AJAX toggle employé : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
-        if db: db.close()
-
-    return redirect(url_for('admin_employees'))
+        if db:
+            db.close()
 
 
 @app.route('/admin/data')

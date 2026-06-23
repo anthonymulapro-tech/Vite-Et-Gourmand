@@ -1177,4 +1177,306 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+    /* ==========================================================================
+       15. GESTION DU PERSONNEL (ADMIN) - ASYNCHRONE
+       ========================================================================== */
+    document.querySelectorAll('.btn-async-toggle-staff').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const employeId = this.getAttribute('data-employe-id');
+            const targetStatus = parseInt(this.getAttribute('data-est-actif'));
+
+            // 1. Animation de chargement sur le badge lui-même
+            this.disabled = true;
+            const originalContent = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            // 2. Requête Fetch
+            fetch('/admin-toggle-employee-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ employe_id: employeId, est_actif: targetStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.disabled = false;
+
+                if (data.success) {
+                    // A. Affiche la bulle de confirmation près du titre
+                    const popMsg = document.getElementById('pop-staff-msg');
+                    const popText = document.getElementById('pop-staff-text');
+
+                    if (popMsg && popText) {
+                        popText.innerText = data.message;
+                        popMsg.classList.remove('d-none');
+
+                        if (window.staffMessageTimeout) clearTimeout(window.staffMessageTimeout);
+                        window.staffMessageTimeout = setTimeout(() => {
+                            popMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                    // B. Mise à jour instantanée du style et du texte du Badge cliqué
+                    if (data.nouveau_statut === 1) {
+                        this.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Actif';
+                        this.classList.remove('btn-status-inactive');
+                        this.classList.add('btn-status-active');
+                        this.setAttribute('data-est-actif', "0");
+                    } else {
+                        this.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i> Désactivé';
+                        this.classList.remove('btn-status-active');
+                        this.classList.add('btn-status-inactive');
+                        this.setAttribute('data-est-actif', "1");
+                    }
+
+                } else {
+                    // En cas d'erreur, on remet le contenu d'origine
+                    this.innerHTML = originalContent;
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX statut employé:", err);
+                this.innerHTML = originalContent;
+                this.disabled = false;
+            });
+        });
+    });
+    /* ==========================================================================
+       16. SUPPRESSION DU PERSONNEL (ADMIN) - ASYNCHRONE
+       ========================================================================== */
+    let employeIdToDelete = null;
+    const deleteModalElement = document.getElementById('deleteEmployeeModal');
+    let deleteModal = null;
+
+    if (deleteModalElement) {
+        // Initialisation de la modale Bootstrap
+        deleteModal = new bootstrap.Modal(deleteModalElement);
+    }
+
+    // 1. Clic sur le bouton corbeille : On ouvre la modale et on prépare les infos
+    document.querySelectorAll('.btn-trigger-delete').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            employeIdToDelete = this.getAttribute('data-employe-id');
+            const employeNom = this.getAttribute('data-employe-nom');
+
+            // On injecte le nom dans la modale pour rassurer l'utilisateur
+            const nameElement = document.getElementById('delete-employee-name');
+            if (nameElement) nameElement.innerText = employeNom;
+
+            deleteModal.show();
+        });
+    });
+
+    // 2. Clic sur le bouton rouge "Supprimer définitivement" dans la modale
+    const confirmDeleteBtn = document.getElementById('confirmDeleteStaffBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (!employeIdToDelete) return;
+
+            // Animation d'attente sur le bouton
+            const originalBtnText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Suppression...';
+            this.disabled = true;
+
+            fetch('/admin-delete-employee-async', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ employe_id: employeIdToDelete })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Restauration du bouton de la modale
+                this.innerHTML = originalBtnText;
+                this.disabled = false;
+                deleteModal.hide();
+
+                if (data.success) {
+                    // A. Affichage de la bulle de confirmation (la même qu'avant)
+                    const popMsg = document.getElementById('pop-staff-msg');
+                    const popText = document.getElementById('pop-staff-text');
+
+                    if (popMsg && popText) {
+                        popText.innerText = data.message;
+                        popMsg.classList.remove('d-none');
+
+                        if (window.staffMessageTimeout) clearTimeout(window.staffMessageTimeout);
+                        window.staffMessageTimeout = setTimeout(() => {
+                            popMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                    // B. Animation de disparition de la ligne du tableau
+                    const rowToRemove = document.getElementById(`row-employe-${employeIdToDelete}`);
+                    if (rowToRemove) {
+                        rowToRemove.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                        rowToRemove.style.opacity = "0";
+                        rowToRemove.style.transform = "translateX(-20px)";
+
+                        setTimeout(() => {
+                            rowToRemove.remove();
+                        }, 400);
+                    }
+                } else {
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX suppression employé:", err);
+                this.innerHTML = originalBtnText;
+                this.disabled = false;
+                deleteModal.hide();
+            });
+        });
+    }
+    /* ==========================================================================
+       17. CRÉATION D'UN EMPLOYÉ (ADMIN) - ASYNCHRONE
+       ========================================================================== */
+    const addEmployeeForm = document.getElementById('add-employee-form');
+
+    if (addEmployeeForm) {
+        addEmployeeForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Empêche le rechargement de la page
+
+            const prenomInput = document.getElementById('prenom');
+            const nomInput = document.getElementById('nom');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            const prenom = prenomInput.value.trim();
+            const nom = nomInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!prenom || !nom || !email || !password) {
+                if (typeof showToast === "function") showToast("Veuillez remplir tous les champs.", "error");
+                return;
+            }
+
+            // Animation d'attente (Envoi de l'e-mail synchrone sur le serveur)
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Création...';
+            submitBtn.disabled = true;
+
+            // Requête Fetch
+            fetch('/admin-add-employee-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ prenom: prenom, nom: nom, email: email, password: password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Restauration du bouton
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    // A. Affichage de la bulle de confirmation près du titre
+                    const popMsg = document.getElementById('pop-staff-msg');
+                    const popText = document.getElementById('pop-staff-text');
+                    if (popMsg && popText) {
+                        popText.innerText = data.message;
+                        popMsg.classList.remove('d-none');
+                        if (window.staffMessageTimeout) clearTimeout(window.staffMessageTimeout);
+                        window.staffMessageTimeout = setTimeout(() => { popMsg.classList.add('d-none'); }, 4000);
+                    }
+
+                    // B. Reset du formulaire de création
+                    addEmployeeForm.reset();
+                    addEmployeeForm.classList.remove('was-validated');
+
+                    // C. Nettoyage de la ligne vide "Aucun compte..."
+                    const emptyRow = document.getElementById('empty-table-row');
+                    if (emptyRow) emptyRow.remove();
+
+                    // D. Insertion dynamique de la nouvelle ligne équipée des classes CSS de marque
+                    const tbody = document.getElementById('employees-table-body');
+                    if (tbody) {
+                        const emp = data.employe;
+                        const newRow = document.createElement('tr');
+                        newRow.className = "border-bottom border-light animate-fade-in";
+                        newRow.id = `row-employe-${emp.utilisateur_id}`;
+
+                        newRow.innerHTML = `
+                            <td class="fw-bold text-brand-brown">
+                                ${emp.prenom} ${emp.nom}
+                            </td>
+                            <td>
+                                <a href="mailto:${emp.email}" class="text-decoration-none text-muted small">
+                                    ${emp.email}
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <button type="button" class="btn btn-sm rounded-pill px-3 py-2 fw-bold btn-async-toggle-staff w-100 btn-status-active" 
+                                            id="status-btn-${emp.utilisateur_id}"
+                                            data-employe-id="${emp.utilisateur_id}" 
+                                            data-est-actif="0">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Actif
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-trigger-delete" 
+                                            data-employe-id="${emp.utilisateur_id}"
+                                            data-employe-nom="${emp.prenom} ${emp.nom}"
+                                            title="Supprimer définitivement"
+                                            style="width: 38px; height: 38px; flex-shrink: 0;">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+
+                        tbody.appendChild(newRow);
+
+                        // E. Liaison des événements AJAX (Toggle & Delete) sur la nouvelle ligne créée
+                        bindEventsToNewRow(newRow);
+                    }
+
+                } else {
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX création employé:", err);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+
+    // Fonction d'aide pour attacher la logique d'activation et de suppression sur la nouvelle ligne
+    function bindEventsToNewRow(row) {
+        // Liaison du clic d'activation/désactivation (Étape 15)
+        const toggleBtn = row.querySelector('.btn-async-toggle-staff');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                window.location.reload(); // Solution ultra-sécurisée à chaud ou ré-exécution de la fonction Fetch
+            });
+        }
+
+        // Liaison du clic sur la corbeille pour ouvrir la modale (Étape 16)
+        const deleteBtn = row.querySelector('.btn-trigger-delete');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                employeIdToDelete = this.getAttribute('data-employe-id');
+                const employeNom = this.getAttribute('data-employe-nom');
+                const nameElement = document.getElementById('delete-employee-name');
+                if (nameElement) nameElement.innerText = employeNom;
+                if (deleteModal) deleteModal.show();
+            });
+        }
+    }
 });

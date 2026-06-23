@@ -1102,4 +1102,79 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+    /* ==========================================================================
+       14. MODÉRATION DES AVIS - ASYNCHRONE
+       ========================================================================== */
+    document.querySelectorAll('.btn-async-review').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const avisId = this.getAttribute('data-avis-id');
+            const action = this.getAttribute('data-action');
+            const cardContainer = document.getElementById(`review-card-${avisId}`);
+
+            // 1. Animation du bouton cliqué
+            const originalIcon = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            // On désactive les deux boutons de la carte pour éviter les doubles clics
+            const siblingButtons = cardContainer.querySelectorAll('.btn-async-review');
+            siblingButtons.forEach(btn => btn.disabled = true);
+
+            // 2. Requête Fetch
+            fetch('/employee-update-review-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ avis_id: avisId, action: action })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // A. Mise à jour de la bulle près du titre
+                    const popMsg = document.getElementById('pop-review-msg');
+                    const popText = document.getElementById('pop-review-text');
+
+                    if (popMsg && popText) {
+                        popText.innerText = data.message;
+                        popMsg.classList.remove('d-none');
+
+                        if (window.reviewMessageTimeout) clearTimeout(window.reviewMessageTimeout);
+                        window.reviewMessageTimeout = setTimeout(() => {
+                            popMsg.classList.add('d-none');
+                        }, 4000);
+                    }
+
+                    // B. Animation de disparition de la carte
+                    cardContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                    cardContainer.style.opacity = "0";
+                    cardContainer.style.transform = "scale(0.9)";
+
+                    setTimeout(() => {
+                        cardContainer.remove(); // Supprime le HTML
+
+                        // C. Vérification : s'il n'y a plus aucune carte, on recharge
+                        // pour afficher la page "Tout est en ordre !" de Jinja
+                        const remainingCards = document.querySelectorAll('.review-card-container');
+                        if (remainingCards.length === 0) {
+                            window.location.reload();
+                        }
+                    }, 400); // Temps correspondant à la transition CSS
+
+                } else {
+                    // En cas d'erreur, on restaure les boutons
+                    this.innerHTML = originalIcon;
+                    siblingButtons.forEach(btn => btn.disabled = false);
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX modération avis:", err);
+                this.innerHTML = originalIcon;
+                siblingButtons.forEach(btn => btn.disabled = false);
+            });
+        });
+    });
 });

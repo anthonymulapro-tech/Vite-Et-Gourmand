@@ -840,13 +840,26 @@ def employee_reviews():
     return render_template('employee/reviews.html', avis_list=avis_en_attente)
 
 
-@app.route('/employee/reviews/<int:avis_id>/<string:action>', methods=['POST'])
-def handle_review_action(avis_id, action):
+@app.route('/employee-update-review-async', methods=['POST'])
+def handle_review_action_async():
+    # 1. Sécurité
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Détermination du nouveau statut
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    avis_id = data.get('avis_id')
+    action = data.get('action')  # 'approve' ou 'reject'
+
+    if not avis_id or action not in ['approve', 'reject']:
+        return jsonify({"success": False, "message": "Données invalides."})
+
+    # 3. Traitement
     nouveau_statut = 'Validé' if action == 'approve' else 'Refusé'
+    message_succes = "Avis approuvé avec succès !" if action == 'approve' else "Avis refusé et masqué."
 
     connection = get_connection()
     try:
@@ -855,15 +868,14 @@ def handle_review_action(avis_id, action):
             cursor.execute(sql, (nouveau_statut, avis_id))
         connection.commit()
 
-        if nouveau_statut == 'Validé':
-            flash("L'avis a été approuvé et est maintenant visible sur la page d'accueil !", "success")
-        else:
-            flash("L'avis a été refusé et masqué.", "success")
+        return jsonify({"success": True, "message": message_succes})
 
+    except Exception as e:
+        print(f"Erreur SQL lors de la mise à jour asynchrone de l'avis : {e}")
+        return jsonify({"success": False, "message": "Erreur technique serveur."})
     finally:
-        connection.close()
-
-    return redirect(url_for('employee_reviews'))
+        if connection:
+            connection.close()
 
 
 @app.route('/employee/menu')

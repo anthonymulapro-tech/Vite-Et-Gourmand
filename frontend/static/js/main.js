@@ -1502,4 +1502,96 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+    /* ==========================================================================
+       19. SOUMISSION ASYNCHRONE DU FORMULAIRE DE CONTACT (Page Accueil)
+       ========================================================================== */
+    const contactForm = document.getElementById('async-contact-form');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const rgpdErrorBadge = document.getElementById('pop-rgpd-error');
+
+            // 1. Déclenchement manuel des validations visuelles de Bootstrap
+            if (!contactForm.checkValidity()) {
+                e.stopPropagation();
+                contactForm.classList.add('was-validated');
+
+                // --- Vérification spécifique de la case RGPD ---
+                const rgpdCheckbox = document.getElementById('rgpd');
+                if (rgpdCheckbox && !rgpdCheckbox.checked) {
+                    if (rgpdErrorBadge) {
+                        rgpdErrorBadge.classList.remove('d-none'); // Affiche l'erreur à gauche
+
+                        // Disparition de la bulle d'erreur après 4 secondes
+                        if (window.rgpdErrorTimeout) clearTimeout(window.rgpdErrorTimeout);
+                        window.rgpdErrorTimeout = setTimeout(() => {
+                            rgpdErrorBadge.classList.add('d-none');
+                        }, 4000);
+                    }
+                }
+                return; // STOP
+            }
+
+            // Si tout est valide, on s'assure que l'erreur est bien cachée avant d'envoyer
+            if (rgpdErrorBadge) rgpdErrorBadge.classList.add('d-none');
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            // 2. Animation d'attente
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Envoi en cours...';
+            submitBtn.disabled = true;
+
+            // 3. Captation automatique de tous les inputs via FormData
+            const formData = new FormData(this);
+
+            // 4. Envoi via Fetch
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData // Envoie directement du FormData (pas besoin de JSON.stringify)
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Restauration du bouton
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    // A. Fait apparaître la bulle de succès près du titre
+                    const popMsg = document.getElementById('pop-contact-msg');
+                    const popText = document.getElementById('pop-contact-text');
+
+                    if (popMsg && popText) {
+                        popText.innerText = data.message;
+                        popMsg.classList.remove('d-none');
+
+                        // Minuteur pour faire disparaître la bulle
+                        if (window.contactMessageTimeout) clearTimeout(window.contactMessageTimeout);
+                        window.contactMessageTimeout = setTimeout(() => {
+                            popMsg.classList.add('d-none');
+                        }, 5000); // Reste visible 5 secondes
+                    }
+
+                    // B. Vide le formulaire pour une éventuelle prochaine saisie
+                    contactForm.reset();
+                    contactForm.classList.remove('was-validated');
+
+                } else {
+                    // Si le Python renvoie une erreur métier
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX Formulaire Contact:", err);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                if (typeof showToast === "function") showToast("Erreur serveur. Veuillez réessayer.", "error");
+            });
+        });
+    }
 });

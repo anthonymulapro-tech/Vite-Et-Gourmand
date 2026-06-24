@@ -65,9 +65,10 @@
     </section>
 
     <section id="contact-section" class="vg-box vg-box-padded vg-layout-margins mb-4">
-        <h2 class="box-title font-pacifico">Contactez-nous !</h2>
 
-        <form action="{{ url_for('contact') }}" method="POST" class="contact-form px-md-4 mt-4 needs-validation" novalidate>
+        <h2 class="box-title font-pacifico text-center mb-4">Contactez-nous !</h2>
+
+        <form id="async-contact-form" action="{{ url_for('contact_async') }}" method="POST" class="contact-form px-md-4 mt-4 needs-validation" novalidate>
 
             <div class="mb-3">
                 <input type="text" class="form-control custom-input" id="motif" name="motif" placeholder="Motif de votre demande" required>
@@ -92,13 +93,26 @@
             <div class="form-check mb-4 d-flex align-items-center gap-2">
                 <input class="form-check-input custom-checkbox" type="checkbox" id="rgpd" name="rgpd" required>
                 <label class="form-check-label text-brand-brown fw-semibold small mb-0" for="rgpd">
-                    Cochez pour accepter que vos données soient utilisées
+                    Cochez pour accepter que vos données soient utilisées et soumettre votre demande
                 </label>
             </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-vg fs-4 px-5 py-3 rounded-pill">Envoyez !</button>
-            </div>
+            <div class="text-center mt-4">
+
+                <div class="position-relative d-inline-block">
+
+                    <span id="pop-rgpd-error" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 end-100 translate-middle-y me-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Veuillez cocher la case ci-dessus pour soumettre votre demande
+                    </span>
+
+                    <button type="submit" class="btn btn-vg fs-4 px-5 py-3 rounded-pill">Envoyez !</button>
+
+                    <span id="pop-contact-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-3" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                        <i class="bi bi-check-circle-fill me-1"></i> <span id="pop-contact-text">Message envoyé !</span>
+                    </span>
+
+                </div>
+
         </form>
     </section>
 </div>

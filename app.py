@@ -97,22 +97,22 @@ def home():
 
 # Route de contact (Soumission de formulaire)
 @app.route('/contact', methods=['POST'])
-def contact():
-    # Récupération directe via les attributs "name" harmonisés avec le SQL
+def contact_async():
+    # Sécurité : On s'assure que la requête vient bien du script JS (AJAX)
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."}), 400
+
+    # L'objet JS FormData envoie les données exactement de la même manière qu'un formulaire classique
     motif = request.form.get('motif')
     prenom = request.form.get('prenom_contact')
     nom = request.form.get('nom_contact')
     email = request.form.get('email_contact')
     description = request.form.get('description_contact')
 
-    # Double validation de sécurité côté serveur (Python)
     if not motif or not prenom or not nom or not email or not description:
-        flash("Veuillez remplir tous les champs du formulaire.", "error")
-        return redirect(url_for('home'))
-    # Ouverture BDD (POO)
-    db = get_connection()
+        return jsonify({"success": False, "message": "Veuillez remplir tous les champs du formulaire."})
 
-    # Tentative d'enregistrement dans la table message_contact
+    db = get_connection()
     try:
         contact_repo = ContactRepository(db)
 
@@ -123,8 +123,8 @@ def contact():
             description_contact=description,
             email_contact=email
         )
+
         if success:
-             # E-mail de notification
             send_html_email(
                 subject=f"🧠 [Contact] {motif} - {prenom} {nom}",
                 recipient="admin@viteetgourmand.fr",
@@ -135,19 +135,19 @@ def contact():
                 email=email,
                 description=description
             )
-            flash("Votre message a bien été envoyé ! Nous vous répondrons très rapidement.", "success")
+            return jsonify({
+                "success": True,
+                "message": "Votre message a bien été envoyé ! Nous vous répondrons très rapidement."
+            })
         else:
-            flash("Une erreur technique est survenue lors de l'envoi.", "error")
+            return jsonify({"success": False, "message": "Une erreur technique est survenue lors de l'envoi."})
+
     except Exception as e:
         print(f"Erreur d'insertion du message de contact : {e}")
-        flash("Impossible d'envoyer le message. Service indisponible.", "error")
-
+        return jsonify({"success": False, "message": "Impossible d'envoyer le message. Service indisponible."})
     finally:
-        # Fermeture connexion
         if db:
             db.close()
-
-    return redirect(url_for('home'))
 
 
 # Route d'affichage des menus (Dynamique SQL)
@@ -437,6 +437,80 @@ def order_details():
                            total_delivery=total_delivery,
                            min_date=min_date,
                            user=current_user)
+
+# ==========================================================================
+#                           PANIER ASYNCHRONE
+# ==========================================================================
+@app.route('/update-cart-async', methods=['POST'])
+def update_cart_async():
+    # Sécurité : on n'accepte que les requêtes venant du JavaScript
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    data = request.get_json()
+    id_menu = int(data.get('id_menu'))
+    action = data.get('action')  # 'plus', 'minus', ou 'remove'
+
+    panier = session.get('panier', [])
+
+    # Chercher l'article dans le panier
+    index_article = next((i for i, item in enumerate(panier) if item['id_menu'] == id_menu), None)
+
+    if index_article is None:
+        return jsonify({"success": False, "message": "Article introuvable."})
+
+    item = panier[index_article]
+
+    # Récupérer les infos du menu en BDD (pour la quantité min et les remises)
+    db = get_connection()
+    try:
+        menu_detail_repo = MenuDetailRepository(db)
+        menu = menu_detail_repo.get_menu_details(id_menu)
+    finally:
+        if db:
+            db.close()
+
+    # Appliquer l'action
+    if action == 'remove':
+        panier.pop(index_article)
+    else:
+        if action == 'plus':
+            item['quantity'] += 1
+        elif action == 'minus':
+            item['quantity'] -= 1
+            if item['quantity'] < menu['nombre_personne_min']:
+                item['quantity'] = menu['nombre_personne_min']  # Sécurité : on bloque au minimum
+
+        # Recalcul via service POO
+        prix_calcules = CartService.calculer_prix_total(
+            quantite=item['quantity'],
+            prix_unitaire=float(menu['prix_par_personne']),
+            min_convives=menu['nombre_personne_min'],
+            seuil_reduction=menu['seuil_reduction'],
+            pourcentage_reduction=menu['pourcentage_reduction']
+        )
+        item['prix_brut'] = prix_calcules['prix_brut']
+        item['remise'] = prix_calcules['remise']
+        item['total_price'] = prix_calcules['prix_final']
+
+    session.modified = True
+
+    # Si le panier est vide, on prévient le JS pour qu'il recharge la page
+    if len(panier) == 0:
+        return jsonify({"success": True, "cart_empty": True})
+
+    # Recalcul des totaux globaux du panier
+    new_subtotal = sum(i['total_price'] for i in panier)  # Assumant que subtotal = somme des prix finaux
+    new_discount = sum(i['remise'] for i in panier)
+
+    return jsonify({
+        "success": True,
+        "new_qty": item['quantity'] if action != 'remove' else 0,
+        "new_line_total": "{:.2f}".format(item['total_price']) if action != 'remove' else 0,
+        "new_subtotal": "{:.2f}".format(new_subtotal),
+        "new_discount": "{:.2f}".format(new_discount),
+        "cart_count": len(panier)
+    })
 
 
 @app.route('/confirm-order', methods=['POST'])
@@ -1295,7 +1369,7 @@ def admin_sync_data_async():
         return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
         if db: db.close()
-        
+
 # ==========================================================================
 #                       MOT DE PASSE
 # ==========================================================================
@@ -1376,81 +1450,6 @@ def reset_password():
             flash("Connexion à la base de données impossible.", "error")
 
     return render_template('auth/reset_password.html', email=email)
-
-
-# ==========================================================================
-#                           PANIER ASYNCHRONE
-# ==========================================================================
-@app.route('/update-cart-async', methods=['POST'])
-def update_cart_async():
-    # Sécurité : on n'accepte que les requêtes venant du JavaScript
-    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
-        return jsonify({"success": False, "message": "Requête invalide."})
-
-    data = request.get_json()
-    id_menu = int(data.get('id_menu'))
-    action = data.get('action')  # 'plus', 'minus', ou 'remove'
-
-    panier = session.get('panier', [])
-
-    # Chercher l'article dans le panier
-    index_article = next((i for i, item in enumerate(panier) if item['id_menu'] == id_menu), None)
-
-    if index_article is None:
-        return jsonify({"success": False, "message": "Article introuvable."})
-
-    item = panier[index_article]
-
-    # Récupérer les infos du menu en BDD (pour la quantité min et les remises)
-    db = get_connection()
-    try:
-        menu_detail_repo = MenuDetailRepository(db)
-        menu = menu_detail_repo.get_menu_details(id_menu)
-    finally:
-        if db:
-            db.close()
-
-    # Appliquer l'action
-    if action == 'remove':
-        panier.pop(index_article)
-    else:
-        if action == 'plus':
-            item['quantity'] += 1
-        elif action == 'minus':
-            item['quantity'] -= 1
-            if item['quantity'] < menu['nombre_personne_min']:
-                item['quantity'] = menu['nombre_personne_min']  # Sécurité : on bloque au minimum
-
-        # Recalcul via service POO
-        prix_calcules = CartService.calculer_prix_total(
-            quantite=item['quantity'],
-            prix_unitaire=float(menu['prix_par_personne']),
-            min_convives=menu['nombre_personne_min'],
-            seuil_reduction=menu['seuil_reduction'],
-            pourcentage_reduction=menu['pourcentage_reduction']
-        )
-        item['prix_brut'] = prix_calcules['prix_brut']
-        item['remise'] = prix_calcules['remise']
-        item['total_price'] = prix_calcules['prix_final']
-
-    session.modified = True
-
-    # Si le panier est vide, on prévient le JS pour qu'il recharge la page
-    if len(panier) == 0:
-        return jsonify({"success": True, "cart_empty": True})
-
-    # Recalcul des totaux globaux du panier
-    new_subtotal = sum(i['total_price'] for i in panier)  # Assumant que subtotal = somme des prix finaux
-    new_discount = sum(i['remise'] for i in panier)
-
-    return jsonify({
-        "success": True,
-        "new_qty": item['quantity'] if action != 'remove' else 0,
-        "new_line_total": "{:.2f}".format(item['total_price']) if action != 'remove' else 0,
-        "new_subtotal": "{:.2f}".format(new_subtotal),
-        "new_discount": "{:.2f}".format(new_discount),
-        "cart_count": len(panier)
-    })
 
 # ==========================================================================
 #                       MENTIONS LEGALES ET CVG

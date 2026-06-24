@@ -62,21 +62,23 @@
             <td>
                 {% if order.pret_materiel %}
                     <div class="d-flex align-items-center gap-2">
-                        {% if order.restitution_materiel %}
-                            <span class="badge rounded-pill px-2 py-1" style="background-color: #198754 !important; color: var(--bg-cream) !important; font-size: 0.75rem;">
-                                <i class="bi bi-box-seam-fill me-1"></i> Matériel Rendu
-                            </span>
-                        {% else %}
-                            <span class="badge vg-box rounded-pill px-2 py-1">
-                                <i class="bi bi-exclamation-octagon-fill me-1"></i> À Récupérer
-                            </span>
-                        {% endif %}
+
+                        <div id="material-badge-container-{{ order.commande_id }}">
+                            {% if order.restitution_materiel %}
+                                <span class="badge rounded-pill px-2 py-1" style="background-color: #198754 !important; color: var(--bg-cream) !important; font-size: 0.75rem;">
+                                    <i class="bi bi-box-seam-fill me-1"></i> Matériel Rendu
+                                </span>
+                            {% else %}
+                                <span class="badge vg-box rounded-pill px-2 py-1">
+                                    <i class="bi bi-exclamation-octagon-fill me-1"></i> À Récupérer
+                                </span>
+                            {% endif %}
+                        </div>
 
                         <div class="form-check m-0" title="Cocher si le matériel est bien revenu en cuisine">
                             <input class="form-check-input custom-checkbox" type="checkbox" name="restitution_materiel" value="1"
-                                   form="form_order_{{ order.commande_id }}" id="rest_Check_{{ order.commande_id }}"
+                                   id="rest_Check_{{ order.commande_id }}"
                                    {% if order.restitution_materiel %}checked{% endif %}
-                                   {% if order.statut_commande != 'Terminée' %}disabled{% endif %}
                                    style="border: 2px solid var(--brand-brown) !important; width: 1.1rem; height: 1.1rem; cursor: pointer;">
                         </div>
                     </div>
@@ -85,7 +87,7 @@
                 {% endif %}
             </td>
 
-            <td>
+            <td id="badge-container-{{ order.commande_id }}">
                 {% if order.statut_commande == 'En attente' %}
                     <span class="badge rounded-pill w-100 py-2" style="background-color: #6c757d !important; color: var(--bg-cream) !important;">En attente</span>
                 {% elif order.statut_commande == 'En préparation' %}
@@ -102,40 +104,30 @@
             </td>
 
             <td class="text-center">
-    <form action="{{ url_for('employee_update_order', commande_id=order.commande_id) }}" method="POST" id="form_order_{{ order.commande_id }}" class="d-flex align-items-center gap-2 justify-content-center">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-sm vg-box text-brand-brown dropdown-toggle fw-semibold status-dropdown-btn"
+                            type="button"
+                            id="dropdownMenuButton_{{ order.commande_id }}"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem; min-width: 140px;">
+                        {{ order.statut_commande }}
+                    </button>
 
-        <div class="dropdown">
-            <button class="btn btn-sm vg-box text-brand-brown dropdown-toggle fw-semibold status-dropdown-btn"
-                    type="button"
-                    id="dropdownMenuButton_{{ order.commande_id }}"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; font-size: 0.85rem; min-width: 140px;">
-                {{ order.statut_commande }}
-            </button>
-
-            <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1" aria-labelledby="dropdownMenuButton_{{ order.commande_id }}" style="background-color: #fcf9f5;">
-                {% set statuts = ['En attente', 'En préparation', 'En livraison', 'Livrée', 'Terminée', 'Annulé'] %}
-                {% for statut in statuts %}
-                    <li>
-                        <a class="dropdown-item text-brand-brown fw-semibold rounded-2 status-link"
-                           href="#"
-                           data-value="{{ statut }}"
-                           data-order-id="{{ order.commande_id }}">
-                            {{ statut }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-
-            <input type="hidden" name="statut_commande" id="input_status_{{ order.commande_id }}" value="{{ order.statut_commande }}">
-        </div>
-
-        <button type="submit" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold" title="Enregistrer l'état de la commande">
-            <i class="bi bi-floppy"></i>
-        </button>
-    </form>
-</td>
+                    <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1" aria-labelledby="dropdownMenuButton_{{ order.commande_id }}" style="background-color: #fcf9f5;">
+                        {% set statuts = ['En attente', 'En préparation', 'En livraison', 'Livrée', 'Terminée', 'Annulé'] %}
+                        {% for statut in statuts %}
+                            <li>
+                                <button class="dropdown-item text-brand-brown fw-semibold rounded-2 btn-async-status"
+                                        data-value="{{ statut }}"
+                                        data-order-id="{{ order.commande_id }}">
+                                    {{ statut }}
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
 
         </tr>
         {% endfor %}

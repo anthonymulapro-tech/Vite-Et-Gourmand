@@ -14,32 +14,39 @@
     </div>
 
     <div class="text-center mb-5">
-        <h1 class="title-brand d-block mb-4">Statistiques des ventes</h1>
+        <div class="position-relative d-inline-block">
+            <h1 class="title-brand d-block mb-4">Statistiques des ventes</h1>
+            <span id="pop-data-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                <i class="bi bi-info-circle-fill me-1"></i> <span id="pop-data-text">Données à jour !</span>
+            </span>
+        </div>
         <p class="fs-5 text-brand-brown">
             Analyse des performances de vente.
         </p>
 
-    <div class="mt-4 mb-5 d-flex justify-content-center w-100">
-    <div class="dropdown">
-        <button class="btn vg-box text-brand-brown dropdown-toggle fw-bold shadow-sm px-4 py-2"
-                type="button" id="dropdownFiltrePeriode" data-bs-toggle="dropdown" aria-expanded="false"
-                style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; min-width: 220px;">
-            <i class="bi bi-calendar-range me-2"></i>
-            {% if periode_actuelle == '30j' %}30 derniers jours
-            {% elif periode_actuelle == '7j' %}7 derniers jours
-            {% else %}Depuis toujours{% endif %}
-        </button>
+        <div class="mt-4 mb-5 d-flex justify-content-center w-100">
+            <div class="dropdown">
+                <button class="btn vg-box text-brand-brown dropdown-toggle fw-bold shadow-sm px-4 py-2"
+                        type="button" id="dropdownFiltrePeriode" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="background-color: var(--brand-gold) !important; border: 2px solid var(--brand-brown) !important; min-width: 220px;">
+                    <i class="bi bi-calendar-range me-2"></i>
+                    <span id="texte-periode-actuelle">
+                        {% if periode_actuelle == '30j' %}30 derniers jours
+                        {% elif periode_actuelle == '7j' %}7 derniers jours
+                        {% else %}Depuis toujours{% endif %}
+                    </span>
+                </button>
 
-        <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1"
-            aria-labelledby="dropdownFiltrePeriode"
-            style="background-color: #fcf9f5;">
-
-            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='all') }}">Depuis toujours</a></li>
-            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='30j') }}">30 derniers jours</a></li>
-            <li><a class="dropdown-item text-brand-brown fw-semibold rounded-2" href="{{ url_for('admin_data_dashboard', periode='7j') }}">7 derniers jours</a></li>
-        </ul>
+                <ul class="dropdown-menu vg-box border-2 border-brand-brown shadow-sm p-1"
+                    aria-labelledby="dropdownFiltrePeriode"
+                    style="background-color: #fcf9f5;">
+                    <li><button type="button" class="dropdown-item text-brand-brown fw-semibold rounded-2 btn-async-filter" data-periode="all" data-label="Depuis toujours">Depuis toujours</button></li>
+                    <li><button type="button" class="dropdown-item text-brand-brown fw-semibold rounded-2 btn-async-filter" data-periode="30j" data-label="30 derniers jours">30 derniers jours</button></li>
+                    <li><button type="button" class="dropdown-item text-brand-brown fw-semibold rounded-2 btn-async-filter" data-periode="7j" data-label="7 derniers jours">7 derniers jours</button></li>
+                </ul>
+            </div>
+        </div>
     </div>
-</div>
 
     <div class="row g-4">
         <div class="col-lg-6">
@@ -63,13 +70,13 @@
                 </div>
             </div>
         </div>
-        <form action="{{ url_for('admin_sync_data') }}" method="POST" class="d-inline-block mt-2">
-            <button type="submit" class="btn btn-vg rounded-pill fw-bold shadow-sm px-4">
+
+        <div class="text-center mt-4">
+            <button type="button" id="btn-async-sync" class="btn btn-vg rounded-pill fw-bold shadow-sm px-4">
                 <i class="bi bi-arrow-repeat me-2"></i> Synchroniser les données
             </button>
-        </form>
-        <p class="small text-muted mt-2">Cliquez pour mettre à jour l'entrepôt NoSQL avec les dernières commandes validées.</p>
-    </div>
+            <p class="small text-muted mt-2">Cliquez pour mettre à jour l'entrepôt NoSQL avec les dernières commandes validées.</p>
+        </div>
     </div>
 </div>
 
@@ -77,22 +84,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // 1. Récupération propre via le dataset HTML
+    // 1. Récupération initiale via le dataset HTML
     const dataElement = document.getElementById('chart-data');
     const rawData = JSON.parse(dataElement.dataset.nosql);
 
-    // Palette de couleurs
-    const bgColors = [
-        '#885420', // --brand-brown
-        '#FFCB97', // --brand-peach
-        '#FFEDC5', // --bg-cream
-        '#757575'  // --text-muted-custom
-    ];
+    // Palette de couleurs globale
+    const bgColors = ['#885420', '#FFCB97', '#FFEDC5', '#757575'];
 
-
-    // 2. Configuration du Graphique des Quantités (Bar Chart)
+    // 2. Initialisation des Graphiques en variables globales
     const ctxQuantite = document.getElementById('chartQuantite').getContext('2d');
-    new Chart(ctxQuantite, {
+    const chartQuantiteInst = new Chart(ctxQuantite, {
         type: 'bar',
         data: {
             labels: rawData.quantite.labels,
@@ -111,18 +112,13 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, ticks: { precision: 0 } }
-            },
-            plugins: {
-                legend: { display: false }
-            }
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            plugins: { legend: { display: false } }
         }
     });
 
-    // 3. Configuration du Graphique du Chiffre d'Affaires (Doughnut Chart)
     const ctxCA = document.getElementById('chartCA').getContext('2d');
-    new Chart(ctxCA, {
+    const chartCAInst = new Chart(ctxCA, {
         type: 'doughnut',
         data: {
             labels: rawData.ca.labels,
@@ -156,5 +152,94 @@
             }
         }
     });
+
+    // 3. Fonction de mise à jour des graphiques
+    function updateCharts(newData) {
+        // Mise à jour Bar Chart (Quantité)
+        chartQuantiteInst.data.labels = newData.quantite.labels;
+        chartQuantiteInst.data.datasets[0].data = newData.quantite.data;
+        chartQuantiteInst.update(); // Animation fluide native de Chart.js
+
+        // Mise à jour Doughnut Chart (CA)
+        chartCAInst.data.labels = newData.ca.labels;
+        chartCAInst.data.datasets[0].data = newData.ca.data;
+        chartCAInst.update();
+    }
+
+    // 4. Fonction pour afficher la bulle de notification
+    function showDataBubble(message) {
+        const popMsg = document.getElementById('pop-data-msg');
+        const popText = document.getElementById('pop-data-text');
+        if (popMsg && popText) {
+            popText.innerText = message;
+            popMsg.classList.remove('d-none');
+            if (window.dataMessageTimeout) clearTimeout(window.dataMessageTimeout);
+            window.dataMessageTimeout = setTimeout(() => { popMsg.classList.add('d-none'); }, 4000);
+        }
+    }
+
+    // 5. Gestion asynchrone des Filtres de période
+    document.querySelectorAll('.btn-async-filter').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const periode = this.getAttribute('data-periode');
+            const label = this.getAttribute('data-label');
+
+            // Mise à jour visuelle du bouton dropdown
+            document.getElementById('texte-periode-actuelle').innerText = label;
+
+            fetch(`/admin-fetch-data-async?periode=${periode}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCharts(data.nosql_data);
+                    }
+                })
+                .catch(err => console.error("Erreur Fetch Data:", err));
+        });
+    });
+
+    // 6. Gestion asynchrone de la Synchronisation
+    const btnSync = document.getElementById('btn-async-sync');
+    if (btnSync) {
+        btnSync.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const originalBtnHtml = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Synchronisation...';
+            this.disabled = true;
+
+            fetch('/admin-sync-data-async', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.innerHTML = originalBtnHtml;
+                this.disabled = false;
+
+                if (data.success) {
+                    showDataBubble(data.message);
+                    // Rechargement automatique du graphique avec la période actuellement sélectionnée
+                    const currentPeriodeBtn = document.querySelector('.btn-async-filter.active') || document.querySelector('.btn-async-filter[data-periode="all"]');
+                    const periodeVal = currentPeriodeBtn ? currentPeriodeBtn.getAttribute('data-periode') : 'all';
+
+                    fetch(`/admin-fetch-data-async?periode=${periodeVal}`)
+                        .then(res => res.json())
+                        .then(freshData => { if(freshData.success) updateCharts(freshData.nosql_data); });
+                } else {
+                    if (typeof showToast === "function") showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Erreur Sync Data:", err);
+                this.innerHTML = originalBtnHtml;
+                this.disabled = false;
+            });
+        });
+    }
 </script>
 {% endblock %}

@@ -13,8 +13,15 @@
 
     {% if cart_items %}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+   <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
         <h2 class="title-brand mb-0" style="color: var(--brand-brown);">Votre panier !</h2>
+
+        <span id="pop-remove-msg" class="fw-bold fs-6 d-none p-2 rounded-pill shadow-sm" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown);">
+            <i class="bi bi-check-circle-fill me-1"></i> Le menu a été retiré.
+        </span>
+    </div>
+
         <a href="{{ url_for('menus_page') }}" class="btn btn-vg px-3 py-2 rounded-2">
             <i class="bi bi-arrow-left"></i> Retour aux menus
         </a>
@@ -34,26 +41,43 @@
                                 <th>Total Ligne</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="cart-tbody">
                             {% for item in cart_items %}
-                            <tr>
-                                <td><strong>{{ item.name }}</strong></td>
-                                <td>{{ item.quantity }}</td>
+                            <tr id="row-{{ item.id_menu }}">
+                                <td>
+                                    <strong>{{ item.name }}</strong><br>
+                                    <button type="button" class="btn btn-sm p-0 mt-1 btn-remove-item btn-trash-custom" data-id="{{ item.id_menu }}">
+                                        <i class="bi bi-trash"></i> Supprimer
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm cart-qty-group" style="width: 110px;">
+                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="minus" data-id="{{ item.id_menu }}">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+
+                                        <input type="text" class="form-control text-center fw-bold text-brand-brown" id="qty-{{ item.id_menu }}" value="{{ item.quantity }}" readonly>
+
+                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="plus" data-id="{{ item.id_menu }}">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 <td>{{ item.price }} €</td>
-                                <td>{{ item.total_price }} €</td>
+                                <td>
+                                    <strong id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> €
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
 
-
                <div class="d-flex justify-content-end mb-4 mt-2">
-                    <a href="{{ url_for('clear_cart') }}" class="btn btn-vg px-3 py-2 rounded-2" onclick="return confirm('Voulez-vous vraiment vider tout votre panier ?');">
+                    <button type="button" class="btn btn-vg px-3 py-2 rounded-2" data-bs-toggle="modal" data-bs-target="#confirmClearCartModal">
                         <i class="bi bi-trash"></i> Vider le panier
-                    </a>
+                    </button>
                 </div>
-
 
                 <div class="card shadow-sm mb-4 vg-box">
                     <div class="card-body">
@@ -108,7 +132,7 @@
                             <strong><span id="display_subtotal">{{ subtotal }}</span> €</strong>
                         </div>
 
-                        <div class="d-flex justify-content-between mb-2 {% if total_discount == 0 %}d-none{% endif %}" id="discount_row">
+                        <div class="d-flex justify-content-between mb-2 text-success {% if total_discount == 0 %}d-none{% endif %}" id="discount_row">
                             <span>Remise appliquée :</span>
                             <strong>- <span id="display_discount">{{ total_discount }}</span> €</strong>
                         </div>
@@ -138,8 +162,63 @@
             Découvrez nos menus
         </a>
     </div>
-    {% endif %}
 </div>
-{% endblock %} {% block extra_js %}
+    {% endif %}
+
+
+<div class="modal fade" id="confirmClearCartModal" tabindex="-1" aria-labelledby="clearCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-cream); border: 2px solid var(--brand-brown) !important; border-radius: 15px;">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="clearCartModalLabel" style="color: var(--brand-brown);">Vider le panier ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body fw-medium" style="color: var(--brand-brown);">
+                Êtes-vous sûr de vouloir retirer tous les menus de votre panier ? Cette action est irréversible.
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-modal-cancel px-3 py-2 rounded-2" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" id="btn-confirm-clear-cart" class="btn btn-modal-confirm px-3 py-2 rounded-2">
+                    Oui, tout vider
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmRemoveItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-cream); border: 2px solid var(--brand-brown) !important; border-radius: 15px;">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" style="color: var(--brand-brown);">Retirer ce menu ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body fw-medium" style="color: var(--brand-brown);">
+                Êtes-vous sûr de vouloir retirer ce menu de votre panier ?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-modal-cancel px-3 py-2 rounded-2" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" id="btn-confirm-remove-item" class="btn btn-modal-confirm px-3 py-2 rounded-2">
+                    Oui, retirer
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

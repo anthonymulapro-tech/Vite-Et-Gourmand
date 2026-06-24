@@ -2,7 +2,7 @@ import os
 import stripe
 
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
@@ -97,22 +97,22 @@ def home():
 
 # Route de contact (Soumission de formulaire)
 @app.route('/contact', methods=['POST'])
-def contact():
-    # Récupération directe via les attributs "name" harmonisés avec le SQL
+def contact_async():
+    # Sécurité : On s'assure que la requête vient bien du script JS (AJAX)
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."}), 400
+
+    # L'objet JS FormData envoie les données exactement de la même manière qu'un formulaire classique
     motif = request.form.get('motif')
     prenom = request.form.get('prenom_contact')
     nom = request.form.get('nom_contact')
     email = request.form.get('email_contact')
     description = request.form.get('description_contact')
 
-    # Double validation de sécurité côté serveur (Python)
     if not motif or not prenom or not nom or not email or not description:
-        flash("Veuillez remplir tous les champs du formulaire.", "error")
-        return redirect(url_for('home'))
-    # Ouverture BDD (POO)
-    db = get_connection()
+        return jsonify({"success": False, "message": "Veuillez remplir tous les champs du formulaire."})
 
-    # Tentative d'enregistrement dans la table message_contact
+    db = get_connection()
     try:
         contact_repo = ContactRepository(db)
 
@@ -123,8 +123,8 @@ def contact():
             description_contact=description,
             email_contact=email
         )
+
         if success:
-             # E-mail de notification
             send_html_email(
                 subject=f"🧠 [Contact] {motif} - {prenom} {nom}",
                 recipient="admin@viteetgourmand.fr",
@@ -135,19 +135,19 @@ def contact():
                 email=email,
                 description=description
             )
-            flash("Votre message a bien été envoyé ! Nous vous répondrons très rapidement.", "success")
+            return jsonify({
+                "success": True,
+                "message": "Votre message a bien été envoyé ! Nous vous répondrons très rapidement."
+            })
         else:
-            flash("Une erreur technique est survenue lors de l'envoi.", "error")
+            return jsonify({"success": False, "message": "Une erreur technique est survenue lors de l'envoi."})
+
     except Exception as e:
         print(f"Erreur d'insertion du message de contact : {e}")
-        flash("Impossible d'envoyer le message. Service indisponible.", "error")
-
+        return jsonify({"success": False, "message": "Impossible d'envoyer le message. Service indisponible."})
     finally:
-        # Fermeture connexion
         if db:
             db.close()
-
-    return redirect(url_for('home'))
 
 
 # Route d'affichage des menus (Dynamique SQL)
@@ -306,6 +306,8 @@ def add_to_cart():
     try:
         quantite = int(raw_quantity)
     except (ValueError, TypeError):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Quantité invalide."})
         return redirect(url_for('menus_page'))
 
     db = get_connection()
@@ -317,6 +319,8 @@ def add_to_cart():
             db.close()
 
     if not menu:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Menu introuvable."})
         return redirect(url_for('menus_page'))
 
     # Récupération des 3 prix calculés via le Service POO
@@ -343,6 +347,20 @@ def add_to_cart():
     })
 
     session.modified = True
+
+    # ==========================================
+    # GESTION ASYNCHRONE (AJAX) vs SYNCHRONE
+    # ==========================================
+    # Si la requête contient ce header, c'est que c'est notre JavaScript (fetch) qui parle
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        nombre_articles = len(session.get('panier', []))
+        return jsonify({
+            "success": True,
+            "cart_count": nombre_articles
+        })
+
+    # Si le JS est désactivé sur le navigateur du client, on garde l'ancien comportement (Sécurité)
+    flash("Le menu a été ajouté à votre panier.", "success")
     return redirect(url_for('cart'))
 
 
@@ -359,14 +377,16 @@ def cart():
     return render_template('cart.html', cart_items=cart_items, subtotal=subtotal, total_discount=total_discount)
 
 
-@app.route('/clear-cart')
-def clear_cart():
-    # On vide la clé 'panier' de la session
-    session.pop('panier', None)
+@app.route('/clear-cart-async', methods=['POST'])
+def clear_cart_async():
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # On vide le panier dans la session
+    session['panier'] = []
     session.modified = True
 
-    # Redirection sur le panier ( message de panier vide + voir les menus )
-    return redirect(url_for('cart'))
+    return jsonify({"success": True})
 
 
 # Route pour gérer la validation du panier ( à faire ensuite )
@@ -417,6 +437,80 @@ def order_details():
                            total_delivery=total_delivery,
                            min_date=min_date,
                            user=current_user)
+
+# ==========================================================================
+#                           PANIER ASYNCHRONE
+# ==========================================================================
+@app.route('/update-cart-async', methods=['POST'])
+def update_cart_async():
+    # Sécurité : on n'accepte que les requêtes venant du JavaScript
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    data = request.get_json()
+    id_menu = int(data.get('id_menu'))
+    action = data.get('action')  # 'plus', 'minus', ou 'remove'
+
+    panier = session.get('panier', [])
+
+    # Chercher l'article dans le panier
+    index_article = next((i for i, item in enumerate(panier) if item['id_menu'] == id_menu), None)
+
+    if index_article is None:
+        return jsonify({"success": False, "message": "Article introuvable."})
+
+    item = panier[index_article]
+
+    # Récupérer les infos du menu en BDD (pour la quantité min et les remises)
+    db = get_connection()
+    try:
+        menu_detail_repo = MenuDetailRepository(db)
+        menu = menu_detail_repo.get_menu_details(id_menu)
+    finally:
+        if db:
+            db.close()
+
+    # Appliquer l'action
+    if action == 'remove':
+        panier.pop(index_article)
+    else:
+        if action == 'plus':
+            item['quantity'] += 1
+        elif action == 'minus':
+            item['quantity'] -= 1
+            if item['quantity'] < menu['nombre_personne_min']:
+                item['quantity'] = menu['nombre_personne_min']  # Sécurité : on bloque au minimum
+
+        # Recalcul via service POO
+        prix_calcules = CartService.calculer_prix_total(
+            quantite=item['quantity'],
+            prix_unitaire=float(menu['prix_par_personne']),
+            min_convives=menu['nombre_personne_min'],
+            seuil_reduction=menu['seuil_reduction'],
+            pourcentage_reduction=menu['pourcentage_reduction']
+        )
+        item['prix_brut'] = prix_calcules['prix_brut']
+        item['remise'] = prix_calcules['remise']
+        item['total_price'] = prix_calcules['prix_final']
+
+    session.modified = True
+
+    # Si le panier est vide, on prévient le JS pour qu'il recharge la page
+    if len(panier) == 0:
+        return jsonify({"success": True, "cart_empty": True})
+
+    # Recalcul des totaux globaux du panier
+    new_subtotal = sum(i['total_price'] for i in panier)  # Assumant que subtotal = somme des prix finaux
+    new_discount = sum(i['remise'] for i in panier)
+
+    return jsonify({
+        "success": True,
+        "new_qty": item['quantity'] if action != 'remove' else 0,
+        "new_line_total": "{:.2f}".format(item['total_price']) if action != 'remove' else 0,
+        "new_subtotal": "{:.2f}".format(new_subtotal),
+        "new_discount": "{:.2f}".format(new_discount),
+        "cart_count": len(panier)
+    })
 
 
 @app.route('/confirm-order', methods=['POST'])
@@ -614,102 +708,148 @@ def my_orders():
 
 
 # ROUTE ANNULATION COMMANDE
-@app.route('/cancel-order', methods=['POST'])
-def client_cancel_order():
+@app.route('/client-cancel-order-async', methods=['POST'])
+def client_cancel_order_async():
+    # 1. Vérification de la session
     if 'user_id' not in session:
-        return redirect(url_for('login_page'))
+        return jsonify({"success": False, "message": "Veuillez vous connecter pour continuer."})
 
-    commande_id = request.form.get('commande_id')
+    # 2. Vérification que la requête vient bien du JS asynchrone
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 3. Récupération des données envoyées en JSON
+    data = request.get_json()
+    commande_id = data.get('commande_id')
     user_id = session['user_id']
 
+    if not commande_id:
+        return jsonify({"success": False, "message": "Numéro de commande manquant."})
+
+    # 4. Traitement avec Repository
     db = get_connection()
     try:
         history_repo = OrderHistoryRepository(db)
         success = history_repo.cancel_client_order(commande_id, user_id)
 
         if success:
-            flash("Votre commande a bien été annulée.", "success")
+            return jsonify({"success": True})
         else:
-            flash("Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge.", "error")
+            return jsonify({"success": False,
+                            "message": "Impossible d'annuler cette commande. Elle est peut-être déjà prise en charge."})
+
+    except Exception as e:
+        print(f"Erreur annulation asynchrone : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
 
     finally:
-        if db: db.close()
-
-    return redirect(url_for('my_orders'))
+        if db:
+            db.close()
 
 
 # ROUTE AVIS CLIENT
-@app.route('/submit-review', methods=['POST'])
-def client_submit_review():
+@app.route('/client-submit-review-async', methods=['POST'])
+def client_submit_review_async():
+    # 1. Vérification de la session
     if 'user_id' not in session:
-        return redirect(url_for('login_page'))
+        return jsonify({"success": False, "message": "Veuillez vous connecter pour laisser un avis."})
 
-    menu_id = request.form.get('menu_id')
-    commande_id = request.form.get('commande_id')
-    note = request.form.get('note')
-    commentaire = request.form.get('commentaire')
+    # 2. Vérification de la requête AJAX
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 3. Récupération des données JSON
+    data = request.get_json()
+    menu_id = data.get('menu_id')
+    commande_id = data.get('commande_id')
+    note = data.get('note')
+    commentaire = data.get('commentaire')
     user_id = session['user_id']
 
     if not menu_id or not commande_id or not note or not commentaire:
-        flash("Tous les champs sont obligatoires.", "error")
-        return redirect(url_for('my_orders'))
+        return jsonify({"success": False, "message": "Tous les champs sont obligatoires."})
 
+    # 4. Traitement avec  Repository
     db = get_connection()
     try:
         history_repo = OrderHistoryRepository(db)
         success = history_repo.add_client_review(user_id, menu_id, commande_id, int(note), commentaire)
 
         if success:
-            flash("Merci ! Votre avis a bien été transmis et est en attente de modération.", "success")
+            # Succès : le JavaScript s'occupera d'afficher le toast et de changer le bouton en badge
+            return jsonify({"success": True})
         else:
-            flash("Vous avez déjà laissé un avis pour ce menu dans cette commande.", "error")
+            # Échec (ex: avis déjà laissé)
+            return jsonify({"success": False, "message": "Vous avez déjà laissé un avis pour ce menu dans cette commande."})
+
+    except Exception as e:
+        print(f"Erreur avis asynchrone : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
 
     finally:
-        if db: db.close()
+        if db:
+            db.close()
 
-    return redirect(url_for('my_orders'))
 
-
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET'])
 def profile():
+    """Route classique : Affiche la page du profil."""
     if 'user_id' not in session:
         flash("Veuillez vous connecter pour accéder à votre profil.", "error")
         return redirect(url_for('login_page'))
 
     user_id = session['user_id']
-
     db = get_connection()
     try:
         user_repo = UserRepository(db)
-
-        if request.method == 'POST':
-            prenom = request.form.get('prenom')
-            nom = request.form.get('nom')
-            telephone = request.form.get('telephone')
-            adresse = request.form.get('adresse')
-            ville = request.form.get('ville')
-            code_postal = request.form.get('code_postal')
-            pays = request.form.get('pays', 'France')
-
-            success = user_repo.update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
-
-            if success:
-                session['user_prenom'] = prenom
-                session['user_nom'] = nom
-                session.modified = True
-                flash("Votre profil a été mis à jour avec succès !", "success")
-            else:
-                flash("Erreur technique lors de la mise à jour de votre profil.", "error")
-
-            return redirect(url_for('profile'))
-
-        # Affichage (GET)
         current_user = user_repo.get_user_by_id(user_id)
         if not current_user:
             return redirect(url_for('logout'))
 
         return render_template('profile.html', user=current_user)
+    finally:
+        if db:
+            db.close()
 
+
+@app.route('/client-update-profile-async', methods=['POST'])
+def client_update_profile_async():
+    """Route asynchrone : Reçoit les données JSON et met à jour la BDD."""
+    if 'user_id' not in session:
+        return jsonify({"success": False, "message": "Session expirée, veuillez vous reconnecter."})
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    data = request.get_json()
+    user_id = session['user_id']
+
+    # Récupération des champs envoyés par le JS
+    prenom = data.get('prenom')
+    nom = data.get('nom')
+    telephone = data.get('telephone')
+    adresse = data.get('adresse')
+    ville = data.get('ville')
+    code_postal = data.get('code_postal')
+    pays = data.get('pays', 'France')
+
+    db = get_connection()
+    try:
+        user_repo = UserRepository(db)
+        success = user_repo.update_user_profile(user_id, prenom, nom, telephone, adresse, ville, code_postal, pays)
+
+        if success:
+            # MAJ de la session pour que le prénom/nom change partout sur le site (ex: NavBar)
+            session['user_prenom'] = prenom
+            session['user_nom'] = nom
+            session.modified = True
+            return jsonify({"success": True, "message": "Votre profil a été mis à jour avec succès !"})
+        else:
+            return jsonify({"success": False, "message": "Erreur technique lors de la mise à jour."})
+
+    except Exception as e:
+        print(f"Erreur update profil async : {e}")
+        return jsonify({"success": False, "message": "Une erreur est survenue côté serveur."})
     finally:
         if db:
             db.close()
@@ -774,13 +914,26 @@ def employee_reviews():
     return render_template('employee/reviews.html', avis_list=avis_en_attente)
 
 
-@app.route('/employee/reviews/<int:avis_id>/<string:action>', methods=['POST'])
-def handle_review_action(avis_id, action):
+@app.route('/employee-update-review-async', methods=['POST'])
+def handle_review_action_async():
+    # 1. Sécurité
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Détermination du nouveau statut
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    avis_id = data.get('avis_id')
+    action = data.get('action')  # 'approve' ou 'reject'
+
+    if not avis_id or action not in ['approve', 'reject']:
+        return jsonify({"success": False, "message": "Données invalides."})
+
+    # 3. Traitement
     nouveau_statut = 'Validé' if action == 'approve' else 'Refusé'
+    message_succes = "Avis approuvé avec succès !" if action == 'approve' else "Avis refusé et masqué."
 
     connection = get_connection()
     try:
@@ -789,15 +942,14 @@ def handle_review_action(avis_id, action):
             cursor.execute(sql, (nouveau_statut, avis_id))
         connection.commit()
 
-        if nouveau_statut == 'Validé':
-            flash("L'avis a été approuvé et est maintenant visible sur la page d'accueil !", "success")
-        else:
-            flash("L'avis a été refusé et masqué.", "success")
+        return jsonify({"success": True, "message": message_succes})
 
+    except Exception as e:
+        print(f"Erreur SQL lors de la mise à jour asynchrone de l'avis : {e}")
+        return jsonify({"success": False, "message": "Erreur technique serveur."})
     finally:
-        connection.close()
-
-    return redirect(url_for('employee_reviews'))
+        if connection:
+            connection.close()
 
 
 @app.route('/employee/menu')
@@ -821,43 +973,57 @@ def employee_menu():
     return render_template('employee/manage_menu.html', menus=catalogue_menus)
 
 
-@app.route('/employee/menu/update/<int:menu_id>', methods=['POST'])
-def update_menu_stock_price(menu_id):
+from flask import request, jsonify
+
+
+@app.route('/employee-update-menu-async', methods=['POST'])
+def employee_update_menu_async():
+    # 1. Vérification des droits (Admin = 1, Employé = 2)
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Récupération et conversion des données du formulaire
-    nouvel_unitaire = request.form.get('prix_par_personne')
-    nouveau_stock = request.form.get('quantite_restante')
+    # 2. Vérification du header XMLHttpRequest pour sécuriser l'accès AJAX
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 3. Récupération des données JSON envoyées par le JavaScript
+    data = request.get_json()
+    menu_id = data.get('menu_id')
+    nouvel_unitaire = data.get('prix_par_personne')
+    nouveau_stock = data.get('quantite_restante')
+
+    if not menu_id or nouvel_unitaire is None or nouveau_stock is None:
+        return jsonify({"success": False, "message": "Données incomplètes."})
+
+    # 4. Conversion et validation des types de données
     try:
         prix = float(nouvel_unitaire)
         stock = int(nouveau_stock)
     except (ValueError, TypeError):
-        flash("Données invalides. Le prix doit être un nombre et le stock un entier.", "error")
-        return redirect(url_for('employee_menu'))
+        return jsonify(
+            {"success": False, "message": "Données invalides. Le prix doit être un nombre et le stock un entier."})
 
-    # Mise à jour directe en Base de Données
+    # 5. Mise à jour directe en Base de Données
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             sql = """
                   UPDATE menu
-                  SET prix_par_personne = %s, \
+                  SET prix_par_personne = %s,
                       quantite_restante = %s
-                  WHERE menu_id = %s \
+                  WHERE menu_id = %s
                   """
             cursor.execute(sql, (prix, stock, menu_id))
         connection.commit()
-        flash("Le menu a été mis à jour avec succès !", "success")
+
+        return jsonify({"success": True, "message": "Le menu a été mis à jour avec succès !"})
+
     except Exception as e:
-        print(f"Erreur SQL lors de la mise à jour du menu : {e}")
-        flash("Une erreur technique est survenue.", "error")
+        print(f"Erreur SQL lors de la mise à jour asynchrone du menu : {e}")
+        return jsonify({"success": False, "message": "Une erreur technique est survenue."})
     finally:
-        connection.close()
-
-    return redirect(url_for('employee_menu'))
-
+        if connection:
+            connection.close()
 
 @app.route('/employee/orders')
 def employee_orders():
@@ -877,15 +1043,26 @@ def employee_orders():
     return render_template('employee/manage_orders.html', orders=orders)
 
 
-@app.route('/employee/orders/update/<int:commande_id>', methods=['POST'])
-def employee_update_order(commande_id):
+@app.route('/employee-update-order-async', methods=['POST'])
+def employee_update_order_async():
+    # 1. Vérification des droits (Admin = 1, Employé = 2)
     if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # Récupération des données du formulaire
-    nouveau_statut = request.form.get('statut_commande')
-    restitution_val = 1 if request.form.get('restitution_materiel') == '1' else 0
+    # 2. Vérification que la requête est bien asynchrone
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 3. Récupération des données du JSON (au lieu du form)
+    data = request.get_json()
+    commande_id = data.get('commande_id')
+    nouveau_statut = data.get('statut')
+    restitution_val = data.get('restitution_materiel') # Le JS nous envoie déjà 1 ou 0
+
+    if not commande_id or not nouveau_statut:
+        return jsonify({"success": False, "message": "Données incomplètes."})
+
+    # 4. Traitement avec le Repository
     db = get_connection()
     try:
         employee_order_repo = EmployeeOrderRepository(db)
@@ -893,16 +1070,15 @@ def employee_update_order(commande_id):
             commande_id, nouveau_statut, restitution_val
         )
 
-        if success:
-            flash(message, "success")
-        else:
-            flash(message, "error")
+        # On renvoie le résultat au JavaScript
+        return jsonify({"success": success, "message": message})
 
+    except Exception as e:
+        print(f"Erreur update employé async : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
         if db:
             db.close()
-
-    return redirect(url_for('employee_orders'))
 
 
 @app.route('/employee/schedule')
@@ -927,18 +1103,29 @@ def employee_schedule():
     return render_template('employee/manage_schedule.html', horaires=jours_horaires)
 
 
-@app.route('/employee/schedule/update/<int:horaire_id>', methods=['POST'])
-def employee_update_schedule(horaire_id):
+@app.route('/employee-update-schedule-async', methods=['POST'])
+def employee_update_schedule_async():
     # 1. Vérification des droits
-    if 'user_id' not in session or session.get('user_role') not in [1, 2]:
-        return "Accès interdit", 403
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    horaire_id = data.get('horaire_id')
+    est_ouvert_val = int(data.get('est_ouvert', 1))
 
-    # 2. Récupération des données du formulaire
-    midi_ouvrir = request.form.get('heure_midi_ouverture')
-    midi_fermer = request.form.get('heure_midi_fermeture')
-    soir_ouvrir = request.form.get('heure_soir_ouverture')
-    soir_fermer = request.form.get('heure_soir_fermeture')
-    est_ouvert_val = int(request.form.get('est_ouvert', 1))
+    # Si le jour est fermé, on ignore les inputs et on force tout à None (NULL en SQL)
+    if est_ouvert_val == 0:
+        midi_ouvrir = None
+        midi_fermer = None
+        soir_ouvrir = None
+        soir_fermer = None
+    else:
+        # Si c'est ouvert, on prend la valeur, ou None si le champ est resté vide
+        midi_ouvrir = data.get('heure_midi_ouverture') or None
+        midi_fermer = data.get('heure_midi_fermeture') or None
+        soir_ouvrir = data.get('heure_soir_ouverture') or None
+        soir_fermer = data.get('heure_soir_fermeture') or None
+
+    if not horaire_id:
+        return jsonify({"success": False, "message": "Données incomplètes."})
 
     # 3. Logique métier en POO
     db = get_connection()
@@ -949,19 +1136,17 @@ def employee_update_schedule(horaire_id):
         )
 
         if success:
-            flash("Les plages horaires ont été mises à jour avec succès !", "success")
+            return jsonify({"success": True, "message": "Horaires mis à jour avec succès !"})
         else:
-            flash("Aucune modification détectée ou erreur technique.", "error")
+            return jsonify({"success": True, "message": "Horaires enregistrés (aucune modification détectée)."})
 
     except Exception as e:
-        print(f"Erreur technique lors de la mise à jour de l'horaire {horaire_id} : {e}")
-        flash("Erreur lors de la mise à jour.", "error")
+        print(f"Erreur asynchrone horaires : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
 
     finally:
         if db:
             db.close()
-
-    return redirect(url_for('employee_schedule'))
 
 
 # ==========================================================================
@@ -985,31 +1170,47 @@ def admin_employees():
     return render_template('admin/manage_employees.html', employes=employes)
 
 
-@app.route('/admin/employees/add', methods=['POST'])
-def admin_add_employee():
+from flask import request, jsonify
+
+
+@app.route('/admin-add-employee-async', methods=['POST'])
+def admin_add_employee_async():
+    # 1. Sécurité Admin
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    prenom = request.form.get('prenom')
-    nom = request.form.get('nom')
-    email = request.form.get('email')
-    password = request.form.get('password')
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    prenom = data.get('prenom')
+    nom = data.get('nom')
+    email = data.get('email')
+    password = data.get('password')
+
+    # 3. Validations de base
     if not prenom or not nom or not email or not password:
-        flash("Veuillez remplir tous les champs.", "error")
-        return redirect(url_for('admin_employees'))
+        return jsonify({"success": False, "message": "Veuillez remplir tous les champs."})
 
     if not User.validate_password(password):
-        flash("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.", "error")
-        return redirect(url_for('admin_employees'))
+        return jsonify({"success": False,
+                        "message": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."})
 
+    # 4. Traitement en BDD via le Repository
     db = get_connection()
     try:
         admin_repo = AdminRepository(db)
         success, message = admin_repo.create_employee_account(prenom, nom, email, password)
 
         if success:
-            # Envoi de l'e-mail RGPD SANS le mot de passe
+            # On récupère l'ID généré pour permettre au JS d'identifier la ligne de tableau
+            with db.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT utilisateur_id FROM utilisateur WHERE email = %s", (email,))
+                user_data = cursor.fetchone()
+                utilisateur_id = user_data['utilisateur_id'] if user_data else None
+
+            # Envoi de l'e-mail en arrière-plan
             send_html_email(
                 subject="Ton compte Employé Vite & Gourmand est prêt !",
                 recipient=email,
@@ -1017,23 +1218,84 @@ def admin_add_employee():
                 prenom=prenom,
                 email=email
             )
-            flash(message, "success")
+
+            return jsonify({
+                "success": True,
+                "message": message,
+                "employe": {
+                    "utilisateur_id": utilisateur_id,
+                    "prenom": prenom,
+                    "nom": nom.upper(),
+                    "email": email
+                }
+            })
         else:
-            flash(message, "error")
+            return jsonify({"success": False, "message": message})
+
+    except Exception as e:
+        print(f"Erreur AJAX création employé : {e}")
+        return jsonify({"success": False, "message": "Erreur technique serveur."})
     finally:
-        if db: db.close()
+        if db:
+            db.close()
 
-    return redirect(url_for('admin_employees'))
-
-
-@app.route('/admin/employees/toggle/<int:employe_id>', methods=['POST'])
-def admin_toggle_employee(employe_id):
+@app.route('/admin-delete-employee-async', methods=['DELETE'])
+def admin_delete_employee_async():
+    # 1. Sécurité Admin
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
 
-    # On récupère le nouvel état depuis un input caché
-    est_actif_val = int(request.form.get('est_actif', 0))
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
+    # 2. Récupération des données
+    data = request.get_json()
+    employe_id = data.get('employe_id')
+
+    if not employe_id:
+        return jsonify({"success": False, "message": "ID employé manquant."})
+
+    # 3. Traitement
+    db = get_connection()
+    try:
+        with db.cursor() as cursor:
+            # On supprime l'employé ( ou supprime d'abord ses dépendances si nécessaire)
+            sql = "DELETE FROM utilisateur WHERE utilisateur_id = %s AND role_id IN (1, 2)"
+            cursor.execute(sql, (employe_id,))
+        db.commit()
+
+        # Vérification si une ligne a bien été supprimée
+        if cursor.rowcount > 0:
+            return jsonify({"success": True, "message": "Compte supprimé définitivement."})
+        else:
+            return jsonify({"success": False, "message": "Employé introuvable."})
+
+    except Exception as e:
+        print(f"Erreur AJAX suppression employé : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
+    finally:
+        if db:
+            db.close()
+
+
+@app.route('/admin-toggle-employee-async', methods=['POST'])
+def admin_toggle_employee_async():
+    # 1. Sécurité Admin
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return jsonify({"success": False, "message": "Accès interdit."}), 403
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
+
+    # 2. Récupération des données JSON
+    data = request.get_json()
+    employe_id = data.get('employe_id')
+    est_actif_val = int(data.get('est_actif', 0))
+
+    if not employe_id:
+        return jsonify({"success": False, "message": "ID employé manquant."})
+
+    # 3. Traitement
     db = get_connection()
     try:
         admin_repo = AdminRepository(db)
@@ -1041,13 +1303,19 @@ def admin_toggle_employee(employe_id):
 
         if success:
             etat = "réactivé" if est_actif_val == 1 else "désactivé"
-            flash(f"Le compte employé a été {etat} avec succès.", "success")
+            return jsonify({
+                "success": True,
+                "message": f"Le compte a été {etat}.",
+                "nouveau_statut": est_actif_val
+            })
         else:
-            flash("Erreur lors de la modification du compte.", "error")
+            return jsonify({"success": False, "message": "Erreur lors de la modification."})
+    except Exception as e:
+        print(f"Erreur AJAX toggle employé : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
-        if db: db.close()
-
-    return redirect(url_for('admin_employees'))
+        if db:
+            db.close()
 
 
 @app.route('/admin/data')
@@ -1064,24 +1332,43 @@ def admin_data_dashboard():
     return render_template('admin/data.html', nosql_data=nosql_data, periode_actuelle=periode)
 
 
-@app.route('/admin/data/sync', methods=['POST'])
-def admin_sync_data():
-    """Route pour déclencher manuellement la synchronisation MySQL -> MongoDB"""
+from flask import request, jsonify
+
+
+@app.route('/admin-fetch-data-async', methods=['GET'])
+def admin_fetch_data_async():
     if 'user_id' not in session or session.get('user_role') != 1:
-        return "Accès interdit", 403
+        return jsonify({"success": False, "message": "Accès interdit"}), 403
+
+    periode = request.args.get('periode', 'all')
+
+    try:
+        admin_data_repo = AdminDataRepository()
+        nosql_data = admin_data_repo.get_nosql_data(periode)
+        return jsonify({"success": True, "nosql_data": nosql_data, "periode": periode})
+    except Exception as e:
+        print(f"Erreur AJAX récupération stats : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
+
+
+@app.route('/admin-sync-data-async', methods=['POST'])
+def admin_sync_data_async():
+    if 'user_id' not in session or session.get('user_role') != 1:
+        return jsonify({"success": False, "message": "Accès interdit"}), 403
+
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({"success": False, "message": "Requête invalide."})
 
     db = get_connection()
     try:
         admin_data_repo = AdminDataRepository(db)
         success, message = admin_data_repo.sync_mysql_to_mongo()
-        if success:
-            flash(message, "success")
-        else:
-            flash(message, "error")
+        return jsonify({"success": success, "message": message})
+    except Exception as e:
+        print(f"Erreur AJAX synchronisation MongoDB : {e}")
+        return jsonify({"success": False, "message": "Erreur serveur."})
     finally:
         if db: db.close()
-
-    return redirect(url_for('admin_data_dashboard'))
 
 # ==========================================================================
 #                       MOT DE PASSE

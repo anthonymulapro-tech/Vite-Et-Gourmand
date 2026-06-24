@@ -1482,3 +1482,228 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     height: 100%;
     object-fit: cover;
 }
+
+/* ==========================================================================
+   PASTILLE DU PANIER PRINCIPAL (HEADER)
+   ========================================================================== */
+
+/* Design normal : Fond pêche, Texte marron, Bordure foncée */
+#cart-badge {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* L'effet au survol : on inverse les couleurs quand on passe sur le lien "Mon panier" */
+#header-cart-link:hover #cart-badge {
+    background-color: var(--brand-brown) !important;
+    color: var(--brand-peach) !important;
+}
+
+/* ==========================================================================
+   PANIER FLOTTANT (JUMEAU)
+   ========================================================================== */
+
+#floating-cart {
+    /* Positionnement et dimensions */
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    z-index: 1050;
+    text-decoration: none;
+
+    /* Design */
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 2px solid var(--text-dark) !important;
+
+    /* Transition fluide pour le mouvement et les couleurs */
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* L'effet au survol du panier : On inverse les couleurs et on grossit */
+#floating-cart:hover {
+    /* Grossit de 10% */
+    transform: scale(1.1);
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+}
+
+/* Pastille (Badge) - Design */
+#floating-cart-badge {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-size: 0.85rem;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Pastille (Badge) - L'effet au survol du panier (inversion synchronisée) */
+#floating-cart:hover #floating-cart-badge {
+    background-color: var(--brand-brown) !important;
+    color: var(--brand-peach) !important;
+}
+
+/* ==========================================================================
+   POSITIONNEMENT DU TOAST (POUR ÉVITER LE PANIER)
+   ========================================================================== */
+.toast-container {
+    bottom: 160px;
+    right: 310px;
+}
+
+/* ==========================================================================
+   BOUTONS DE QUANTITÉ DU PANIER
+   ========================================================================== */
+
+/* Style spécifique des boutons + et - du panier */
+.btn-cart-qty {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border: 1px solid var(--brand-brown) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-cart-qty:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .form-control:focus,
+.cart-qty-group .btn-cart-qty:focus,
+.cart-qty-group .btn-cart-qty:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .btn-cart-qty,
+.cart-qty-group .form-control {
+    border-color: var(--brand-brown) !important;
+}
+
+.cart-qty-group .form-control:focus,
+.cart-qty-group .btn-cart-qty:focus {
+    border-color: var(--brand-brown) !important;
+}
+
+/* Style du champ texte de quantité */
+.cart-qty-group .form-control {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-left: 1px solid var(--brand-brown) !important;
+    border-right: 1px solid var(--brand-brown) !important;
+}
+
+/* ==========================================================================
+   BOUTONS DU MODAL (VIDAGE PANIER)
+   ========================================================================== */
+
+/* Bouton Annuler : Fond crème, Texte et Bordure marron */
+.btn-modal-cancel {
+    background-color: #dc3545 !important;
+    color:  #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover Bouton Annuler : Fond pêche, Texte marron */
+.btn-modal-cancel:hover {
+    background-color:  #a71d2a !important;
+    color: #ffffff !important;
+}
+
+/* Bouton Confirmer (Danger) : Rouge classique */
+.btn-modal-confirm {
+    background-color: var(--brand-brown) !important;
+    color: var(--bg-cream) !important;
+    border:1px solid var(--text-dark) !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover Bouton Confirmer : Rouge beaucoup plus foncé */
+.btn-modal-confirm:hover {
+    background-color: var(--brand-peach) !important;
+    color: var(--brand-brown) !important;
+}
+
+/* Style du bouton "Supprimer" individuel dans le panier */
+.btn-trash-custom {
+    color: #dc3545 !important;
+    transition: color 0.2s ease-in-out;
+}
+
+.btn-trash-custom:hover {
+    color:  #a71d2a !important; /* Devient rouge au survol */
+}
+
+/* ==========================================================================
+   BADGES DE STATUT INTERACTIFS (Gestion du personnel)
+   ========================================================================== */
+.btn-status-active {
+    background-color: #198754;
+    color: var(--bg-cream, #FFEDC5);
+    border: 1px solid #198754;
+    max-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.btn-status-active:hover {
+    background-color: #146c43; /
+    color: var(--bg-cream);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+.btn-status-inactive {
+    background-color: #dc3545;
+    color: var(--bg-cream, #FFEDC5);
+    border: 1px solid #dc3545;
+    max-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.btn-status-inactive:hover {
+    background-color: #b02a37;
+    color: var(--bg-cream);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* ==========================================================================
+   BOUTON ANNULER (Modale)
+   ========================================================================== */
+.btn-cancel-vg {
+    background-color: var(--brand-brown);
+    color: var(--bg-cream);
+    border: 1px solid var(--brand-brown);
+    transition: all 0.3s ease;
+}
+
+.btn-cancel-vg:hover {
+    background-color: var(--brand-peach);
+    color: var(--brand-brown);
+    border-color: var(--brand-peach);
+}
+
+/* ==========================================================================
+   CROIX DE FERMETURE (Modale personnalisée)
+   ========================================================================== */
+.custom-close-vg {
+    background-color: transparent;
+    border: none;
+    color: var(--brand-brown);
+    font-size: 1.5rem;
+    padding: 0.5rem 0.8rem;
+    line-height: 1;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-close-vg:hover {
+    color:var(--brand-peach);
+}

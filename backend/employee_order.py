@@ -39,7 +39,7 @@ class EmployeeOrderRepository:
                 if nouveau_statut == 'Terminée':
                     # Si un matériel a été prêté ET que la case n'est pas cochée
                     if order['pret_materiel'] == 1 and restitution_materiel_val == 0:
-                        return False, "Validation impossible : Le matériel prêté doit être marqué comme 'Rendu' pour pouvoir clôturer la commande."
+                        return False, "Veuillez cocher la case si le matériel a bien été rendu pour pouvoir clôturer la commande."
 
                 # 3. Si la condition est respectée (ou s'il n'y avait pas de prêt), on fait l'UPDATE
                 sql = """

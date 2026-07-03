@@ -14,7 +14,12 @@
     </div>
 
     <div class="text-center mb-5">
-        <h1 class="title-brand d-block mb-4">Gestion du Personnel</h1>
+        <div class="position-relative d-inline-block">
+            <h1 class="title-brand d-block mb-4">Gestion du Personnel</h1>
+            <span id="pop-staff-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                <i class="bi bi-info-circle-fill me-1"></i> <span id="pop-staff-text">Statut mis à jour !</span>
+            </span>
+        </div>
         <p class="fs-5 text-brand-brown">
             Espace sécurisé réservé à l'administration. Créez des accès employés ou gérez les comptes existants.
         </p>
@@ -27,7 +32,7 @@
                     <i class="bi bi-person-plus-fill me-2"></i>Nouvel Employé
                 </h4>
                 
-                <form action="{{ url_for('admin_add_employee') }}" method="POST" class="needs-validation" novalidate>
+                <form id="add-employee-form" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label for="prenom" class="form-label text-brand-brown fw-bold small">Prénom</label>
                         <input type="text" class="form-control custom-input" id="prenom" name="prenom" required>
@@ -74,64 +79,99 @@
                 <div class="table-responsive">
                     <table class="table align-middle table-borderless m-0">
                         <thead class="table-light border-bottom">
-                            <tr class="text-brand-brown fw-bold">
-                                <th scope="col">Identité</th>
-                                <th scope="col">E-mail</th>
-                                <th scope="col">Statut</th>
-                                <th scope="col" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if employes %}
-                                {% for employe in employes %}
-                                <tr class="border-bottom border-light">
-                                    <td class="fw-bold text-brand-brown">
-                                        {{ employe.prenom }} {{ employe.nom|upper }}
-                                    </td>
-                                    <td>
-                                        <a href="mailto:{{ employe.email }}" class="text-decoration-none text-muted small">
-                                            {{ employe.email }}
-                                        </a>
-                                    </td>
-                                    <td>
+                    <tr class="text-brand-brown fw-bold">
+                        <th scope="col">Identité</th>
+                        <th scope="col">E-mail</th>
+                        <th scope="col" class="text-center" style="width: 25%;">Statut</th>
+                    </tr>
+                </thead>
+               <tbody id="employees-table-body">
+                    {% if employes %}
+                        {% for employe in employes %}
+                        <tr class="border-bottom border-light" id="row-employe-{{ employe.utilisateur_id }}">
+
+                            <td class="fw-bold text-brand-brown">
+                                {{ employe.prenom }} {{ employe.nom|upper }}
+                            </td>
+
+                            <td>
+                                <a href="mailto:{{ employe.email }}" class="text-decoration-none text-muted small">
+                                    {{ employe.email }}
+                                </a>
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+
+                                    {% set status_class = 'btn-status-active' if employe.est_actif else 'btn-status-inactive' %}
+                                    {% set active_val = '0' if employe.est_actif else '1' %}
+
+                                    <button type="button" class="btn btn-sm rounded-pill px-3 py-2 fw-bold btn-async-toggle-staff w-100 {{ status_class }}"
+                                            id="status-btn-{{ employe.utilisateur_id }}"
+                                            data-employe-id="{{ employe.utilisateur_id }}"
+                                            data-est-actif="{{ active_val }}">
                                         {% if employe.est_actif %}
-                                            <span class="badge rounded-pill px-3 py-2" style="background-color: #198754 !important; color: #FFEDC5 !important;">
-                                                <i class="bi bi-check-circle-fill me-1"></i> Actif
-                                            </span>
+                                            <i class="bi bi-check-circle-fill me-1"></i> Actif
                                         {% else %}
-                                            <span class="badge rounded-pill px-3 py-2" style="background-color: #dc3545 !important; color: #FFEDC5 !important;">
-                                                <i class="bi bi-x-circle-fill me-1"></i> Désactivé
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <form action="{{ url_for('admin_toggle_employee', employe_id=employe.utilisateur_id) }}" method="POST">
-                                            {% if employe.est_actif %}
-                                                <input type="hidden" name="est_actif" value="0">
-                                                <button type="submit" class="btn btn-sm btn-vg rounded-pill fw-bold px-3" title="Désactiver ce compte">
-                                                    Désactiver
-                                                </button>
-                                            {% else %}
-                                                <input type="hidden" name="est_actif" value="1">
-                                                <button type="submit" class="btn btn-sm btn-vg rounded-pill fw-bold px-3" title="Réactiver ce compte">
-                                                    Réactiver
-                                                </button>
-                                            {% endif %}
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-brand-brown opacity-75">
-                                        Aucun compte employé enregistré pour le moment.
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
+                                            <i class="bi bi-x-circle-fill me-1"></i> Désactivé
+                                        {% endif %} </button>
+
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-trigger-delete"
+                                            data-employe-id="{{ employe.utilisateur_id }}"
+                                            data-employe-nom="{{ employe.prenom }} {{ employe.nom|upper }}"
+                                            title="Supprimer définitivement"
+                                            style="width: 38px; height: 38px; flex-shrink: 0;">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr id="empty-table-row">
+                            <td colspan="3" class="text-center py-4 text-brand-brown opacity-75">
+                                Aucun compte employé enregistré pour le moment.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content vg-box border-0 shadow-lg position-relative">
+
+            <button type="button" class="custom-close-vg position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;">
+                <i class="bi bi-x-lg fw-bold" style="font-size: 1.2rem;"></i>
+            </button>
+
+            <div class="modal-body text-center p-4 pt-5">
+                <p class="fs-5 text-brand-brown mb-3">Êtes-vous sûr de vouloir supprimer ce compte ?</p>
+
+                <div class="bg-cream rounded-3 py-2 px-4 d-inline-block border border-brand-brown border-opacity-25 shadow-sm mb-4">
+                    <p class="fw-bold text-brand-brown fs-4 mb-0" id="delete-employee-name"></p>
+                </div>
+
+                <p class="text-brand-brown small mb-0 fw-semibold opacity-75">
+                    Cette action est irréversible. Toutes les données associées à cet employé seront perdues.
+                </p>
+            </div>
+
+            <div class="modal-footer border-top-0 d-flex justify-content-center gap-3 pb-4">
+                <button type="button" class="btn btn-cancel-vg rounded-pill px-4 fw-bold" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" class="btn btn-status-inactive rounded-pill" id="confirmDeleteStaffBtn">
+                    <i class="bi bi-trash3-fill me-1"></i> Supprimer
+                </button>
+            </div>
+
         </div>
     </div>
 </div>

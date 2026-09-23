@@ -1,8 +1,11 @@
 # Vite-Et-Gourmand
-Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web. Ce projet couvre l'intégralité du cycle de développement : de la conception (UML/MCD), au design (UI/UX), jusqu'au développement complet du Backend et du Frontend.
+
+Projet réalisé dans le cadre de l'ECF pour le titre de développeur Web (RNCP Niveau 5). Ce projet couvre l'intégralité du cycle de développement : de la conception (UML/MCD), au design (UI/UX), jusqu'au développement complet du Backend en Programmation Orientée Objet (POO) et du Frontend asynchrone.
+
 1. **Espace Client :** Consultation de la carte, gestion du panier conditionnel (remises automatiques), paiement Stripe, suivi des commandes et dépôt d'avis.
 2. **Espace Employé :** Tableau de bord pour la préparation des commandes, la gestion du retour matériel, la modification des stocks/prix, l'ajustement des horaires et la modération des avis.
 3. **Espace Administrateur :** Outils de Business Intelligence (statistiques NoSQL) et gestion complète de l'équipe (CRUD du personnel avec envoi d'e-mails RGPD).
+
 # Application en ligne 
 L'application est déployée dans le Cloud et 100 % fonctionnelle. Vous pouvez tester l'ensemble des fonctionnalités (panier, compte, espace employé/admin) directement via ce lien :
  **[Accéder à Vite & Gourmand sur Heroku](https://intense-bayou-64571-0aebed7ee93c.herokuapp.com/)**
@@ -25,14 +28,14 @@ L'application est déployée dans le Cloud et 100 % fonctionnelle. Vous pouvez t
 
 ## Stack Technique
 - [x] **Conception** : _Draw.io_ (UML/MCD)
-- [x] **Design** : _Balsamiq_ (Wireframes)
-- [x] **Design** : _Figma_ (Maquettes et charte)
+- [x] **Design** : _Figma & Balsamiq_ (Maquettes et Wireframes)
+- [x] **Conteneurisation (IaC)** : _Docker & Docker Compose_ (Isolation des environnements)
 - [x] **Hébergement Cloud** : _Heroku_ (Serveur de production Web via Gunicorn)
-- [x] **Base de données (Relationnelle)** : _MySQL sur Aiven Cloud_ (Production) & MySQL local
+- [x] **Base de données (Relationnelle)** : _MySQL 8_ (Local via Docker) & _Aiven Cloud_ (Production)
 - [x] **Base de données (NoSQL)** : _MongoDB Atlas_ (Agrégations et statistiques NoSQL)
-- [X] **Backend** : _Python & Flask_ (Routage dynamique, gestion des sessions et logique métier)
-- [X] **Frontend** : _HTML / CSS / Bootstrap / JS_ (Intégration fluide et responsive)
-- [X] **E-mails & Test** : _Flask-Mail & Mailtrap_ (Gestion et interception des e-mails transactionnels)
+- [x] **Backend** : _Python 3 & Flask_ (Architecture POO, requêtes préparées, sécurité)
+- [x] **Frontend** : _HTML5 / CSS3 / Bootstrap / JS Asynchrone (Fetch)_ (UX fluide sans rechargement)
+- [x] **E-mails & Sécurité** : _Flask-Mail, Mailtrap & Bcrypt_ (Hachage et transactionnel)
 
 ### Architecture du Projet
 ```text
@@ -140,9 +143,7 @@ Le projet est déjà déployé dans une architecture Cloud complète. Les étape
 Afin de prévenir la mise en veille automatique de la base de données (due aux restrictions des plans gratuits), un service UptimeRobot a été configuré pour maintenir l'instance active.
 Toutefois, en cas d'indisponibilité exceptionnelle du serveur distant lors de votre évaluation, l'environnement local complet est prévu.
 
-* **Prérequis Serveur local :** _Laragon_ (recommandé) ou WAMP/XAMPP.
-
-* **Base de données :** MongoDB (local ou Atlas) et MySQL (Laragon/WAMP).
+* **Prérequis Serveur local :** Avoir _Docker Desktop_ installé sur sa machine.
 
 * **Environnement :**  `Python 3.13`
 
@@ -152,34 +153,13 @@ Toutefois, en cas d'indisponibilité exceptionnelle du serveur distant lors de v
 git clone https://github.com/anthonymulapro-tech/Vite-Et-Gourmand.git
 cd Vite-Et-Gourmand
 ```
-#### 2. Configuration du Backend (Python)
-* a. Créer un environnement virtuel : 
-```bash 
-python -m venv .venv
-```
 
-* b. Activer l'environnement : 
-  * Windows : 
-  ```bash 
-  .\.venv\Scripts\activate
-  ```
-  
-  * Linux : 
-  ```bash
-  source .venv/bin/activate
-  ```
-  
-* c. Installer les dépendances : 
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configuration des variables d'environnement
+### 2. Configuration des variables d'environnement
 Dupliquez le fichier `.env.example` à la racine du projet et renommez-le en `.env`, puis ajustez vos accès si nécessaire :
 ```bash
-DB_HOST=127.0.0.1
+DB_HOST=db
 DB_USER=root
-DB_PASSWORD=
+DB_PASSWORD=votre_mot_de_passe_root
 DB_NAME=vite_et_gourmand
 SECRET_KEY=une_cle_secrete_aleatoire_et_ultra_securisee
 STRIPE_PUBLIC_KEY=pk_test_clé_via_stripe
@@ -190,26 +170,29 @@ MAIL_USERNAME=identifiant_mailtrap
 MAIL_PASSWORD=mot_de_passe_mailtrap
 MAIL_USE_TLS=True
 MAIL_USE_SSL=False
-MONGO_URI=mongodb://localhost:27017/ # Ou votre lien Atlas si applicable
+MONGO_URI=mongodb://mongo:27017/
 # Note : Le DB_PORT n'est pas requis ici, le code basculera automatiquement sur 3306.
 ```
-#### 4. Configuration de la Base de Données (MySQL)
-* a. Ouvrir votre outil de gestion SQL (_HeidiSQL_ ou _phpMyAdmin_ via _Laragon_).
-* b. Exécutez le script d'initialisation (qui créera la base vite_et_gourmand, les tables, et insérera les données) : 
-```bash
-python database.py
+### 3. Lancement des conteneurs
+Construisez et démarrez simultanément le serveur Flask, la base MySQL et la base MongoDB en une seule commande :
+
+```Bash
+docker compose up -d --build
 ```
-* c. Exécuter le hachage des mots de passes par sécurité :
+L'application est désormais accessible sur : http://127.0.0.1:5000
+
+### 4. Initialisation de la Base de Données (Premier lancement)
+Une fois les conteneurs démarrés, exécutez les scripts d'initialisation (création des tables et jeu de données) directement à l'intérieur du conteneur web :
+
+##### a. Création des tables et insertion des données
 ```bash
-python backend/secure.py
+docker compose exec web python database.py
 ```
 
-### 5. Serveur Flask
-* démarrage du serveur : 
-```bash
-python app.py
+#### b. Sécurisation et hachage (Bcrypt) des mots de passe de test
+```Bash 
+docker compose exec web python backend/secure.py
 ```
-Le serveur sera disponible en local sur : http://127.0.0.1:5000
 
 ### 5. Liens d'accès aux pages
 * **Accès pour tout type d'utilisateur**
@@ -245,18 +228,14 @@ Pour faciliter l'évaluation, la base de données est fournie avec plusieurs pro
 | **Employé**        | `nassim.amir@viteetgourmand.fr`  | *`Nassim33_V&G_2026!`*               |
 | **Client**         | `bernard.lebrun@orange.fr`       | *`Bern@rd!33`*                       |
 
-* Les mots de passe indiqués ci-dessus sont les versions "en clair" à utiliser lors de la connexion. Le script secure.py (étape 1.e) s'occupe de les hacher en base de données pour respecter les normes de sécurité.
+* Les mots de passe indiqués ci-dessus sont les versions "en clair" à utiliser lors de la connexion. Le script secure.py (étape 4.b) s'occupe de les hacher.
 
 ### 7. Tests de sécurité automatisés (Assurance Qualité)
 Le projet intègre un script de test automatique permettant de vérifier la robustesse du backend face aux contournements des validations du navigateur (ex: scripts malveillants contournant les Regex HTML5).
 
-Pour exécuter le test de sécurité :
-
-Assurez-vous que le serveur Flask tourne toujours dans votre premier terminal (python app.py).
-
-Ouvrez un second terminal, activez votre environnement virtuel .venv, puis exécutez :
+Pour exécuter le test de sécurité dans le conteneur :
 
 ```bash
-python tests/test_security.py
+docker compose exec web python tests/test_security.py
 ```
 Le script simulera des requêtes HTTP directes et vous affichera un rapport de validation dans la console.

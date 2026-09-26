@@ -31,7 +31,9 @@ class DatabaseManager:
                 "host": db_host,
                 "user": db_user,
                 "password": db_password,
-                "port": db_port
+                "port": db_port,
+                "charset": "utf8mb4",
+                "collation": "utf8mb4_unicode_ci"
             }
 
             # Aiven exige une connexion sécurisée (SSL)

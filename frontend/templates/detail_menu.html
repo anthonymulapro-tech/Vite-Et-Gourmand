@@ -13,7 +13,7 @@
     </div>
 
 
-    <div class="content-box shadow-lg mb-3 mx-auto menu-detail-card">
+    <div class="content-box shadow-lg mb-3 mx-3 mx-lg-5 mx-xl-auto p-3 p-lg-5 menu-detail-card">
 
         <h1 class="font-pacifico text-brand-brown text-center display-4 mb-2">{{ menu.titre_menu }}</h1>
         <hr class="mb-4 mx-auto divider-40">
@@ -169,9 +169,9 @@
 
 <form id="add-to-cart-form" action="{{ url_for('add_to_cart') }}" method="POST">
     <input type="hidden" name="id_menu" value="{{ menu.menu_id }}">
-    <div class="content-box shadow px-4 py-4 text-center mx-auto menu-detail-card mb-5">
-        <div class="row align-items-center">
-
+    <div class="content-box shadow p-3 p-lg-4 text-center mx-3 mx-lg-5 mx-xl-auto menu-detail-card mb-5">
+        <div class="row align-items-center gy-4">
+g
             <div class="col-md-4">
                 <div class="d-flex flex-column align-items-center justify-content-center position-relative">
 
@@ -192,9 +192,11 @@
             </div>
 
             <div class="col-md-4">
-                <div class="d-flex flex-column align-items-center justify-content-center position-relative">
+                <!-- Suppression de position-relative ici -->
+                <div class="d-flex flex-column align-items-center justify-content-center">
 
-                    <div class="d-flex align-items-center justify-content-center gap-3 selector-label-container">
+                    <!-- Ajout de flex-wrap pour éviter que le label et le bouton ne s'écrasent sur les très petits écrans -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 selector-label-container">
                         <label class="fw-bold text-brand-brown mb-0">Nombre de convives :</label>
 
                         <div class="custom-quantity-selector d-flex align-items-center justify-content-between shadow-sm"
@@ -212,7 +214,8 @@
                         </div>
                     </div>
 
-                    <small class="help-text-convives position-absolute">
+                    <!-- Suppression de position-absolute et ajout de mt-2 pour aérer vers le haut -->
+                    <small class="help-text-convives mt-2 text-muted">
                         Minimum {{ menu.nombre_personne_min }} personnes
                     </small>
                 </div>

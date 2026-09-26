@@ -8,6 +8,8 @@ services:
     # charge automatiquement le fichier .env
     env_file:
       - .env
+    volumes:
+      - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -24,6 +26,7 @@ services:
       - MYSQL_DATABASE=vite_et_gourmand
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       timeout: 20s

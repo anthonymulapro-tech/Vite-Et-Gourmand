@@ -1,3 +1,8 @@
+/* Règle universelle pour empêcher le débordement des boîtes */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* Variables et configuration de base */
 :root {
     /* Palette de couleurs */
@@ -356,16 +361,17 @@ input:-webkit-autofill:active {
     }
 }
 
+/* MODIFICATION 1 : Navigation empilée sur mobile */
 @media (max-width: 768px) {
     .nav-unified-container {
-        gap: 15px;
-        flex-wrap: wrap; /* Permet un retour à la ligne propre sur mobile */
+        flex-direction: column !important; /* Force l'alignement vertical */
+        gap: 20px !important;
+        padding: 10px 0;
     }
     .nav-divider {
-        display: none; /* On cache temporairement les barres verticales sur mobile pour éviter les bugs visuels */
+        display: none; /* On cache temporairement les barres verticales */
     }
 }
-
 
 .content-box {
     background-color: var(--brand-gold);
@@ -374,6 +380,28 @@ input:-webkit-autofill:active {
     padding: 40px;
     margin-left: 120px;
     margin-right: 120px;
+}
+
+/* MODIFICATION 2 : Correction de l'écrasement sur mobile et tablette */
+@media (max-width: 992px) {
+    /* Maintient le cadre visible avec un peu de marge autour */
+    .custom-layout-container {
+        width: 95%;
+        overflow-x: hidden; /* Bloque le scroll horizontal indésirable */
+    }
+
+    /* Supprime les énormes marges intérieures qui écrasent le contenu */
+    .content-box {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Empêche le titre principal de déborder de l'écran */
+    .main-title {
+        font-size: clamp(2.5rem, 8vw, 40px);
+    }
 }
 
 /* ==========================================================================
@@ -416,6 +444,10 @@ input:-webkit-autofill:active {
     border: 2px solid var(--text-dark);
     transition: background-color 0.2s ease, transform 0.2s ease;
     text-decoration: none;
+    margin-left: 15px;
+    margin-top: 15px;
+    position: relative;
+    z-index: 10;
 }
 
 .btn-back-circle:hover {

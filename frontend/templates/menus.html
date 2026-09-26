@@ -7,25 +7,33 @@
 <div class="py-5">
 
     <div class="text-center mb-4">
-        <div class="position-relative d-inline-block">
-            <a href="{{ url_for('home') }}" class="btn-back-circle position-absolute top-50 translate-middle-y" style="left: -100px;" title="Retour à l'accueil">
+        <!-- d-inline-flex garde tout le bloc au centre, align-items-center aligne parfaitement les hauteurs -->
+        <div class="d-inline-flex align-items-center">
+
+            <!-- 1. La flèche à gauche -->
+            <a href="{{ url_for('home') }}" class="btn-back-circle flex-shrink-0" title="Retour à l'accueil">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
                 </svg>
             </a>
-            <h1 class="menu-main-title font-pacifico m-0">Nos menus</h1>
+
+            <!-- 2. Le titre, encadré par des marges symétriques (mx-3 ou mx-4) -->
+            <h1 class="menu-main-title font-pacifico m-0 mx-3 mx-md-4">Nos menus</h1>
+
+            <div style="width: 45px;"></div>
+
         </div>
     </div>
 
-    <div class="row justify-content-center mb-5">
-        <div class="col-md-6 col-lg-5">
+    <div class="row justify-content-center mb-5 px-4 px-md-0">
+        <div class="col-12 col-md-6 col-lg-5">
             <div class="search-wrapper">
                 <input type="text" class="form-control custom-search-input" placeholder="Rechercher un menu...">
             </div>
         </div>
     </div>
 
-    <div class="filter-section vg-box vg-box-padded vg-layout-margins mb-5">
+    <div class="filter-section vg-box p-3 p-lg-5 mx-3 mx-lg-5 mb-5">
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="filter-label d-flex justify-content-between mb-2">

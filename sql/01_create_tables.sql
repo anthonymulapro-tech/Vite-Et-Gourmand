@@ -2,6 +2,8 @@
 
 CREATE DATABASE IF NOT EXISTS vite_et_gourmand;
 USE vite_et_gourmand;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 
 -- Désactivation des contraintes pour pouvoir supprimer les tables sans erreur
 

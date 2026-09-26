@@ -14,14 +14,14 @@ L'application est déployée dans le Cloud et 100 % fonctionnelle. Vous pouvez t
 
 ## Design Desktop & Mobile
 
-<img src="docs/img/desktop_page_menus_preview.png" width="800" alt="Maquette Desktop Menu">
+<img src="https://raw.githubusercontent.com/anthonymulapro-tech/Vite-Et-Gourmand/main/docs/img/desktop_page_menus_preview.png" width="800" alt="Maquette Desktop Menu">
 <br>
-<img src="docs/img/mobile_page_accueil_preview.png" width="300" alt="Maquette Mobile Accueil">
+<img src="https://raw.githubusercontent.com/anthonymulapro-tech/Vite-Et-Gourmand/main/docs/img/mobile_page_accueil_preview.png" width="300" alt="Maquette Mobile Accueil">
 
 ## Documentation Technique
 ### Conception de la Base de Données (MCD)
 
-<img src="docs/img/mcd_preview.png" width="700" alt="Modèle Conceptuel de Données">
+<img src="https://raw.githubusercontent.com/anthonymulapro-tech/Vite-Et-Gourmand/main/docs/img/mcd_preview.png" width="700" alt="Modèle Conceptuel de Données">
 
 - **UML & MCD** : `/docs/conception_technique/`
 - **Design & Wireframes** : `/docs/design_maquettes/` et `/docs/wireframes/`

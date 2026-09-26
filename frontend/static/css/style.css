@@ -1739,3 +1739,37 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .custom-close-vg:hover {
     color:var(--brand-peach);
 }
+
+/* --- TRANSPOSITION FLEXBOX (MANAGE_MENUS / ADMIN) --- */
+.flex-table-header {
+    border-bottom: 2px solid var(--brand-brown) !important;
+    color: var(--brand-brown) !important;
+}
+.flex-table-row {
+    background-color: var(--bg-cream) !important;
+    color: var(--brand-brown) !important;
+    border-bottom: 1px solid var(--brand-brown) !important;
+}
+.flex-table-row:last-child {
+    border-bottom: none !important;
+}
+.flex-table-row .custom-input {
+    background-color: var(--brand-gold) !important;
+    color: var(--brand-brown) !important;
+    border: 2px solid var(--brand-brown) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+.flex-table-row .custom-input:focus {
+    background-color: var(--brand-gold) !important;
+    border-color: var(--brand-brown) !important;
+    box-shadow: 0 0 0 0.2rem var(--brand-peach) !important;
+}
+.flex-table-row .custom-input::-webkit-outer-spin-button,
+.flex-table-row .custom-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.flex-table-row .custom-input[type=number] {
+    -moz-appearance: textfield;
+}

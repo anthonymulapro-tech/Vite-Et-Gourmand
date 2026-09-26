@@ -68,17 +68,20 @@
                             </div>
 
                             <!-- 3. Prix Unitaire -->
-                            <div class="col-6 col-md-2 text-end text-md-center mb-2 mb-md-0">
-                                <span class="d-md-none text-muted small me-1">Unité :</span>{{ item.price }} €
-                            </div>
-
-                            <!-- 4. Total de la ligne -->
-                            <div class="col-12 col-md-3 text-end mt-2 mt-md-0">
-                                <div class="p-2 rounded d-inline-block" style="background-color: rgba(255,255,255,0.5);">
-                                    <span class="d-md-none fw-bold me-2 text-brand-brown">Total :</span>
-                                    <strong class="fs-5 text-brand-brown" id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> <span class="fw-bold text-brand-brown">€</span>
+                                <div class="col-6 col-md-2 text-end text-md-center mb-2 mb-md-0">
+                                    <span class="d-md-none text-muted small me-1">Unité :</span>
+                                    <div class="p-2 rounded d-inline-block fw-semibold shadow-sm" style="background-color: var(--bg-cream); border: 1px solid var(--brand-brown); color: var(--brand-brown);">
+                                        {{ item.price }} €
+                                    </div>
                                 </div>
-                            </div>
+
+                                <!-- 4. Total de la ligne -->
+                                <div class="col-12 col-md-3 text-end mt-2 mt-md-0">
+                                    <div class="p-2 rounded d-inline-block shadow-sm" style="background-color: var(--bg-cream); border: 1px solid var(--brand-brown);">
+                                        <span class="d-md-none fw-bold me-2 text-brand-brown">Total :</span>
+                                        <strong class="fs-5 text-brand-brown" id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> <span class="fw-bold text-brand-brown">€</span>
+                                    </div>
+                                </div>
 
                         </div>
                         {% endfor %}

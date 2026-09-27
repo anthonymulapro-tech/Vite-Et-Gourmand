@@ -32,6 +32,7 @@ app = Flask(
     template_folder="frontend/templates",  # Pointe vers les fichiers HTML
     static_folder="frontend/static"  # Pointe vers les fichiers CSS/JS
 )
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Sécurisation des cookies et clé secrète
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -1466,4 +1467,4 @@ def gtc():
 # RUN
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=os.environ.get('FLASK_DEBUG') == '1')

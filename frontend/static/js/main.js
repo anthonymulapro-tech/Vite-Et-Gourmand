@@ -1401,48 +1401,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     const emptyRow = document.getElementById('empty-table-row');
                     if (emptyRow) emptyRow.remove();
 
-                    // D. Insertion dynamique de la nouvelle ligne équipée des classes CSS de marque
-                    const tbody = document.getElementById('employees-table-body');
-                    if (tbody) {
-                        const emp = data.employe;
-                        const newRow = document.createElement('tr');
-                        newRow.className = "border-bottom border-light animate-fade-in";
-                        newRow.id = `row-employe-${emp.utilisateur_id}`;
+                    // D. Insertion dynamique avec la balise <template>
+                const tbody = document.getElementById('employees-table-body');
+                const template = document.getElementById('employee-row-template');
 
-                        newRow.innerHTML = `
-                            <td class="fw-bold text-brand-brown">
-                                ${emp.prenom} ${emp.nom}
-                            </td>
-                            <td>
-                                <a href="mailto:${emp.email}" class="text-decoration-none text-muted small">
-                                    ${emp.email}
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <button type="button" class="btn btn-sm rounded-pill px-3 py-2 fw-bold btn-async-toggle-staff w-100 btn-status-active" 
-                                            id="status-btn-${emp.utilisateur_id}"
-                                            data-employe-id="${emp.utilisateur_id}" 
-                                            data-est-actif="0">
-                                        <i class="bi bi-check-circle-fill me-1"></i> Actif
-                                    </button>
+                if (tbody && template) {
+                    const emp = data.employe;
 
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-trigger-delete" 
-                                            data-employe-id="${emp.utilisateur_id}"
-                                            data-employe-nom="${emp.prenom} ${emp.nom}"
-                                            title="Supprimer définitivement"
-                                            style="width: 38px; height: 38px; flex-shrink: 0;">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        `;
+                    // 1. On récupère le code HTML du moule en texte
+                    let templateHTML = template.innerHTML;
 
-                        tbody.appendChild(newRow);
+                    // 2. On remplace les variables par les données de l'employé
+                    templateHTML = templateHTML.replace(/{id}/g, emp.utilisateur_id)
+                                               .replace(/{prenom}/g, emp.prenom)
+                                               .replace(/{nom}/g, emp.nom.toUpperCase())
+                                               .replace(/{email}/g, emp.email);
 
-                        // E. Liaison des événements AJAX (Toggle & Delete) sur la nouvelle ligne créée
-                        bindEventsToNewRow(newRow);
-                    }
+                    // 3. On convertit le texte en un vrai élément HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = templateHTML;
+                    const newRow = tempDiv.firstElementChild;
+
+                    // 4. On l'ajoute à la liste
+                    tbody.appendChild(newRow);
+
+                    // E. Liaison des événements AJAX (Toggle & Delete)
+                    bindEventsToNewRow(newRow);
+                }
 
                 } else {
                     if (typeof showToast === "function") showToast(data.message, "error");

@@ -1,4 +1,6 @@
 USE vite_et_gourmand;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 
 -- 1. NETTOYAGE COMPLET (Ordre Enfant -> Parent)
 

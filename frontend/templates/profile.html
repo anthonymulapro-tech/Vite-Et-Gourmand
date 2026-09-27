@@ -5,76 +5,89 @@
 {% block title %}Mon Profil{% endblock %}
 
 {% block content %}
-<div class="py-5">
-    <section class="vg-box vg-box-padded vg-layout-margins mb-4">
+<div class="container py-5">
 
-        <div class="text-center mb-4">
-            <div class="position-relative d-inline-block">
-                <h2 class="box-title font-pacifico mb-0">Mon Profil</h2>
-                <span id="pop-profile-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap position-absolute top-50 start-100 translate-middle-y ms-4" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
-                    <i class="bi bi-check-circle-fill me-1 text-success"></i> Profil mis à jour !
-                </span>
-            </div>
-            <p class="box-text px-md-4 mt-2">
-                Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
-            </p>
+    <!-- Ajout de cette ligne pour forcer les marges latérales élégantes sur tous les écrans -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-11 col-lg-10 col-xl-9">
+
+            <section class="vg-box vg-box-padded vg-layout-margins mb-4">
+
+                <div class="text-center mb-4">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-center position-relative">
+                        <h2 class="box-title font-pacifico mb-0">Mon Profil</h2>
+                        <span id="pop-profile-msg" class="d-none badge rounded-pill px-3 py-2 shadow-sm text-nowrap ms-md-4 mt-2 mt-md-0" style="background-color: var(--brand-peach); color: var(--brand-brown); border: 2px solid var(--brand-brown); font-size: 1rem; z-index: 10;">
+                            <i class="bi bi-check-circle-fill me-1 text-success"></i> Profil mis à jour !
+                        </span>
+                    </div>
+                    <p class="box-text px-md-4 mt-2">
+                        Consultez et modifiez vos informations personnelles ainsi que votre adresse de livraison par défaut.
+                    </p>
+                </div>
+
+                <form id="async-profile-form" class="needs-validation px-md-4 mt-4" novalidate>
+
+                    <div class="row g-5">
+
+                        <!-- Passage de col-md-6 à col-lg-6 pour empiler sur tablette et laisser respirer les champs -->
+                        <div class="col-12 col-lg-6">
+                            <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Informations Personnelles</h4>
+
+                            <div class="mb-3">
+                                <label for="prenom" class="form-label">Prénom</label>
+                                <input type="text" class="form-control custom-input" id="prenom" name="prenom" value="{{ user.prenom }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="nom" class="form-label">Nom</label>
+                                <input type="text" class="form-control custom-input" id="nom" name="nom" value="{{ user.nom }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adresse Email <small class="text-muted">(Non modifiable)</small></label>
+                                <input type="email" class="form-control custom-input" id="email" value="{{ user.email }}" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control custom-input" id="telephone" name="telephone" value="{{ user.telephone or '' }}" placeholder="06XXXXXXXX">
+                            </div>
+                        </div>
+
+                        <!-- Passage de col-md-6 à col-lg-6 ici aussi -->
+                        <div class="col-12 col-lg-6">
+                            <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Coordonnées de Livraison</h4>
+
+                            <div class="mb-3">
+                                <label for="adresse" class="form-label">Adresse complète</label>
+                                <input type="text" class="form-control custom-input" id="adresse" name="adresse" value="{{ user.adresse or '' }}">
+                            </div>
+
+                            <!-- Ajout de align-items-end pour aligner les champs par le bas -->
+                            <div class="row g-3 mb-3 align-items-end">
+                                <!-- Ajustement des proportions pour mobile (7 et 5) et tablette/PC (8 et 4) -->
+                                <div class="col-7 col-sm-8">
+                                    <label for="ville" class="form-label">Ville</label>
+                                    <input type="text" class="form-control custom-input" id="ville" name="ville" value="{{ user.ville or '' }}">
+                                </div>
+                                <div class="col-5 col-sm-4">
+                                    <label for="code_postal" class="form-label">Code Postal</label>
+                                    <input type="text" class="form-control custom-input" id="code_postal" name="code_postal" value="{{ user.code_postal or '' }}" maxlength="5">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="pays" class="form-label">Pays</label>
+                                <input type="text" class="form-control custom-input" id="pays" name="pays" value="{{ user.pays or 'France' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-5 justify-content-center">
+                        <button type="submit" class="btn btn-vg fs-5 px-4 py-2 rounded-pill w-100 w-md-auto">Enregistrer les modifications</button>
+                    </div>
+
+                </form>
+            </section>
+
         </div>
-
-        <form id="async-profile-form" class="needs-validation px-md-4 mt-4" novalidate>
-
-            <div class="row g-5">
-                <div class="col-md-6">
-                    <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Informations Personnelles</h4>
-
-                    <div class="mb-3">
-                        <label for="prenom" class="form-label">Prénom</label>
-                        <input type="text" class="form-control custom-input" id="prenom" name="prenom" value="{{ user.prenom }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control custom-input" id="nom" name="nom" value="{{ user.nom }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Adresse Email <small class="text-muted">(Non modifiable)</small></label>
-                        <input type="email" class="form-control custom-input" id="email" value="{{ user.email }}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="telephone" class="form-label">Téléphone</label>
-                        <input type="tel" class="form-control custom-input" id="telephone" name="telephone" value="{{ user.telephone or '' }}" placeholder="06XXXXXXXX">
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <h4 class="font-pacifico text-brand-brown mb-4" style="font-size: 1.8rem;">Coordonnées de Livraison</h4>
-
-                    <div class="mb-3">
-                        <label for="adresse" class="form-label">Adresse complète</label>
-                        <input type="text" class="form-control custom-input" id="adresse" name="adresse" value="{{ user.adresse or '' }}">
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-8">
-                            <label for="ville" class="form-label">Ville</label>
-                            <input type="text" class="form-control custom-input" id="ville" name="ville" value="{{ user.ville or '' }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="code_postal" class="form-label">Code Postal</label>
-                            <input type="text" class="form-control custom-input" id="code_postal" name="code_postal" value="{{ user.code_postal or '' }}" maxlength="5">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="pays" class="form-label">Pays</label>
-                        <input type="text" class="form-control custom-input" id="pays" name="pays" value="{{ user.pays or 'France' }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex gap-3 mt-5 justify-content-center">
-                <button type="submit" class="btn btn-vg fs-5 px-5 py-2 rounded-pill">Enregistrer les modifications</button>
-            </div>
-
-        </form>
-    </section>
+    </div>
 </div>
 {% endblock %}

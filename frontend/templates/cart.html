@@ -31,46 +31,61 @@
         <div class="row">
             <div class="col-lg-8">
 
-                <div class="table-responsive shadow-sm p-3 mb-4 vg-box rounded">
-                    <table class="table align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Menu</th>
-                                <th>Convives</th>
-                                <th>Prix Unitaire</th>
-                                <th>Total Ligne</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cart-tbody">
-                            {% for item in cart_items %}
-                            <tr id="row-{{ item.id_menu }}">
-                                <td>
-                                    <strong>{{ item.name }}</strong><br>
-                                    <button type="button" class="btn btn-sm p-0 mt-1 btn-remove-item btn-trash-custom" data-id="{{ item.id_menu }}">
-                                        <i class="bi bi-trash"></i> Supprimer
+                <div class="shadow-sm mb-4 vg-box rounded p-3 p-md-4">
+
+                    <!-- En-tête (Visible uniquement sur PC/Tablette) -->
+                    <div class="row fw-bold pb-2 mb-3 d-none d-md-flex" style="color: var(--brand-brown); border-bottom: 2px solid var(--brand-brown);">
+                        <div class="col-md-4">Menu</div>
+                        <div class="col-md-3 text-center">Convives</div>
+                        <div class="col-md-2 text-center">Prix Unitaire</div>
+                        <div class="col-md-3 text-end">Total Ligne</div>
+                    </div>
+
+                    <!-- Corps du panier -->
+                    <div id="cart-tbody">
+                        {% for item in cart_items %}
+                        <div class="row align-items-center py-3" id="row-{{ item.id_menu }}" style="border-bottom: 2px solid var(--brand-brown);">
+
+                            <!-- 1. Menu & Bouton Supprimer -->
+                            <div class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-between align-items-center d-md-block">
+                                <strong class="fs-5 text-brand-brown">{{ item.name }}</strong>
+                                <button type="button" class="btn btn-sm p-0 mt-md-1 btn-remove-item btn-trash-custom text-danger fw-medium" data-id="{{ item.id_menu }}">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </button>
+                            </div>
+
+                            <!-- 2. Contrôle des convives -->
+                            <div class="col-6 col-md-3 d-flex justify-content-md-center align-items-center mb-2 mb-md-0">
+                                <div class="input-group input-group-sm cart-qty-group" style="width: 110px;">
+                                    <button class="btn btn-cart-qty btn-qty" type="button" data-action="minus" data-id="{{ item.id_menu }}">
+                                        <i class="bi bi-dash"></i>
                                     </button>
-                                </td>
-                                <td>
-                                    <div class="input-group input-group-sm cart-qty-group" style="width: 110px;">
-                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="minus" data-id="{{ item.id_menu }}">
-                                            <i class="bi bi-dash"></i>
-                                        </button>
+                                    <input type="text" class="form-control text-center fw-bold text-brand-brown" id="qty-{{ item.id_menu }}" value="{{ item.quantity }}" readonly>
+                                    <button class="btn btn-cart-qty btn-qty" type="button" data-action="plus" data-id="{{ item.id_menu }}">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                                        <input type="text" class="form-control text-center fw-bold text-brand-brown" id="qty-{{ item.id_menu }}" value="{{ item.quantity }}" readonly>
-
-                                        <button class="btn btn-cart-qty btn-qty" type="button" data-action="plus" data-id="{{ item.id_menu }}">
-                                            <i class="bi bi-plus"></i>
-                                        </button>
+                            <!-- 3. Prix Unitaire -->
+                                <div class="col-6 col-md-2 text-end text-md-center mb-2 mb-md-0">
+                                    <span class="d-md-none text-muted small me-1">Unité :</span>
+                                    <div class="p-2 rounded d-inline-block fw-semibold shadow-sm" style="background-color: var(--bg-cream); border: 1px solid var(--brand-brown); color: var(--brand-brown);">
+                                        {{ item.price }} €
                                     </div>
-                                </td>
-                                <td>{{ item.price }} €</td>
-                                <td>
-                                    <strong id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> €
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                </div>
+
+                                <!-- 4. Total de la ligne -->
+                                <div class="col-12 col-md-3 text-end mt-2 mt-md-0">
+                                    <div class="p-2 rounded d-inline-block shadow-sm" style="background-color: var(--bg-cream); border: 1px solid var(--brand-brown);">
+                                        <span class="d-md-none fw-bold me-2 text-brand-brown">Total :</span>
+                                        <strong class="fs-5 text-brand-brown" id="line-total-{{ item.id_menu }}">{{ "{:.2f}".format(item.total_price) }}</strong> <span class="fw-bold text-brand-brown">€</span>
+                                    </div>
+                                </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
 
                <div class="d-flex justify-content-end mb-4 mt-2">

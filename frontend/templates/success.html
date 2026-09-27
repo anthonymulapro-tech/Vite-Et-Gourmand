@@ -5,10 +5,13 @@
 {% block body_class %}bg-gold{% endblock %}
 
 {% block content %}
-<div class="container d-flex align-items-center justify-content-center text-center" style="min-height: 65vh;">
+<!-- Ajout de py-5 pour garantir une marge de sécurité en haut et en bas sur mobile -->
+<div class="container d-flex align-items-center justify-content-center text-center py-5" style="min-height: 65vh;">
     <div class="row justify-content-center w-100">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg rounded-4 p-5" style="border: 3px solid var(--brand-brown); background-color: var(--brand-gold);">
+
+            <!-- Remplacement de p-5 par p-4 p-md-5 pour optimiser l'espace sur les petits écrans -->
+            <div class="card shadow-lg rounded-4 p-4 p-md-5" style="border: 3px solid var(--brand-brown); background-color: var(--brand-gold);">
 
                 <div class="mb-4">
                     <i class="bi bi-check-circle-fill" style="color: var(--brand-brown); font-size: 5rem;"></i>
@@ -22,11 +25,12 @@
                     Votre paiement a été accepté et votre commande est en cours de préparation par notre équipe.
                 </p>
 
-                <div class="p-4 rounded-4 mb-5 shadow-sm" style="background-color: var(--bg-cream); border: 2px dashed var(--brand-brown);">
+                <div class="p-3 p-md-4 rounded-4 mb-5 shadow-sm" style="background-color: var(--bg-cream); border: 2px dashed var(--brand-brown);">
                     <span class="d-block text-uppercase fw-bold mb-2" style="color: var(--brand-brown); letter-spacing: 1px; font-size: 0.85rem;">
                         Référence de votre commande
                     </span>
-                    <span class="fs-4 fw-bold font-monospace" style="color: var(--brand-brown);">
+                    <!-- Ajout d'un text-break au cas où la référence serait générée en un bloc très long -->
+                    <span class="fs-4 fw-bold font-monospace text-break" style="color: var(--brand-brown);">
                         {{ reference }}
                     </span>
                 </div>
@@ -35,7 +39,7 @@
                     Voir mes commandes
                 </a>
 
-                </div>
+            </div>
         </div>
     </div>
 </div>

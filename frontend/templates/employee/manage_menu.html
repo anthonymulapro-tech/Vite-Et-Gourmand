@@ -26,76 +26,93 @@
     </div>
 
     <div class="card vg-box p-4 shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table align-middle table-borderless m-0">
-                <thead class="table-light border-bottom">
-                    <tr class="text-brand-brown fw-bold">
-                        <th scope="col" style="width: 8%;">ID</th>
-                        <th scope="col" style="width: 32%;">Nom du Menu</th>
-                        <th scope="col" style="width: 20%;">Statut Stock</th>
-                        <th scope="col" style="width: 18%;">Prix par pers. (€)</th>
-                        <th scope="col" style="width: 12%;">Quantité</th>
-                        <th scope="col" style="width: 10%;" class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if menus %}
-                        {% for menu in menus %}
-                        <tr class="border-bottom border-light">
-                            <td class="fw-bold text-muted">#{{ menu.menu_id }}</td>
-                            
-                            <td>
-                                <span class="fw-bold text-brand-brown fs-6">{{ menu.titre_menu }}</span>
-                            </td>
-                            
-                            <td id="stock-badge-container-{{ menu.menu_id }}">
-                                {% if menu.quantite_restante is none %}
-                                    <span class="badge bg-secondary rounded-pill">Illimité</span>
-                                {% elif menu.quantite_restante <= 0 %}
-                                    <span class="badge rounded-pill" style="background-color: #dc3545 !important; color: var(--bg-cream) !important;">
-                                        <i class="bi bi-exclamation-triangle me-1"></i> Rupture
-                                    </span>
-                                {% elif menu.quantite_restante <= 5 %}
-                                    <span class="badge rounded-pill" style="background-color: #ffc107 !important; color: var(--bg-cream)  !important;">
-                                        <i class="bi bi-dash-circle me-1"></i> Stock Faible
-                                    </span>
-                                {% else %}
-                                    <span class="badge rounded-pill" style="background-color: #198754 !important; color: var(--bg-cream)  !important;">
-                                        <i class="bi bi-check-circle me-1"></i> Disponible
-                                    </span>
-                                {% endif %}
-                            </td>
+       <div class="table-responsive border-0 overflow-hidden">
 
-                            <td>
-                                <div class="input-group input-group-sm" style="max-width: 120px;">
-                                    <input type="number" step="0.01" min="0" id="prix_menu_{{ menu.menu_id }}" class="form-control custom-input text-center fw-semibold text-brand-brown" value="{{ menu.prix_par_personne }}" required>
-                                </div>
-                            </td>
+            <!-- EN-TÊTE DU TABLEAU (Passage de lg à xl : 1200px) -->
+            <div class="row fw-bold pb-2 pt-2 m-0 d-none d-xl-flex align-items-center flex-table-header">
+                <div class="col-xl-1">ID</div>
+                <div class="col-xl-3">Nom du Menu</div>
+                <div class="col-xl-3">Statut Stock</div>
+                <div class="col-xl-2 text-center">Prix par pers. (€)</div>
+                <div class="col-xl-2 text-center">Quantité</div>
+                <div class="col-xl-1 text-center">Action</div>
+            </div>
 
-                            <td>
-                                <div class="input-group input-group-sm" style="max-width: 100px;">
-                                    <input type="number" min="0" id="qty_menu_{{ menu.menu_id }}" class="form-control custom-input text-center fw-semibold text-brand-brown" value="{{ menu.quantite_restante or 0 }}" required>
-                                </div>
-                            </td>
+            <!-- CORPS DU TABLEAU -->
+            <div>
+                {% if menus %}
+                    {% for menu in menus %}
+                    <!-- Ligne dynamique -->
+                    <div class="row align-items-center py-3 m-0 flex-table-row" {% if loop.last %}style="border-bottom: none !important;"{% endif %}>
 
-                            <td class="text-center">
-                                <button type="button" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold btn-async-save-menu" data-menu-id="{{ menu.menu_id }}" title="Sauvegarder les modifications">
-                                    <i class="bi bi-floppy"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-brand-brown opacity-75">
-                                Aucun menu trouvé dans le catalogue.
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                        <!-- 1. ID -->
+                        <div class="col-12 col-xl-1 mb-2 mb-xl-0 d-none d-xl-block">
+                            <span class="fw-bold text-muted">#{{ menu.menu_id }}</span>
+                        </div>
+
+                        <!-- 2. Nom du Menu -->
+                        <div class="col-12 col-xl-3 mb-3 mb-xl-0">
+                            <span class="d-xl-none fw-bold text-muted me-2">#{{ menu.menu_id }}</span>
+                            <span class="fw-bold text-brand-brown fs-6">{{ menu.titre_menu }}</span>
+                        </div>
+
+                        <!-- 3. Statut Stock -->
+                        <div class="col-12 col-xl-3 mb-3 mb-xl-0" id="stock-badge-container-{{ menu.menu_id }}">
+                            <span class="d-xl-none text-brand-brown small me-2 fw-bold">Statut :</span>
+                            {% if menu.quantite_restante is none %}
+                                <span class="badge bg-secondary rounded-pill">Illimité</span>
+                            {% elif menu.quantite_restante <= 0 %}
+                                <span class="badge rounded-pill" style="background-color: #dc3545 !important; color: #fff !important;">
+                                    <i class="bi bi-exclamation-triangle me-1"></i> Rupture
+                                </span>
+                            {% elif menu.quantite_restante <= 5 %}
+                                <span class="badge rounded-pill" style="background-color: #ffc107 !important; color: #fff !important;">
+                                    <i class="bi bi-dash-circle me-1"></i> Stock Faible
+                                </span>
+                            {% else %}
+                                <span class="badge rounded-pill" style="background-color: #198754 !important; color: #fff !important;">
+                                    <i class="bi bi-check-circle me-1"></i> Disponible
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- 4. Prix -->
+                        <div class="col-12 col-sm-6 col-xl-2 mb-2 mb-xl-0 d-flex justify-content-start justify-content-xl-center align-items-center">
+                            <span class="d-xl-none text-brand-brown small me-2 fw-bold text-nowrap">Prix :</span>
+                            <div class="input-group input-group-sm" style="max-width: 110px;">
+                                <input type="number" step="0.01" min="0" id="prix_menu_{{ menu.menu_id }}"
+                                       class="form-control custom-input text-center fw-semibold"
+                                       value="{{ menu.prix_par_personne }}" required>
+                            </div>
+                        </div>
+
+                        <!-- 5. Quantité -->
+                        <div class="col-12 col-sm-6 col-xl-2 mb-2 mb-xl-0 d-flex justify-content-start justify-content-xl-center align-items-center">
+                            <span class="d-xl-none text-brand-brown small me-2 fw-bold text-nowrap">Qté :</span>
+                            <div class="input-group input-group-sm" style="max-width: 90px;">
+                                <input type="number" min="0" id="qty_menu_{{ menu.menu_id }}"
+                                       class="form-control custom-input text-center fw-semibold"
+                                       value="{{ menu.quantite_restante or 0 }}" required>
+                            </div>
+                        </div>
+
+                        <!-- 6. Action -->
+                        <div class="col-12 col-xl-1 mt-3 mt-xl-0 text-end text-xl-center">
+                            <button type="button" class="btn btn-vg btn-sm rounded-pill px-3 fw-bold btn-async-save-menu" data-menu-id="{{ menu.menu_id }}" title="Sauvegarder les modifications">
+                                <i class="bi bi-floppy fs-6"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-brand-brown opacity-75 fw-bold flex-table-row">
+                        Aucun menu trouvé dans le catalogue.
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
+</div>
 
 </div>
 {% endblock %}
